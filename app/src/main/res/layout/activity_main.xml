@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:fillViewport="true"
+    tools:context=".ui.AuthenticationActivity"
     android:id="@+id/main"
     android:background="#FFFFFF">
 
@@ -107,6 +109,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/emailInput"
+                android:textColor="@color/black"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter your email"
@@ -140,6 +143,7 @@
                 android:id="@+id/passwordInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/black"
                 android:hint="Enter your password"
                 android:inputType="textPassword"
                 android:padding="16dp"/>
