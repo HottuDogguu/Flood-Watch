@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/priorityBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Info"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:background="#4CAF50"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:layout_marginEnd="12dp"/>
+
+            <TextView
+                android:id="@+id/announcementDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Oct 08, 2025"
+                android:textSize="12sp"
+                android:textColor="#757575"
+                android:gravity="end"
+                android:layout_gravity="center_vertical"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/announcementTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Announcement Title"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#212121"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/announcementMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Announcement message goes here..."
+            android:textSize="14sp"
+            android:textColor="#424242"
+            android:lineSpacingExtra="4dp"/>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,47 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Gradle files
+.gradle/
+build/
+*/build/
+
+# IntelliJ / Android Studio
+.idea/
+
+# Log files
+*.log
+
+# Android specific
+captures/
+output.json
+
+# Keystore files
+*.jks
+*.keystore
+
+# Google Services
+google-services.json
+
+# macOS / Windows junk
+Thumbs.db
+
+# Node / React Native (if hybrid)
+node_modules/
+
+# Backup files
+*.bak
+*.tmp
