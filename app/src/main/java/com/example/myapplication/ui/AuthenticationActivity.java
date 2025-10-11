@@ -1,6 +1,7 @@
 package com.example.myapplication.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,10 +12,14 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
-import com.example.myapplication.data.models.auth.AuthCallback;
+import com.example.myapplication.data.network.APIBuilder;
+import com.example.myapplication.data.network.calbacks.auth.AuthCallback;
 import com.example.myapplication.data.models.auth.LoginRequestPost;
 import com.example.myapplication.data.models.auth.LoginResponse;
-import com.example.myapplication.data.respository.AuthenticationAPI;
+import com.example.myapplication.data.respository.auth.AuthenticationAPI;
+import com.example.myapplication.security.DataStoreManager;
+
+import kotlin.Unit;
 
 public class AuthenticationActivity extends AppCompatActivity {
     private EditText email;
@@ -30,6 +35,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         context = this;
+        APIBuilder api = new APIBuilder();
 
 
         email = (EditText) findViewById(R.id.emailInput);
@@ -37,23 +43,43 @@ public class AuthenticationActivity extends AppCompatActivity {
         loginBtn = (Button) findViewById(R.id.loginButton);
 
 
-        loginBtn.setOnClickListener(v ->{
+        loginBtn.setOnClickListener(v -> {
             AuthenticationAPI auth = new AuthenticationAPI();
-            Toast.makeText(context, "Hey", Toast.LENGTH_SHORT).show();
+            DataStoreManager dataStoreManager = new DataStoreManager(this);
 
+            //call the get response function which is the request from api
             auth.getResponse(new LoginRequestPost(email.getText().toString(), password.getText().toString()),
                     new AuthCallback() {
                         @Override
                         public void onSuccess(LoginResponse response) {
-                            Toast.makeText(context, response.getAccess_token(), Toast.LENGTH_SHORT).show();
+
+                            dataStoreManager.saveDataFromJava("access_token", response.getAccess_token(), () -> {
+                                dataStoreManager.getStringFromJava("access_token", s -> {
+                                    Intent intent = new Intent(AuthenticationActivity.this,DashboardActivity.class);
+                                    //Loading first
+                                    Toast.makeText(context, "Successfully Login", Toast.LENGTH_LONG).show();
+                                    startActivity(intent);
+                                    return null;
+                                });
+                                return null;
+                            });
                         }
+
                         @Override
                         public void onError(Throwable t) {
                             Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                    });
-
+                    }, api);
         });
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        DataStoreManager dataStoreManager = DataStoreManager.Companion.getInstance(getApplicationContext());
+        dataStoreManager.deleteKeyFromJava("access_token", () ->{
+            Toast.makeText(dataStoreManager.getContext(),"Successfully Deleted", Toast.LENGTH_LONG).show();
+            return null;
+        });
     }
 }

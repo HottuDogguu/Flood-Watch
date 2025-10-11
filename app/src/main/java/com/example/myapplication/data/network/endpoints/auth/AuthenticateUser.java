@@ -1,4 +1,4 @@
-package com.example.myapplication.data.remote;
+package com.example.myapplication.data.network.endpoints.auth;
 
 import com.example.myapplication.data.models.auth.LoginResponse;
 
@@ -14,6 +14,7 @@ public interface AuthenticateUser{
     @Headers({
             "Accept: application/json"
     })
+    //This is the endpoint of the manual login
     @POST("api/v1/auth/login")
     Call<LoginResponse> authenticateUser( @Field("username") String username,
                                           @Field("password") String password);
