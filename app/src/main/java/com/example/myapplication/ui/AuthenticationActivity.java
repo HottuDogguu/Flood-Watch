@@ -14,8 +14,9 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
+import com.example.myapplication.data.models.auth.GoogleAuthResponse;
 import com.example.myapplication.data.network.APIBuilder;
-import com.example.myapplication.data.network.calbacks.auth.AuthCallback;
+import com.example.myapplication.calbacks.auth.AuthCallback;
 import com.example.myapplication.data.models.auth.LoginManualRequestPost;
 import com.example.myapplication.data.models.auth.LoginManualResponse;
 import com.example.myapplication.data.respository.auth.AuthenticationAPI;
@@ -49,15 +50,14 @@ public class AuthenticationActivity extends AppCompatActivity {
 
 
         loginBtn.setOnClickListener(v -> {
-            DataStoreManager dataStoreManager = new DataStoreManager(this);
+            DataStoreManager dataStoreManager = new DataStoreManager(context);
 
             //call the get response function which is the request from apiBuilder
             auth.manualLoginResponse(new LoginManualRequestPost(email.getText().toString(), password.getText().toString()),
                     new AuthCallback<LoginManualResponse>() {
                         @Override
                         public void onSuccess(LoginManualResponse response) {
-
-                            dataStoreManager.saveDataFromJava("access_token", response.getAccess_token(), () -> {
+                            dataStoreManager.saveDataFromJava("access_token", response.getToken().getAccess_token(), () -> {
                                 dataStoreManager.getStringFromJava("access_token", s -> {
                                     Intent intent = new Intent(AuthenticationActivity.this, DashboardActivity.class);
                                     //Loading first
@@ -73,11 +73,21 @@ public class AuthenticationActivity extends AppCompatActivity {
                         public void onError(Throwable t) {
                             Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                    }, apiBuilder);
+                    });
         });
 
         googleBtn.setOnClickListener(v -> {
-                auth.googleLoginResponse("442931204719-vcurqg7q42npvonomi9innbmvk2j3bqu.apps.googleusercontent.com");
+           auth.googleLoginResponse("", new AuthCallback<GoogleAuthResponse>() {
+               @Override
+               public void onSuccess(GoogleAuthResponse response) {
+
+               }
+
+               @Override
+               public void onError(Throwable t) {
+
+               }
+           });
         });
     }
 

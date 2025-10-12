@@ -1,4 +1,4 @@
-package com.example.myapplication.data.network.calbacks.auth;
+package com.example.myapplication.calbacks.auth;
 
 import com.example.myapplication.data.models.auth.LoginManualResponse;
 
