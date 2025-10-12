@@ -1,10 +1,10 @@
 package com.example.myapplication.data.models.auth;
 
-public class LoginResponse {
+public class LoginManualResponse {
 
     String access_token, access_type,refresh_access_token;
 
-    public LoginResponse(String access_token, String access_type, String refresh_access_token) {
+    public LoginManualResponse(String access_token, String access_type, String refresh_access_token) {
         this.access_token = access_token;
         this.access_type = access_type;
         this.refresh_access_token = refresh_access_token;

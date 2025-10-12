@@ -1,11 +1,11 @@
 package com.example.myapplication.data.network.calbacks.auth;
 
-import com.example.myapplication.data.models.auth.LoginResponse;
+import com.example.myapplication.data.models.auth.LoginManualResponse;
 
-public interface AuthCallback {
+public interface AuthCallback<T> {
         /**
         This callback to set data based on the response of the API call in Authentication
         */
-        void onSuccess(LoginResponse response);
+        void onSuccess(T response);
         void onError(Throwable t);
 }
