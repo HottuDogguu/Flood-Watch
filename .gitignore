@@ -45,4 +45,3 @@ node_modules/
 # Backup files
 *.bak
 *.tmp
-app/src/main/res/xml/network_security_config.xml

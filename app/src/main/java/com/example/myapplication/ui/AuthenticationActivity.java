@@ -77,7 +77,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         });
 
         googleBtn.setOnClickListener(v -> {
-           auth.googleLoginResponse("", new AuthCallback<GoogleAuthResponse>() {
+           auth.googleLoginResponse("442931204719-vcurqg7q42npvonomi9innbmvk2j3bqu.apps.googleusercontent.com", new AuthCallback<GoogleAuthResponse>() {
                @Override
                public void onSuccess(GoogleAuthResponse response) {
 
