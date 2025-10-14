@@ -44,10 +44,11 @@ class DataStoreManager constructor( val context: Context) {
 
     // ---------------- GET ----------------
     suspend fun getString(key: String): String? {
-        return context.dataStore.data.map {
-            it[stringPreferencesKey(key)]
+        return context.dataStore.data.map { preferences ->
+            preferences[stringPreferencesKey(key)] ?: ""
         }.first()
     }
+
 
     fun getStringFromJava(key: String, callback: (String?) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {

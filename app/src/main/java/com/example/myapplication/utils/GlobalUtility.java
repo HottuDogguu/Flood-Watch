@@ -1,10 +1,9 @@
 package com.example.myapplication.utils;
 
-import com.example.myapplication.calbacks.global.OnComplete;
-import com.example.myapplication.data.models.auth.LoginManualResponse;
 import com.example.myapplication.security.DataStoreManager;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 public class GlobalUtility {
 
@@ -13,25 +12,29 @@ public class GlobalUtility {
     }
 
     /**
-     * @param key The key will pair to the data to be inserted in Data Store.
-     * @param dm The Data Store Class
-     * @param response This will contain the data to be inserted
-     * @param onComplete To check if the data successfully inserted on DataStore
-
+     * @param key  The key will pair to the data to be inserted in Data Store.
+     * @param dm   The Data Store Class
+     * @param value The data to be inserted in data store.
+     * @param onComplete To check wether the process is complete .
      */
-    public void InsertDataToDataStore(String key,
-                                         DataStoreManager dm,
-                                         LoginManualResponse response,
-                                         OnComplete onComplete){
 
-        dm.saveDataFromJava(key, response.getToken().getAccess_token(), () -> {
-            dm.getStringFromJava(key, s -> {
-                boolean isSuccessful = (s != null && !s.isEmpty());
-                onComplete.isSuccessful(isSuccessful);
-                return null;
-            });
+    public void insertDataToDataStore(String key, DataStoreManager dm, String value, Runnable onComplete) {
+        dm.saveDataFromJava(key, value, () -> {
+            onComplete.run();
             return null;
         });
+    }
 
+    public void deleteDataToDataStore(String key, DataStoreManager dm) {
+        dm.deleteKeyFromJava(key, () -> {
+            return null;
+        });
+    }
+
+    public void getDataFromDataStore(String key, DataStoreManager dm, Consumer<String> callback) {
+        dm.getStringFromJava(key, data -> {
+            callback.accept(data);
+            return null;
+        });
     }
 }

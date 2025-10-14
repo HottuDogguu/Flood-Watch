@@ -22,6 +22,7 @@ import androidx.credentials.exceptions.GetCredentialException;
 
 
 import com.example.myapplication.data.models.auth.GoogleAuthResponse;
+import com.example.myapplication.data.models.auth.GoogleTokenRequestPost;
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.calbacks.auth.AuthCallback;
 import com.example.myapplication.data.models.auth.LoginManualRequestPost;
@@ -32,6 +33,10 @@ import com.example.myapplication.data.network.endpoints.auth.ManualAuthenticateU
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.concurrent.Executor;
 
 import retrofit2.Call;
@@ -74,8 +79,7 @@ public class AuthenticationAPI {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private void googleGetToken(String webClientId, AuthCallback<String> callback) {
-
+    private void googleGetToken(String webClientId, AuthCallback<GoogleTokenRequestPost> callback) {
 
         //Setup the google auth
         GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
@@ -94,7 +98,7 @@ public class AuthenticationAPI {
         signIn(getCredentialRequest, callback);
     }
 
-    private void signIn(GetCredentialRequest request, AuthCallback<String> callback) {
+    private void signIn(GetCredentialRequest request, AuthCallback<GoogleTokenRequestPost> callback) {
         CredentialManager credentialManager = CredentialManager.create(activity);
         CancellationSignal cancellationSignal = new CancellationSignal();
         Executor executor = activity.getMainExecutor();
@@ -107,25 +111,17 @@ public class AuthenticationAPI {
                 new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
                     @Override
                     public void onResult(@NonNull GetCredentialResponse result) {
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            Toast.makeText(activity, "✅ Sign in successful!", Toast.LENGTH_SHORT).show();
-                            GoogleIdTokenCredential googleIdCredential =
-                                    GoogleIdTokenCredential.createFrom(result.getCredential().getData());
-                            String token = googleIdCredential.getIdToken();
-                            callback.onSuccess(token);
-                        });
+
+                        GoogleIdTokenCredential googleIdCredential =
+                                GoogleIdTokenCredential.createFrom(result.getCredential().getData());
+                        String token = googleIdCredential.getIdToken();
+                        callback.onSuccess(new GoogleTokenRequestPost(token));
+
                     }
 
                     @Override
                     public void onError(@NonNull GetCredentialException e) {
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            if (e instanceof GetCredentialCancellationException) {
-                                Toast.makeText(activity, "Sign in cancelled or no credentials available.", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(activity, "Sign in failed: " + e.getClass().getSimpleName(), Toast.LENGTH_SHORT).show();
-                            }
-                            Log.e("CredentialManager", "❌ Sign in failed: ", e);
-                        });
+
                     }
                 }
         );
@@ -134,9 +130,9 @@ public class AuthenticationAPI {
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void googleLoginResponse(String webClientId,
                                     AuthCallback<GoogleAuthResponse> callback) {
-        this.googleGetToken(webClientId, new AuthCallback<String>() {
+        this.googleGetToken(webClientId, new AuthCallback<GoogleTokenRequestPost>() {
             @Override
-            public void onSuccess(String response) {
+            public void onSuccess(GoogleTokenRequestPost response) {
                 GoogleAuthenticateUser googleAuthenticateUser = api.getRetrofit().create(GoogleAuthenticateUser.class);
                 //Call the api
                 googleAuthenticateUser.authenticateUser(response).enqueue(new Callback<GoogleAuthResponse>() {
@@ -148,7 +144,14 @@ public class AuthenticationAPI {
                             callback.onSuccess(response.body());
                         } else {
                             //otherwise set error on callback
-                            callback.onError(new Exception("Login failed: " + response.code()));
+                            try {
+                                JSONObject errorMessage = new JSONObject(response.errorBody().string());
+                                JSONObject detailObj = errorMessage.getJSONObject("detail");
+                                String message = detailObj.getString("message");
+                                callback.onError(new Exception(message+ " :"+ response.code()));
+                            } catch (IOException | JSONException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     }
 
