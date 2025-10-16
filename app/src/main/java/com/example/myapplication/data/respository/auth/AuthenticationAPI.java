@@ -23,6 +23,8 @@ import androidx.credentials.exceptions.GetCredentialException;
 
 import com.example.myapplication.data.models.auth.GoogleAuthResponse;
 import com.example.myapplication.data.models.auth.GoogleTokenRequestPost;
+import com.example.myapplication.data.models.auth.ManualSignUpResponse;
+import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.calbacks.auth.AuthCallback;
 import com.example.myapplication.data.models.auth.LoginManualRequestPost;
@@ -30,6 +32,7 @@ import com.example.myapplication.data.models.auth.LoginManualResponse;
 import com.example.myapplication.data.network.endpoints.auth.GoogleAuthenticateUser;
 import com.example.myapplication.data.network.endpoints.auth.ManualAuthenticateUser;
 
+import com.example.myapplication.data.network.endpoints.auth.SignUpUser;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 
@@ -148,7 +151,7 @@ public class AuthenticationAPI {
                                 JSONObject errorMessage = new JSONObject(response.errorBody().string());
                                 JSONObject detailObj = errorMessage.getJSONObject("detail");
                                 String message = detailObj.getString("message");
-                                callback.onError(new Exception(message+ " :"+ response.code()));
+                                callback.onError(new Exception(message + " :" + response.code()));
                             } catch (IOException | JSONException e) {
                                 throw new RuntimeException(e);
                             }
@@ -171,4 +174,25 @@ public class AuthenticationAPI {
     }
 
 
+    public void manualSignUp(SignupPostRequest request,
+                             AuthCallback<ManualSignUpResponse> callback) {
+        SignUpUser signUpUser = api.getRetrofit().create(SignUpUser.class);
+        signUpUser.authenticateUser(request).enqueue(new Callback<ManualSignUpResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ManualSignUpResponse> call, @NonNull Response<ManualSignUpResponse> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    callback.onSuccess(response.body());
+                }else{
+                    assert response.body() != null;
+                    callback.onError(new Exception("Login failed: " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ManualSignUpResponse> call, @NonNull Throwable t) {
+            callback.onError(t);
+            }
+        });
+    }
 }
+

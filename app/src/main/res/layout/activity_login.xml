@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:fillViewport="true"
-    tools:context=".ui.AuthenticationActivity"
+    tools:context=".ui.LoginActivity"
     android:id="@+id/main"
     android:background="#FFFFFF">
 
@@ -231,30 +231,31 @@
             android:layout_marginBottom="20dp"/>
 
         <!-- Sign Up Link -->
+        <TextView
+            android:id="@+id/signupButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="4dp"
+            android:text="Sign up here"
+            android:textColor="#2196F3"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Don't have an account? "
+            android:textColor="#757575"
+            android:textSize="14sp" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_gravity="center_horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Don't have an account? "
-                android:textSize="14sp"
-                android:textColor="#757575"/>
-
-            <TextView
-                android:id="@+id/signupButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sign up here"
-                android:textSize="14sp"
-                android:textColor="#2196F3"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true"
-                android:padding="4dp"/>
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="-20dp">
 
         </LinearLayout>
 

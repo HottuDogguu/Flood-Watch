@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -24,12 +23,12 @@ import com.example.myapplication.data.respository.auth.AuthenticationAPI;
 import com.example.myapplication.security.DataStoreManager;
 import com.example.myapplication.utils.GlobalUtility;
 
-public class AuthenticationActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
     private EditText email;
     private EditText password;
-    private TextView sample;
     private Button loginBtn;
     private Button googleBtn;
+    private TextView signupButton;
     private Context context;
     private AuthenticationAPI auth;
     private GlobalUtility utility;
@@ -42,9 +41,11 @@ public class AuthenticationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        context = this;
-        APIBuilder apiBuilder = new APIBuilder();
+        setContentView(R.layout.activity_login);
+
+
+        // initialized variables
+        context = this; // Set context
         auth = new AuthenticationAPI(this);
         this.utility = new GlobalUtility();
         dataStoreManager= new DataStoreManager(context);
@@ -53,7 +54,11 @@ public class AuthenticationActivity extends AppCompatActivity {
         password = (EditText) findViewById(R.id.passwordInput);
         loginBtn = (Button) findViewById(R.id.loginButton);
         googleBtn = (Button) findViewById(R.id.googleSignInButton);
+        signupButton = (TextView) findViewById(R.id.signupButton);
 
+
+
+        //OnClickListener
         loginBtn.setOnClickListener(v -> {
 
             //call the get response function which is the request from apiBuilder
@@ -63,7 +68,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                         public void onSuccess(LoginManualResponse response) {
                             dataStoreManager.saveDataFromJava("access_token", response.getToken().getAccess_token(), () -> {
                                 dataStoreManager.getStringFromJava("access_token", s -> {
-                                    Intent intent = new Intent(AuthenticationActivity.this, DashboardActivity.class);
+                                    Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
                                     //Loading first
                                     Toast.makeText(context, "Successfully Login", Toast.LENGTH_LONG).show();
                                     startActivity(intent);
@@ -80,6 +85,8 @@ public class AuthenticationActivity extends AppCompatActivity {
                     });
         });
 
+
+        //When the user click Signin as Google or continue as google
         googleBtn.setOnClickListener(v -> {
            auth.googleLoginResponse("442931204719-vcurqg7q42npvonomi9innbmvk2j3bqu.apps.googleusercontent.com", new AuthCallback<GoogleAuthResponse>() {
                @Override
@@ -107,7 +114,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                        switch (profile_setup_steps){
                            case 1 :
                                //if one it means it is in the personal information filling form
-                               intent = new Intent(AuthenticationActivity.this, DashboardActivity.class);
+                               intent = new Intent(LoginActivity.this, DashboardActivity.class);
                            case 2:
                                //this is the address filling
                        }
@@ -130,7 +137,15 @@ public class AuthenticationActivity extends AppCompatActivity {
                }
            });
         });
+        signupButton.setOnClickListener(v ->{
+            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
     }
+
+
 
 
     @Override
