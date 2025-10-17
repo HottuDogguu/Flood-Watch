@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center">
+
+        <!-- Card Container -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="8dp"
+            android:layout_marginTop="48dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="32dp"
+                android:gravity="center_horizontal">
+
+                <!-- Icon Container -->
+                <FrameLayout
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_marginBottom="24dp">
+
+                    <!-- Main Circle -->
+                    <ImageView
+                        android:layout_width="96dp"
+                        android:layout_height="96dp"
+                        android:src="@drawable/ic_mail_circle"
+                        android:contentDescription="Email icon" />
+
+                    <!-- Checkmark Badge -->
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="bottom|end"
+                        android:src="@drawable/ic_check_badge"
+                        android:contentDescription="Verified" />
+                </FrameLayout>
+
+                <!-- Title -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Verify Your Email"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/gray_900"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Subtitle -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="We've sent a verification link to"
+                    android:textSize="14sp"
+                    android:textColor="@color/gray_600"
+                    android:layout_marginBottom="4dp" />
+
+                <!-- Email Display -->
+                <TextView
+                    android:id="@+id/tvEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="user@gmail.com"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/blue_600"
+                    android:layout_marginBottom="24dp" />
+
+                <!-- Instructions Card -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/blue_50"
+                    app:cardElevation="0dp"
+                    android:layout_marginBottom="24dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Please check your inbox and click the verification link to complete your registration."
+                            android:textSize="14sp"
+                            android:textColor="@color/gray_700"
+                            android:lineSpacingExtra="2dp"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Don't forget to check your spam folder if you don't see it."
+                            android:textSize="12sp"
+                            android:textColor="@color/gray_600" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Resend Button -->
+                <Button
+                    android:id="@+id/btnResend"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Resend Verification Email"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/button_blue_background"
+                    android:drawableLeft="@drawable/ic_refresh"
+                    android:drawablePadding="8dp"
+                    android:gravity="center"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Success Message -->
+                <TextView
+                    android:id="@+id/tvSuccessMessage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✓ Email sent successfully!"
+                    android:textSize="14sp"
+                    android:textColor="@color/green_600"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Divider with "or" text -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginVertical="16dp">
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="@color/gray_200" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="or"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_500"
+                        android:paddingHorizontal="16dp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="@color/gray_200" />
+                </LinearLayout>
+
+                <!-- Change Email Button -->
+                <Button
+                    android:id="@+id/btnChangeEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Change Email Address"
+                    android:textColor="@color/gray_700"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/button_gray_background"
+                    android:layout_marginBottom="24dp" />
+
+                <!-- Footer Link -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Already verified? "
+                        android:textSize="12sp"
+                        android:textColor="@color/gray_500" />
+
+                    <TextView
+                        android:id="@+id/tvContinue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sign In"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/blue_600"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Support Link -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Need help? "
+                android:textSize="14sp"
+                android:textColor="@color/gray_600" />
+
+            <TextView
+                android:id="@+id/tvSupport"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contact Support"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/blue_600"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

@@ -43,6 +43,9 @@
             android:name=".ui.AnnouncementActivity"
             android:exported="false"
             android:parentActivityName=".ui.HomeActivity" />
+        <activity
+            android:name=".ui.EmailVerificationActivity"
+            android:exported="false" />
 
 
     </application>

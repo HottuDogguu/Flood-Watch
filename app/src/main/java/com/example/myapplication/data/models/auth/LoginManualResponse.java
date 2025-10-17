@@ -1,17 +1,6 @@
 package com.example.myapplication.data.models.auth;
 
 public class LoginManualResponse {
-    TokenData token;
-
-    public TokenData getToken() {
-        return token;
-    }
-
-    public void setToken(TokenData token) {
-        this.token = token;
-    }
-
-    public class TokenData{
         String access_token, access_type,refresh_access_token;
 
         public String getAccess_token() {
@@ -37,7 +26,5 @@ public class LoginManualResponse {
         public void setRefresh_access_token(String refresh_access_token) {
             this.refresh_access_token = refresh_access_token;
         }
-    }
-
 
 }

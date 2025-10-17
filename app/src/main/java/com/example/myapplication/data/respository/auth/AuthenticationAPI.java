@@ -183,8 +183,8 @@ public class AuthenticationAPI {
                 if(response.isSuccessful() && response.body() != null){
                     callback.onSuccess(response.body());
                 }else{
-                    assert response.body() != null;
-                    callback.onError(new Exception("Login failed: " + response.code()));
+
+                    callback.onError(new Exception("Sign Up failed: " + response.code()));
                 }
             }
 

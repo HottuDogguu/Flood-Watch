@@ -66,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
                     new AuthCallback<LoginManualResponse>() {
                         @Override
                         public void onSuccess(LoginManualResponse response) {
-                            dataStoreManager.saveDataFromJava("access_token", response.getToken().getAccess_token(), () -> {
+                            dataStoreManager.saveDataFromJava("access_token", response.getAccess_token(), () -> {
                                 dataStoreManager.getStringFromJava("access_token", s -> {
                                     Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
                                     //Loading first
