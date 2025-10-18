@@ -3,10 +3,6 @@ package com.example.myapplication.data.respository.auth;
 import android.app.Activity;
 import android.os.Build;
 import android.os.CancellationSignal;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -17,7 +13,6 @@ import androidx.credentials.CredentialManager;
 import androidx.credentials.CredentialManagerCallback;
 import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
-import androidx.credentials.exceptions.GetCredentialCancellationException;
 import androidx.credentials.exceptions.GetCredentialException;
 
 
@@ -173,16 +168,15 @@ public class AuthenticationAPI {
 
     }
 
-
     public void manualSignUp(SignupPostRequest request,
                              AuthCallback<ManualSignUpResponse> callback) {
         SignUpUser signUpUser = api.getRetrofit().create(SignUpUser.class);
         signUpUser.authenticateUser(request).enqueue(new Callback<ManualSignUpResponse>() {
             @Override
             public void onResponse(@NonNull Call<ManualSignUpResponse> call, @NonNull Response<ManualSignUpResponse> response) {
-                if(response.isSuccessful() && response.body() != null){
+                if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
-                }else{
+                } else {
 
                     callback.onError(new Exception("Sign Up failed: " + response.code()));
                 }
@@ -190,9 +184,11 @@ public class AuthenticationAPI {
 
             @Override
             public void onFailure(@NonNull Call<ManualSignUpResponse> call, @NonNull Throwable t) {
-            callback.onError(t);
+                callback.onError(t);
             }
         });
     }
+
+
 }
 
