@@ -21,7 +21,7 @@
 
 
         <activity
-            android:name=".ui.LoginActivity"
+            android:name=".activities.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,24 +30,24 @@
         </activity>
 
         <activity
-            android:name=".ui.SignupActivity"
+            android:name=".activities.SignupActivity"
             android:exported="false" />
 
         <activity
-            android:name=".ui.HomeActivity"
+            android:name=".activities.HomeActivity"
             android:exported="false" />
 
         <activity
-            android:name=".ui.DashboardActivity"
+            android:name=".activities.DashboardActivity"
             android:exported="false"
-            android:parentActivityName=".ui.HomeActivity" />
+            android:parentActivityName=".activities.HomeActivity" />
 
         <activity
-            android:name=".ui.AnnouncementActivity"
+            android:name=".activities.AnnouncementActivity"
             android:exported="false"
-            android:parentActivityName=".ui.HomeActivity" />
+            android:parentActivityName=".activities.HomeActivity" />
         <activity
-            android:name=".ui.EmailVerificationActivity"
+            android:name=".activities.EmailVerificationActivity"
             android:exported="false" />
 
 

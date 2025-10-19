@@ -1,14 +1,18 @@
 package com.example.myapplication.utils;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+
 import com.example.myapplication.security.DataStoreManager;
 
-import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
-import java.util.concurrent.CountDownLatch;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.function.Consumer;
 
 public class GlobalUtility {
@@ -62,6 +66,23 @@ public class GlobalUtility {
             e.printStackTrace();
         }
         return "127.0.0.1";
+    }
+
+    public void showExitDialog(Context context) {
+        // Only proceed if context is an Activity
+        if (!(context instanceof Activity)) return;
+        Activity activity = (Activity) context;
+        if (activity.isTaskRoot()) {
+            new AlertDialog.Builder(context)
+                    .setTitle("Exit App")
+                    .setMessage("Are you sure you want to exit?")
+                    .setPositiveButton("Yes", (dialog, which) -> activity.finishAffinity())
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .show();
+        } else {
+            // Default back behavior
+            ((AppCompatActivity) activity).getOnBackPressedDispatcher().onBackPressed();
+        }
     }
 
 }

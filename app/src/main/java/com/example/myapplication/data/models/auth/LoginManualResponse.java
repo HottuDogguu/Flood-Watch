@@ -2,8 +2,17 @@ package com.example.myapplication.data.models.auth;
 
 public class LoginManualResponse {
         String access_token, access_type,refresh_access_token;
+        int statusCode;
 
-        public String getAccess_token() {
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
+
+    public String getAccess_token() {
             return access_token;
         }
 

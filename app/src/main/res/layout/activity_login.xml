@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:fillViewport="true"
-    tools:context=".ui.LoginActivity"
+    tools:context=".activities.LoginActivity"
     android:id="@+id/main"
     android:background="#FFFFFF">
 
@@ -98,18 +98,23 @@
             android:layout_marginBottom="8dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilLoginEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
+            app:boxStrokeColor="@color/blue_500"
+
             app:boxCornerRadiusBottomStart="12dp"
+            app:boxStrokeErrorColor="@color/red_500"
             app:boxCornerRadiusBottomEnd="12dp"
             android:layout_marginBottom="20dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/emailInput"
                 android:textColor="@color/black"
+                app:boxStrokeColor="@color/blue_500"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter your email"
@@ -129,10 +134,12 @@
             android:layout_marginBottom="8dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilLoginPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:passwordToggleEnabled="true"
+            app:boxStrokeColor="@color/blue_500"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
@@ -140,7 +147,8 @@
             android:layout_marginBottom="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/passwordInput"
+                android:id="@+id/loginPasswordInputField"
+                app:boxStrokeColor="@color/blue_500"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"

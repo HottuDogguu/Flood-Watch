@@ -65,7 +65,7 @@ public class AuthenticationAPI {
                     callback.onSuccess(response.body());
                 } else {
                     //otherwise set error on callback
-                    callback.onError(new Exception("Login failed: " + response.code()));
+                    callback.onError(new Exception(""+response.code()));
                 }
             }
 

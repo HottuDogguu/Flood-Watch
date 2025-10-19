@@ -1,4 +1,4 @@
-package com.example.myapplication.ui;
+package com.example.myapplication.activities;
 
 import android.os.Bundle;
 
@@ -7,14 +7,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
 
-public class HomeActivity extends AppCompatActivity {
-
+public class AnnouncementActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_home);
-
-
-}
+        setContentView(R.layout.activity_announcement);
+    }
 }
