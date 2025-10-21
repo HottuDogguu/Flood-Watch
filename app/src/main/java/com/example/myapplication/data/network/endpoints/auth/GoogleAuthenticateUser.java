@@ -1,7 +1,7 @@
 package com.example.myapplication.data.network.endpoints.auth;
 
-import com.example.myapplication.data.models.auth.GoogleAuthResponse;
-import com.example.myapplication.data.models.auth.GoogleTokenRequestPost;
+import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
+import com.example.myapplication.data.models.auth.GoogleTokenRequest;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -14,6 +14,6 @@ public interface GoogleAuthenticateUser {
     //This is the endpoint of the google login
 
     @Headers("Content-Type: application/json")
-    @POST("api/v1/auth/google/callback")
-    Call<GoogleAuthResponse> authenticateUser(@Body GoogleTokenRequestPost token);
+    @POST("auth/google/callback")
+    Call<GoogleAuthLoginResponse> authenticateUser(@Body GoogleTokenRequest token);
 }

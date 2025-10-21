@@ -14,7 +14,7 @@ public interface SignUpUser {
     @Headers({
             "Content-Type: application/json"
     })
-    @POST("api/v1/auth/create-account")
+    @POST("auth/create-account")
     Call<ManualSignUpResponse> authenticateUser(@Body SignupPostRequest signupPostRequest);
 
 }

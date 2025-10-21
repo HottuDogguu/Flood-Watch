@@ -1,6 +1,5 @@
-package com.example.myapplication.activities;
+package com.example.myapplication.activities.auth;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,18 +7,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.widget.NestedScrollView;
 
 import com.example.myapplication.R;
-import com.example.myapplication.calbacks.auth.AuthCallback;
-import com.example.myapplication.data.models.auth.ManualSignUpResponse;
-import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.models.auth.SignupPostRequest.*;
 import com.example.myapplication.data.respository.auth.AuthenticationAPI;
 import com.example.myapplication.data.validation.DataFieldsValidation;
@@ -32,12 +27,12 @@ import java.util.Objects;
 
 public class SignupActivity extends AppCompatActivity {
 
-
     private Button signupButton;
     private Context context;
     private AuthenticationAPI auth;
     private GlobalUtility utility;
-    ScrollView scrollView;
+    private ScrollView scrollView;
+    private TextView tvSignIn;
 
     //EditText
     private TextInputEditText
@@ -51,6 +46,7 @@ public class SignupActivity extends AppCompatActivity {
             txtProvince,
             txtPassword,
             txtConfirmPass;
+
     //TextInputLayout
     private TextInputLayout
             tilEmail,
@@ -65,13 +61,14 @@ public class SignupActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_signup);
+        setContentView(R.layout.activity_signup_password);
         initViews();// initialized variables
         dataFieldsValidation = new DataFieldsValidation();
         SignUpActivityUtility signUpActivityUtility = new SignUpActivityUtility(this, auth);
 
         //Listeners
         signupButton.setOnClickListener(v -> {
+            //initialization
             String userEmail = Objects.requireNonNull(txtEmail.getText()).toString();
             String userFullName = Objects.requireNonNull(txtFullname.getText()).toString();
             String userContactNo = Objects.requireNonNull(txtContactNo.getText()).toString();
@@ -91,38 +88,64 @@ public class SignupActivity extends AppCompatActivity {
 
             String passwordValidateMessage = dataFieldsValidation.validatePassword(userPass);
             boolean isPasswordMatch = dataFieldsValidation.isPasswordMatch(userPass, userConfirmPass);
+            //validation for empty fields
+//            if (isFullNameEmpty) {
+//                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "This field must not be empty!", false);
+//                return;
+//            } else {
+//                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "", true);
+//
+//            }
+//            if (isEmailEmpty) {
+//                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "This field must not be empty!", false);
+//                return;
+//            } else {
+//                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
+//
+//            }
+//            if (isContactNoEmpty) {
+//                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "This field must not be empty!", false);
+//                return;
+//            } else {
+//                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", true);
+//
+//            }
+//            if (isUserPasswordEmpty) {
+//                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "This field must not be empty!", false);
+//                return;
+//            } else {
+//                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "", true);
+//
+//            }
+//            //Validation for email, Contact no, Second Phone Number, Password and confirm password
+//            if (emailValidateMessage.isEmpty()) {
+//                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
+//            } else {
+//                setRequestFocusOnField(scrollView, txtEmail, tilEmail, emailValidateMessage, false);
+//            }
+//
+//            if (phoneValidateMessage.isEmpty()) {
+//                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", true);
+//            } else {
+//                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, phoneValidateMessage, false);
+//            }
+//            if (secondPhoneValidateMessage.isEmpty()) {
+//                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
+//            } else {
+//                setRequestFocusOnField(scrollView, txtEmail, tilEmail, emailValidateMessage, false);
+//            }
+//            if (passwordValidateMessage.isEmpty()) {
+//                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "", true);
+//            } else {
+//                setRequestFocusOnField(scrollView, txtPassword, tilPassword, passwordValidateMessage, false);
+//            }
+//            if (isPasswordMatch) {
+//                setRequestFocusOnField(scrollView, txtConfirmPass, tilConfirmPassword, "", true);
+//            } else {
+//                setRequestFocusOnField(scrollView, txtConfirmPass, tilConfirmPassword, "Password not match!", false);
+//            }
 
-
-            if (isFullNameEmpty) {
-                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "This field must not be empty!", false);
-                return;
-            } else {
-                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "", true);
-
-            }
-            if (isEmailEmpty) {
-                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "This field must not be empty!", false);
-                return;
-            } else {
-                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
-
-            }
-            if (isContactNoEmpty) {
-                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "This field must not be empty!", false);
-                return;
-            } else {
-                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", true);
-
-            }
-            if (isUserPasswordEmpty) {
-                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "This field must not be empty!", false);
-                return;
-            } else {
-                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "", true);
-
-            }
-
-
+            //call the API
             signUpActivityUtility.signUpUser(
                     this.buildUser(),
                     this.buildAddress(),
@@ -137,7 +160,17 @@ public class SignupActivity extends AppCompatActivity {
                 utility.showExitDialog(context);
             }
         });
+
+        //back to signIn page
+        tvSignIn.setOnClickListener(v ->{
+            Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
     }
+
+
 
     private void initViews() {
         //initialize variables
@@ -158,6 +191,7 @@ public class SignupActivity extends AppCompatActivity {
         txtSecondContactNo = (TextInputEditText) findViewById(R.id.etSecondaryNumber);
         txtPassword = (TextInputEditText) findViewById(R.id.etPassword);
         scrollView = findViewById(R.id.signupScrollView);
+        tvSignIn = (TextView) findViewById(R.id.tvSignIn);
 
         tilEmail = (TextInputLayout) findViewById(R.id.tilEmail);
         tilFullName = (TextInputLayout) findViewById(R.id.tilFullName);
@@ -193,12 +227,12 @@ public class SignupActivity extends AppCompatActivity {
         return new PersonalInformation(contactNo, secondContactNo);
     }
 
-    public void setRequestFocusOnField(ScrollView scrollView, EditText editText, TextInputLayout inputLayout, String message, boolean isValidated) {
+    private void setRequestFocusOnField(ScrollView scrollView, EditText editText, TextInputLayout inputLayout, String message, boolean isValidated) {
         //if empty, show a message
         if (!isValidated) {
             inputLayout.setError(message);
             scrollView.post(() -> {
-                scrollView.smoothScrollTo((int)editText.getX(),editText.getBottom());
+                scrollView.smoothScrollTo((int) editText.getX(), editText.getBottom());
                 editText.requestFocus();
                 InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (imm != null) {

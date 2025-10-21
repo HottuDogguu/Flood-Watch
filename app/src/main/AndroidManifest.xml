@@ -21,7 +21,7 @@
 
 
         <activity
-            android:name=".activities.LoginActivity"
+            android:name=".activities.auth.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,7 +30,18 @@
         </activity>
 
         <activity
-            android:name=".activities.SignupActivity"
+            android:name=".activities.auth.SignupActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.auth.UploadProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.auth.SignUpAsGoogleActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.auth.LinkGoogleAccountActivity"
             android:exported="false" />
 
         <activity
@@ -47,9 +58,8 @@
             android:exported="false"
             android:parentActivityName=".activities.HomeActivity" />
         <activity
-            android:name=".activities.EmailVerificationActivity"
+            android:name=".activities.auth.EmailVerificationActivity"
             android:exported="false" />
-
 
     </application>
 

@@ -1,9 +1,11 @@
 package com.example.myapplication.data.models.auth;
 
+import java.util.List;
+
 public class SignupPostRequest {
-     User user_;
-     Address address_;
-     PersonalInformation personal_information_;
+    User user_;
+    Address address_;
+    PersonalInformation personal_information_;
 
     public Address getAddress_() {
         return address_;
@@ -35,13 +37,27 @@ public class SignupPostRequest {
         this.personal_information_ = personal_information_;
     }
 
-    public static class  User {
+    public static class User {
         String email;
+        String status;
+        List<String> sign_in_type;
 
+        public User(String email, String fullname,String status, List<String> sign_in_type) {
+            this.email = email;
+            this.status = status;
+            this.fullname = fullname;
+            this.sign_in_type =sign_in_type;
+
+        }
         public User(String email, String password, String fullname) {
             this.email = email;
             this.password = password;
+
             this.fullname = fullname;
+
+            if (this.status == null) {
+                this.status = "pending";
+            }
         }
 
         String password;
@@ -69,6 +85,14 @@ public class SignupPostRequest {
 
         public void setPassword(String password) {
             this.password = password;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
         }
     }
 

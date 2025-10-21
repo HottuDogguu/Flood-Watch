@@ -3,6 +3,8 @@ package com.example.myapplication.data.respository.auth;
 import android.app.Activity;
 import android.os.Build;
 import android.os.CancellationSignal;
+import android.util.Log;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -16,15 +18,17 @@ import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
 
-import com.example.myapplication.data.models.auth.GoogleAuthResponse;
-import com.example.myapplication.data.models.auth.GoogleTokenRequestPost;
+import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
+import com.example.myapplication.data.models.auth.GoogleTokenRequest;
+import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;
 import com.example.myapplication.data.models.auth.ManualSignUpResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.calbacks.auth.AuthCallback;
-import com.example.myapplication.data.models.auth.LoginManualRequestPost;
+import com.example.myapplication.data.models.auth.LoginManualRequest;
 import com.example.myapplication.data.models.auth.LoginManualResponse;
 import com.example.myapplication.data.network.endpoints.auth.GoogleAuthenticateUser;
+import com.example.myapplication.data.network.endpoints.auth.LinkAccountToGoogleSignInMethod;
 import com.example.myapplication.data.network.endpoints.auth.ManualAuthenticateUser;
 
 import com.example.myapplication.data.network.endpoints.auth.SignUpUser;
@@ -34,7 +38,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import retrofit2.Call;
@@ -52,7 +56,7 @@ public class AuthenticationAPI {
 
     }
 
-    public void manualLoginResponse(LoginManualRequestPost requestPost,
+    public void manualLoginResponse(LoginManualRequest requestPost,
                                     AuthCallback<LoginManualResponse> callback) {
         ManualAuthenticateUser auth = api.getRetrofit().create(ManualAuthenticateUser.class);
         auth.authenticateUser(requestPost.getEmail(), requestPost.getPassword()).enqueue(new Callback<LoginManualResponse>() {
@@ -65,7 +69,17 @@ public class AuthenticationAPI {
                     callback.onSuccess(response.body());
                 } else {
                     //otherwise set error on callback
-                    callback.onError(new Exception(""+response.code()));
+                    try {
+
+                        String errorBody = response.errorBody().string();
+                        JSONObject errorJson = new JSONObject(errorBody);
+                        String detailMessage = errorJson.optString("detail", "Unknown error");
+                        callback.onError(new Exception(String.valueOf(response.code())));
+                        Toast.makeText(activity, detailMessage, Toast.LENGTH_LONG).show();
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -77,7 +91,7 @@ public class AuthenticationAPI {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private void googleGetToken(String webClientId, AuthCallback<GoogleTokenRequestPost> callback) {
+    private void googleGetToken(String webClientId, AuthCallback<GoogleTokenRequest> callback) {
 
         //Setup the google auth
         GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
@@ -96,7 +110,7 @@ public class AuthenticationAPI {
         signIn(getCredentialRequest, callback);
     }
 
-    private void signIn(GetCredentialRequest request, AuthCallback<GoogleTokenRequestPost> callback) {
+    private void signIn(GetCredentialRequest request, AuthCallback<GoogleTokenRequest> callback) {
         CredentialManager credentialManager = CredentialManager.create(activity);
         CancellationSignal cancellationSignal = new CancellationSignal();
         Executor executor = activity.getMainExecutor();
@@ -113,7 +127,7 @@ public class AuthenticationAPI {
                         GoogleIdTokenCredential googleIdCredential =
                                 GoogleIdTokenCredential.createFrom(result.getCredential().getData());
                         String token = googleIdCredential.getIdToken();
-                        callback.onSuccess(new GoogleTokenRequestPost(token));
+                        callback.onSuccess(new GoogleTokenRequest(token));
 
                     }
 
@@ -127,15 +141,15 @@ public class AuthenticationAPI {
 
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void googleLoginResponse(String webClientId,
-                                    AuthCallback<GoogleAuthResponse> callback) {
-        this.googleGetToken(webClientId, new AuthCallback<GoogleTokenRequestPost>() {
+                                    AuthCallback<GoogleAuthLoginResponse> callback) {
+        this.googleGetToken(webClientId, new AuthCallback<GoogleTokenRequest>() {
             @Override
-            public void onSuccess(GoogleTokenRequestPost response) {
+            public void onSuccess(GoogleTokenRequest response) {
                 GoogleAuthenticateUser googleAuthenticateUser = api.getRetrofit().create(GoogleAuthenticateUser.class);
                 //Call the api
-                googleAuthenticateUser.authenticateUser(response).enqueue(new Callback<GoogleAuthResponse>() {
+                googleAuthenticateUser.authenticateUser(response).enqueue(new Callback<GoogleAuthLoginResponse>() {
                     @Override
-                    public void onResponse(@NonNull Call<GoogleAuthResponse> call, @NonNull Response<GoogleAuthResponse> response) {
+                    public void onResponse(@NonNull Call<GoogleAuthLoginResponse> call, @NonNull Response<GoogleAuthLoginResponse> response) {
 
                         if (response.isSuccessful() && response.body() != null) {
                             //then set data on callback on success
@@ -143,18 +157,20 @@ public class AuthenticationAPI {
                         } else {
                             //otherwise set error on callback
                             try {
-                                JSONObject errorMessage = new JSONObject(response.errorBody().string());
+                                JSONObject errorMessage = new JSONObject(response.errorBody().toString()
+                                );
                                 JSONObject detailObj = errorMessage.getJSONObject("detail");
                                 String message = detailObj.getString("message");
-                                callback.onError(new Exception(message + " :" + response.code()));
-                            } catch (IOException | JSONException e) {
-                                throw new RuntimeException(e);
+                                callback.onError(new Exception(message + ": " + response.code()));
+                            } catch (JSONException e) {
+                                e.fillInStackTrace();
+                                Log.i("Debug", Objects.requireNonNull(e.getMessage()));
                             }
                         }
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<GoogleAuthResponse> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<GoogleAuthLoginResponse> call, @NonNull Throwable t) {
                         callback.onError(t);
                     }
                 });
@@ -189,6 +205,50 @@ public class AuthenticationAPI {
         });
     }
 
+    public void googleSignUp(SignupPostRequest request,
+                             AuthCallback<ManualSignUpResponse> callback) {
+        SignUpUser signUpUser = api.getRetrofit().create(SignUpUser.class);
+        signUpUser.authenticateUser(request).enqueue(new Callback<ManualSignUpResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ManualSignUpResponse> call, @NonNull Response<ManualSignUpResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+
+                    callback.onError(new Exception("Sign Up failed: " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ManualSignUpResponse> call, @NonNull Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+    public void linkUserAccountToGoogle(LinkAccountToMultipleSiginMethodsRequest request, AuthCallback<LoginManualResponse> callback) {
+        LinkAccountToGoogleSignInMethod linkAccountToGoogleSignInMethod = api.getRetrofit().create(LinkAccountToGoogleSignInMethod.class);
+        linkAccountToGoogleSignInMethod.authenticateUser(request).enqueue(new Callback<LoginManualResponse>() {
+            @Override
+            public void onResponse(Call<LoginManualResponse> call, Response<LoginManualResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    try {
+                        callback.onError(new Exception(response.errorBody().string()));
+                    } catch (Exception e) {
+                        callback.onError(new RuntimeException(e));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginManualResponse> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+
+    }
 
 }
 

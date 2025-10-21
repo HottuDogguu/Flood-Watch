@@ -1,13 +1,16 @@
 package com.example.myapplication.data.models.auth;
 
-public class GoogleAuthResponse {
-    String status, message, action;
+import java.io.Serializable;
+import java.util.List;
+
+public class GoogleAuthLoginResponse implements Serializable {
+    String status, action;
     TokenData token;
     UserData data;
 
-    public GoogleAuthResponse(String status, String message, String action, TokenData token, UserData data) {
+    public GoogleAuthLoginResponse(String status, String action, TokenData token, UserData data) {
         this.status = status;
-        this.message = message;
+
         this.action = action;
         this.token = token;
         this.data = data;
@@ -21,13 +24,6 @@ public class GoogleAuthResponse {
         this.status = status;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 
     public String getAction() {
         return action;
@@ -53,16 +49,8 @@ public class GoogleAuthResponse {
         this.data = data;
     }
 
-    public class TokenData {
-        String access_token;
-
-        public String getRefresh_access_token() {
-            return refresh_access_token;
-        }
-
-        public void setRefresh_access_token(String refresh_access_token) {
-            this.refresh_access_token = refresh_access_token;
-        }
+    public class TokenData implements Serializable{
+        String access_token, access_type;
 
         public String getAccess_token() {
             return access_token;
@@ -79,15 +67,13 @@ public class GoogleAuthResponse {
         public void setAccess_type(String access_type) {
             this.access_type = access_type;
         }
-
-        String refresh_access_token;
-        String access_type;
     }
 
-    public class UserData {
+    public class UserData implements Serializable{
         Boolean is_profile_completed;
-        String username, status;
+        String fullname, status,role,email,id;
         int profile_setup_steps;
+        List<String> sign_in_type;
 
         public Boolean getIs_profile_completed() {
             return is_profile_completed;
@@ -105,12 +91,12 @@ public class GoogleAuthResponse {
             this.status = status;
         }
 
-        public String getUsername() {
-            return username;
+        public String getFullname() {
+            return fullname;
         }
 
-        public void setUsername(String username) {
-            this.username = username;
+        public void setFullname(String username) {
+            this.fullname = username;
         }
 
         public int getProfile_setup_steps() {
@@ -119,6 +105,37 @@ public class GoogleAuthResponse {
 
         public void setProfile_setup_steps(int profile_setup_steps) {
             this.profile_setup_steps = profile_setup_steps;
+        }
+        public List<String> getSign_in_type() {
+            return sign_in_type;
+        }
+
+        public void setSign_in_type(List<String> sign_in_type) {
+            this.sign_in_type = sign_in_type;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
         }
     }
 }

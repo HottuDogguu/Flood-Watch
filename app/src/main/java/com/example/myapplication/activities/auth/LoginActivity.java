@@ -1,11 +1,13 @@
-package com.example.myapplication.activities;
+package com.example.myapplication.activities.auth;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,15 +19,18 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
-import com.example.myapplication.data.models.auth.GoogleAuthResponse;
+import com.example.myapplication.activities.DashboardActivity;
+import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
 import com.example.myapplication.calbacks.auth.AuthCallback;
-import com.example.myapplication.data.models.auth.LoginManualRequestPost;
+import com.example.myapplication.data.models.auth.LoginManualRequest;
 import com.example.myapplication.data.models.auth.LoginManualResponse;
 import com.example.myapplication.data.respository.auth.AuthenticationAPI;
 import com.example.myapplication.data.validation.DataFieldsValidation;
 import com.example.myapplication.security.DataStoreManager;
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText email, password;
@@ -36,7 +41,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputLayout loginEmailTextInput, loginPasswordTextInput;
     private Context context;
     private AuthenticationAPI auth;
-    private GlobalUtility utility;
+    private GlobalUtility globalUtility;
     private DataStoreManager dataStoreManager;
     private DataFieldsValidation dataValidation;
 
@@ -73,16 +78,18 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
             }
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String loginEmail = email.getText().toString();
                 if (dataValidation.isEmptyField(loginEmail)) {
                     //if empty, show a message
                     loginEmailTextInput.setError("This field must not be empty!");
-                }else {
+                } else {
                     loginEmailTextInput.setError(null);
                 }
             }
@@ -92,16 +99,18 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
             }
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String loginEmail = password.getText().toString();
                 if (dataValidation.isEmptyField(loginEmail)) {
                     //if empty, show a message
                     loginPasswordTextInput.setError("This field must not be empty!");
-                }else {
+                } else {
                     loginPasswordTextInput.setError(null);
                 }
             }
@@ -135,16 +144,28 @@ public class LoginActivity extends AppCompatActivity {
             //if no empty fields, then proceed to calling api.
 
             //call the get response function which is the request from apiBuilder
-            auth.manualLoginResponse(new LoginManualRequestPost(loginEmail, loginPassword),
+            auth.manualLoginResponse(new LoginManualRequest(loginEmail, loginPassword),
                     new AuthCallback<LoginManualResponse>() {
                         @Override
                         public void onSuccess(LoginManualResponse response) {
+                            if (response.getStatus().equals("pending")) {
+                                Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                                //Loading first
+                                Toast.makeText(context, "Please verify your account first", Toast.LENGTH_LONG).show();
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
+
+                            }
+
                             dataStoreManager.saveDataFromJava("access_token", response.getAccess_token(), () -> {
                                 dataStoreManager.getStringFromJava("access_token", s -> {
                                     Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
                                     //Loading first
                                     Toast.makeText(context, "Successfully Login", Toast.LENGTH_LONG).show();
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     startActivity(intent);
+                                    finish();
                                     return null;
                                 });
                                 return null;
@@ -154,60 +175,62 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onError(Throwable t) {
                             String statusCode = t.getMessage();
-                            if(statusCode.equals("404") && statusCode != null){
-                                setRequestFocusOnField(email,loginEmailTextInput,"Username not found!");
+                            if (statusCode.equals("404") && statusCode != null) {
+                                setRequestFocusOnField(email, loginEmailTextInput, "Username not found!");
 
-                            }else if(statusCode.equals("400") && statusCode != null){
-                                setRequestFocusOnField(password,loginPasswordTextInput,"Incorrect Password!");
+                            } else if (statusCode.equals("400") && statusCode != null) {
+                                setRequestFocusOnField(password, loginPasswordTextInput, "Incorrect Password!");
+                            } else if (statusCode.equals("403")) {
+                                //If the user is exist but not verified
+                                Intent intent = new Intent(LoginActivity.this, EmailVerificationActivity.class);
+                                intent.putExtra("UserEmail", email.getText().toString());
+                                startActivity(intent);
                             }
                         }
                     });
         });
 
-
         //When the user click Signin as Google or continue as google
         googleBtn.setOnClickListener(v -> {
-            auth.googleLoginResponse("442931204719-vcurqg7q42npvonomi9innbmvk2j3bqu.apps.googleusercontent.com", new AuthCallback<GoogleAuthResponse>() {
+            auth.googleLoginResponse("442931204719-vcurqg7q42npvonomi9innbmvk2j3bqu.apps.googleusercontent.com", new AuthCallback<GoogleAuthLoginResponse>() {
                 @Override
-                public void onSuccess(GoogleAuthResponse response) {
+                public void onSuccess(GoogleAuthLoginResponse response) {
                     String userActions = response.getAction();
                     int profile_setup_steps = response.getData().getProfile_setup_steps();
-                    String userStatus = response.getData().getStatus();
-                    Intent intent;
-                    if (userActions.equals("login")) {
-                        if (userStatus.equals("pending")) {
-                            Toast.makeText(context, "Please verify your account first.", Toast.LENGTH_SHORT).show();
-                            // redirect to send email verification
+                    List<String> sign_in_type = response.getData().getSign_in_type();
 
-                            //Check if the user is deleted via soft delete
-                        } else if (userStatus.equals("deleted")) {
-                            Toast.makeText(context, "No accounts associated anymore.", Toast.LENGTH_SHORT).show();
-                            //then terminate the code here via returning nothing
+                    if (userActions.equals("login")) {
+                        //if the account does not linked in google, then it will go to the link page
+                        if (!sign_in_type.contains("google")) {
+                            //if it is linked in password only, then go to link account page
+                            Intent intent = new Intent(LoginActivity.this, LinkGoogleAccountActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            //add the data in intent, then it will retrieve in the linked page
+                            intent.putExtra("UserEmail", response.getData().getEmail());
+                            intent.putExtra("UserId", response.getData().getId());
+                            startActivity(intent);
+                            finish();
+                            //return it to stop here the logic
                             return;
                         }
-
+                        //Add the access token in data storage
+                        globalUtility.insertDataToDataStore("access_token",
+                                dataStoreManager,
+                                response.getToken().getAccess_token(), () -> {
+                                    globalUtility.getDataFromDataStore("access_token", dataStoreManager, data -> {
+                                    });
+                                });
                         //if no in if and else if, it means the user is verified
-                        //So proceed to checking the profile set up where the user stop to filling their profile
-                        switch (profile_setup_steps) {
-                            case 1:
-                                //if one it means it is in the personal information filling form
-                                intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                            case 2:
-                                //this is the address filling
-                        }
+
                         //This is the end of the if user action is logged in
                     } else {
-                        //then it means the user is signing up
-                        //redirect to the first step in profile setup, which is in the personal information
+                        Intent intent = new Intent(LoginActivity.this, SignUpAsGoogleActivity.class);
+                        intent.putExtra("UserData", response.getData());
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
                     }
-                    //When Successfully created account or login, store the access token in data store
-                    utility.insertDataToDataStore("access_token",
-                            dataStoreManager,
-                            response.getToken().getAccess_token(), () -> {
-                                utility.getDataFromDataStore("access_token", dataStoreManager, data -> {
-                                });
-                            }
-                    );
+
                 }
 
                 @Override
@@ -234,7 +257,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void setRequestFocusOnField(EditText editText, TextInputLayout inputLayout, String message){
+    public void setRequestFocusOnField(EditText editText, TextInputLayout inputLayout, String message) {
         //if empty, show a message
         inputLayout.setError(message);
         //request focus and show keyboard

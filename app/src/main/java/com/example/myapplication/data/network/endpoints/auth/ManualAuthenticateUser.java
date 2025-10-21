@@ -15,7 +15,7 @@ public interface ManualAuthenticateUser {
             "Accept: application/json"
     })
     //This is the endpoint of the manual login
-    @POST("api/v1/auth/login")
+    @POST("auth/login")
     Call<LoginManualResponse> authenticateUser(@Field("username") String username,
                                                @Field("password") String password);
 }

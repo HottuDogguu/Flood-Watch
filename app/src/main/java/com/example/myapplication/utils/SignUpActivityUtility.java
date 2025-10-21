@@ -2,18 +2,13 @@ package com.example.myapplication.utils;
 
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.myapplication.activities.EmailVerificationActivity;
-import com.example.myapplication.activities.SignupActivity;
+import com.example.myapplication.activities.auth.EmailVerificationActivity;
 import com.example.myapplication.calbacks.auth.AuthCallback;
 import com.example.myapplication.data.models.auth.ManualSignUpResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.respository.auth.AuthenticationAPI;
-import com.google.android.material.textfield.TextInputEditText;
-
-import java.util.Objects;
 
 public class SignUpActivityUtility {
     private AuthenticationAPI auth;

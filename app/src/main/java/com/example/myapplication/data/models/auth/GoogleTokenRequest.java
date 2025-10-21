@@ -1,8 +1,8 @@
 package com.example.myapplication.data.models.auth;
 
-public class GoogleTokenRequestPost {
+public class GoogleTokenRequest {
     String token;
-    public GoogleTokenRequestPost(String token){
+    public GoogleTokenRequest(String token){
         this.token = token;
 
     }

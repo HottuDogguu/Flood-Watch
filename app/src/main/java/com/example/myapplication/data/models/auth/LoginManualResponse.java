@@ -1,15 +1,14 @@
 package com.example.myapplication.data.models.auth;
 
 public class LoginManualResponse {
-        String access_token, access_type,refresh_access_token;
-        int statusCode;
+        String access_token, access_type,status;
 
-    public int getStatusCode() {
-        return statusCode;
+    public String getStatus() {
+        return status;
     }
 
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getAccess_token() {
@@ -27,13 +26,4 @@ public class LoginManualResponse {
         public void setAccess_type(String access_type) {
             this.access_type = access_type;
         }
-
-        public String getRefresh_access_token() {
-            return refresh_access_token;
-        }
-
-        public void setRefresh_access_token(String refresh_access_token) {
-            this.refresh_access_token = refresh_access_token;
-        }
-
 }

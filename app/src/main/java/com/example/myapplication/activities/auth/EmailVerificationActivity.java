@@ -1,8 +1,9 @@
-package com.example.myapplication.activities;
+package com.example.myapplication.activities.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -10,7 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
-import com.google.gson.JsonObject;
+import com.example.myapplication.activities.DashboardActivity;
 
 
 import org.json.JSONException;
@@ -35,46 +36,46 @@ public class EmailVerificationActivity extends AppCompatActivity {
         client = new OkHttpClient();
         userEmail = getIntent().getStringExtra("UserEmail");
         Toast.makeText(this, "Email" + userEmail, Toast.LENGTH_SHORT).show();
-        Request request = new Request.Builder().url("ws://192.168.7.41:8000/api/v1/auth/verify/account/activation?email=" + userEmail + "-Android").build();
+        Request request = new Request.Builder().url("ws://192.168.7.41:8000/api/v1/fms/auth/verify/account/activation?email=" + userEmail + "-Android").build();
         WebSocketListener listener = new WebSocketListener() {
 
             @Override
             public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
                 runOnUiThread(() ->
-                        Toast.makeText(EmailVerificationActivity.this, "Websocket is Closed ", Toast.LENGTH_LONG).show()
+                        Log.i("WEBSOCKET","Websocket is closed")
                 );
             }
 
             @Override
             public void onClosing(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
                 runOnUiThread(() ->
-                        Toast.makeText(EmailVerificationActivity.this, "Websocket is closing: ", Toast.LENGTH_LONG).show()
+                        Log.i("WEBSOCKET","Websocket is closing")
                 );
             }
 
             @Override
             public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, @Nullable Response response) {
                 runOnUiThread(() ->
-                        Toast.makeText(EmailVerificationActivity.this,
-                                "WebSocket connection failed: " + t.getMessage(),
-                                Toast.LENGTH_LONG).show()
+                        Log.i("WEBSOCKET","Websocket Connection failed"+t.getMessage())
                 );
             }
 
             @Override
             public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
                 runOnUiThread(() -> {
-                    JSONObject object = new JSONObject();
                     try {
+                        JSONObject object = new JSONObject(text);
                         boolean isActivated = object.getBoolean("is_verified");
                         if(isActivated){
                             // if is successful, then go to specific page
                             Intent intent = new Intent(EmailVerificationActivity.this, DashboardActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
+                            //Remove the extra before proceeding in email
+                            getIntent().removeExtra("UserEmail");
+                            finish();
                             //Close the websocket after successful activation
                             client.dispatcher().executorService().shutdown();
-                            finish();
                         }
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -85,7 +86,7 @@ public class EmailVerificationActivity extends AppCompatActivity {
             @Override
             public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
                 runOnUiThread(() ->
-                        Toast.makeText(EmailVerificationActivity.this, "Websocket is open", Toast.LENGTH_SHORT).show()
+                        Log.i("WEBSOCKET","Websocket is open.")
                 );
             }
         };
