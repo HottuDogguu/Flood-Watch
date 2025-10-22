@@ -48,6 +48,7 @@ public class SignupPostRequest {
             this.fullname = fullname;
             this.sign_in_type =sign_in_type;
 
+
         }
         public User(String email, String password, String fullname) {
             this.email = email;

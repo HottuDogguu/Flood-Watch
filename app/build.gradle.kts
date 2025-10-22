@@ -26,11 +26,6 @@ android {
         jvmTarget = "11"
     }
     android {
-        defaultConfig {
-            manifestPlaceholders.putAll(
-                mapOf("BASE_URL" to "192.168.7.41")
-            )
-        }
 
         buildTypes {
             release {
@@ -47,13 +42,18 @@ android {
         }
 
         dependencies {
+            //For api handling
             implementation("com.squareup.retrofit2:retrofit:3.0.0")
+            //for converting the response as json
             implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+            //for websocket
             implementation("org.java-websocket:Java-WebSocket:1.5.2")
             implementation("com.squareup.okhttp3:okhttp:4.9.0")
             implementation("androidx.datastore:datastore:1.1.7")
             // The Preferences DataStore library
             implementation("androidx.datastore:datastore-preferences:1.1.7")
+            // For encryption
+            implementation("androidx.security:security-crypto:1.1.0-alpha06")
             implementation(libs.material)
             implementation(libs.activity)
             implementation(libs.constraintlayout)
@@ -73,4 +73,5 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
+    implementation(libs.fragment)
 }

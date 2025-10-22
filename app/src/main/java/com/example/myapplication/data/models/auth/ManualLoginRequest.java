@@ -1,10 +1,10 @@
 package com.example.myapplication.data.models.auth;
 
-public class LoginManualRequest {
+public class ManualLoginRequest {
 
     private String email, password;
 
-    public LoginManualRequest(String email, String password) {
+    public ManualLoginRequest(String email, String password) {
         this.email = email;
         this.password = password;
     }

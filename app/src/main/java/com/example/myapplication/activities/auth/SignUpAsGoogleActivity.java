@@ -2,6 +2,7 @@ package com.example.myapplication.activities.auth;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,6 +20,7 @@ import com.example.myapplication.data.respository.auth.AuthenticationAPI;
 import com.example.myapplication.security.DataStoreManager;
 import com.example.myapplication.utils.GlobalUtility;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SignUpAsGoogleActivity extends AppCompatActivity {
@@ -32,50 +34,70 @@ public class SignUpAsGoogleActivity extends AppCompatActivity {
     private Activity activity;
     private GlobalUtility globalUtility;
     private DataStoreManager dataStoreManager;
+    // Init first
+    private String email;
+    String fullName;
+    private List<String> sign_in_type;
+    String status;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup_as_google);
         initViews();
+        GoogleAuthLoginResponse.UserData userData = (GoogleAuthLoginResponse.UserData) getIntent().getSerializableExtra("UserData");
+        sign_in_type = new ArrayList<>();
+        email = "";
+        fullName = "";
+        status = "";
+
+
+        if (userData != null) {
+            email = userData.getEmail();
+            fullName = userData.getFullname();
+            sign_in_type = userData.getSign_in_type();
+            for (var val :sign_in_type) {
+                Toast.makeText(context, "Value"+val, Toast.LENGTH_SHORT).show();
+            }
+
+            status = userData.getStatus();
+            etFullName.setText(email);
+            etEmailAddress.setText(fullName);
+        }
 
         btnManualSignUp.setOnClickListener(v -> {
-            GoogleAuthLoginResponse.UserData userData = (GoogleAuthLoginResponse.UserData) getIntent().getSerializableExtra("UserData");
+            String contactNo = etContactNo.getText().toString();
 
-            if (userData != null) {
-                String email = userData.getEmail();
-                String fullName = userData.getFullname();
-                List<String> sign_in_type = userData.getSign_in_type();
-                String status = userData.getStatus();
+            var user = new SignupPostRequest.User(email, fullName, status, sign_in_type);
+            var address = new SignupPostRequest.Address(null, null, null, null);
+            var personalInfo = new SignupPostRequest.PersonalInformation(contactNo, null);
+            SignupPostRequest request = new SignupPostRequest(user, address, personalInfo);
 
-                String contactNo = etContactNo.getText().toString();
-
-                etFullName.setText(email);
-                etEmailAddress.setText(fullName);
-                var user = new SignupPostRequest.User(email, fullName, status, sign_in_type);
-                var address = new SignupPostRequest.Address(null, null, null, null);
-                var personalInfo = new SignupPostRequest.PersonalInformation(contactNo, null);
-                SignupPostRequest request = new SignupPostRequest(user, address, personalInfo);
-                authenticationAPI.googleSignUp(request, new AuthCallback<ManualSignUpResponse>() {
-                    @Override
-                    public void onSuccess(ManualSignUpResponse response) {
-                        //Add the access token in data storage
-                        globalUtility.insertDataToDataStore("access_token",
-                                dataStoreManager,
-                                response.getAccess_token(), () -> {
-                                    globalUtility.getDataFromDataStore("access_token", dataStoreManager, data -> {
-                                    });
+            authenticationAPI.googleSignUp(request, new AuthCallback<ManualSignUpResponse>() {
+                @Override
+                public void onSuccess(ManualSignUpResponse response) {
+                    Intent intent = new Intent(SignUpAsGoogleActivity.this, UploadProfileActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    //Add the access token in data storage
+                    globalUtility.insertDataToDataStore("access_token",
+                            dataStoreManager,
+                            response.getToken().getAccess_token(), () -> {
+                                globalUtility.getDataFromDataStore("access_token", dataStoreManager, data -> {
                                 });
-                    }
+                            });
 
-                    @Override
-                    public void onError(Throwable t) {
+                    Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
+                    startActivity(intent);
+                    finish();
+                }
 
-                    }
-                });
+                @Override
+                public void onError(Throwable t) {
+                    Toast.makeText(context, "An error occurred " + t.getMessage(), Toast.LENGTH_SHORT).show();
 
+                }
+            });
 
-            }
         });
 
     }

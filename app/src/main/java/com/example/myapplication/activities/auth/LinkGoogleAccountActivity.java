@@ -14,9 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.activities.DashboardActivity;
 import com.example.myapplication.calbacks.auth.AuthCallback;
-import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
 import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;
-import com.example.myapplication.data.models.auth.LoginManualResponse;
+import com.example.myapplication.data.models.auth.ManualLoginResponse;
 import com.example.myapplication.data.respository.auth.AuthenticationAPI;
 import com.example.myapplication.security.DataStoreManager;
 import com.example.myapplication.utils.GlobalUtility;
@@ -40,9 +39,9 @@ public class LinkGoogleAccountActivity extends AppCompatActivity {
         btnLinkAccount.setOnClickListener(v -> {
             String userId = getIntent().getStringExtra("UserId");
             String userEmail = getIntent().getStringExtra("UserEmail");
-            autApi.linkUserAccountToGoogle(new LinkAccountToMultipleSiginMethodsRequest(userId,userEmail), new AuthCallback<LoginManualResponse>() {
+            autApi.linkUserAccountToGoogle(new LinkAccountToMultipleSiginMethodsRequest(userId,userEmail), new AuthCallback<ManualLoginResponse>() {
                 @Override
-                public void onSuccess(LoginManualResponse response) {
+                public void onSuccess(ManualLoginResponse response) {
                     Intent intent = new Intent(LinkGoogleAccountActivity.this, DashboardActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 

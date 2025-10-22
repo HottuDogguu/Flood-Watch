@@ -25,8 +25,8 @@ import com.example.myapplication.data.models.auth.ManualSignUpResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.calbacks.auth.AuthCallback;
-import com.example.myapplication.data.models.auth.LoginManualRequest;
-import com.example.myapplication.data.models.auth.LoginManualResponse;
+import com.example.myapplication.data.models.auth.ManualLoginRequest;
+import com.example.myapplication.data.models.auth.ManualLoginResponse;
 import com.example.myapplication.data.network.endpoints.auth.GoogleAuthenticateUser;
 import com.example.myapplication.data.network.endpoints.auth.LinkAccountToGoogleSignInMethod;
 import com.example.myapplication.data.network.endpoints.auth.ManualAuthenticateUser;
@@ -56,12 +56,12 @@ public class AuthenticationAPI {
 
     }
 
-    public void manualLoginResponse(LoginManualRequest requestPost,
-                                    AuthCallback<LoginManualResponse> callback) {
+    public void manualLoginResponse(ManualLoginRequest requestPost,
+                                    AuthCallback<ManualLoginResponse> callback) {
         ManualAuthenticateUser auth = api.getRetrofit().create(ManualAuthenticateUser.class);
-        auth.authenticateUser(requestPost.getEmail(), requestPost.getPassword()).enqueue(new Callback<LoginManualResponse>() {
+        auth.authenticateUser(requestPost.getEmail(), requestPost.getPassword()).enqueue(new Callback<ManualLoginResponse>() {
             @Override
-            public void onResponse(@NonNull Call<LoginManualResponse> call, @NonNull Response<LoginManualResponse> response) {
+            public void onResponse(@NonNull Call<ManualLoginResponse> call, @NonNull Response<ManualLoginResponse> response) {
 
                 // Check if no error
                 if (response.isSuccessful() && response.body() != null) {
@@ -84,14 +84,14 @@ public class AuthenticationAPI {
             }
 
             @Override
-            public void onFailure(@NonNull Call<LoginManualResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ManualLoginResponse> call, @NonNull Throwable t) {
                 callback.onError(t);
             }
         });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private void googleGetToken(String webClientId, AuthCallback<GoogleTokenRequest> callback) {
+    private void googleGetToken(String webClientId, AuthCallback<String> callback) {
 
         //Setup the google auth
         GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
@@ -110,7 +110,7 @@ public class AuthenticationAPI {
         signIn(getCredentialRequest, callback);
     }
 
-    private void signIn(GetCredentialRequest request, AuthCallback<GoogleTokenRequest> callback) {
+    private void signIn(GetCredentialRequest request, AuthCallback<String> callback) {
         CredentialManager credentialManager = CredentialManager.create(activity);
         CancellationSignal cancellationSignal = new CancellationSignal();
         Executor executor = activity.getMainExecutor();
@@ -127,7 +127,7 @@ public class AuthenticationAPI {
                         GoogleIdTokenCredential googleIdCredential =
                                 GoogleIdTokenCredential.createFrom(result.getCredential().getData());
                         String token = googleIdCredential.getIdToken();
-                        callback.onSuccess(new GoogleTokenRequest(token));
+                        callback.onSuccess(token);
 
                     }
 
@@ -142,12 +142,12 @@ public class AuthenticationAPI {
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void googleLoginResponse(String webClientId,
                                     AuthCallback<GoogleAuthLoginResponse> callback) {
-        this.googleGetToken(webClientId, new AuthCallback<GoogleTokenRequest>() {
+        this.googleGetToken(webClientId, new AuthCallback<String>() {
             @Override
-            public void onSuccess(GoogleTokenRequest response) {
+            public void onSuccess(String request) {
                 GoogleAuthenticateUser googleAuthenticateUser = api.getRetrofit().create(GoogleAuthenticateUser.class);
                 //Call the api
-                googleAuthenticateUser.authenticateUser(response).enqueue(new Callback<GoogleAuthLoginResponse>() {
+                googleAuthenticateUser.authenticateUser(request).enqueue(new Callback<GoogleAuthLoginResponse>() {
                     @Override
                     public void onResponse(@NonNull Call<GoogleAuthLoginResponse> call, @NonNull Response<GoogleAuthLoginResponse> response) {
 
@@ -226,11 +226,11 @@ public class AuthenticationAPI {
         });
     }
 
-    public void linkUserAccountToGoogle(LinkAccountToMultipleSiginMethodsRequest request, AuthCallback<LoginManualResponse> callback) {
+    public void linkUserAccountToGoogle(LinkAccountToMultipleSiginMethodsRequest request, AuthCallback<ManualLoginResponse> callback) {
         LinkAccountToGoogleSignInMethod linkAccountToGoogleSignInMethod = api.getRetrofit().create(LinkAccountToGoogleSignInMethod.class);
-        linkAccountToGoogleSignInMethod.authenticateUser(request).enqueue(new Callback<LoginManualResponse>() {
+        linkAccountToGoogleSignInMethod.authenticateUser(request).enqueue(new Callback<ManualLoginResponse>() {
             @Override
-            public void onResponse(Call<LoginManualResponse> call, Response<LoginManualResponse> response) {
+            public void onResponse(Call<ManualLoginResponse> call, Response<ManualLoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
@@ -243,7 +243,7 @@ public class AuthenticationAPI {
             }
 
             @Override
-            public void onFailure(Call<LoginManualResponse> call, Throwable t) {
+            public void onFailure(Call<ManualLoginResponse> call, Throwable t) {
                 callback.onError(t);
             }
         });

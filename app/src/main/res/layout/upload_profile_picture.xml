@@ -122,4 +122,13 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentSelectPhoto"
+        android:name="com.example.myapplication.ui.fragments.auth.PhotoSelectorFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

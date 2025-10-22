@@ -1,6 +1,6 @@
 package com.example.myapplication.data.models.auth;
 
-public class LoginManualResponse {
+public class ManualLoginResponse {
         String access_token, access_type,status;
 
     public String getStatus() {

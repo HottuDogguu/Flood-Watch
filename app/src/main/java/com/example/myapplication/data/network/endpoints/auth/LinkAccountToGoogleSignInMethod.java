@@ -1,8 +1,7 @@
 package com.example.myapplication.data.network.endpoints.auth;
 
-import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
 import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;
-import com.example.myapplication.data.models.auth.LoginManualResponse;
+import com.example.myapplication.data.models.auth.ManualLoginResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -13,5 +12,5 @@ public interface LinkAccountToGoogleSignInMethod {
 
     @Headers({"Content-Type: application/json"})
     @POST("auth/linked/account")
-    Call<LoginManualResponse> authenticateUser(@Body LinkAccountToMultipleSiginMethodsRequest request);
+    Call<ManualLoginResponse> authenticateUser(@Body LinkAccountToMultipleSiginMethodsRequest request);
 }

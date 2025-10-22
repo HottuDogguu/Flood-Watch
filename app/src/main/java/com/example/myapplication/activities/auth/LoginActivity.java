@@ -4,10 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,8 +20,8 @@ import com.example.myapplication.R;
 import com.example.myapplication.activities.DashboardActivity;
 import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
 import com.example.myapplication.calbacks.auth.AuthCallback;
-import com.example.myapplication.data.models.auth.LoginManualRequest;
-import com.example.myapplication.data.models.auth.LoginManualResponse;
+import com.example.myapplication.data.models.auth.ManualLoginRequest;
+import com.example.myapplication.data.models.auth.ManualLoginResponse;
 import com.example.myapplication.data.respository.auth.AuthenticationAPI;
 import com.example.myapplication.data.validation.DataFieldsValidation;
 import com.example.myapplication.security.DataStoreManager;
@@ -57,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
         // initialized variables
         context = this; // Set context
         auth = new AuthenticationAPI(this);
-        this.utility = new GlobalUtility();
+        this.globalUtility = new GlobalUtility();
         dataStoreManager = new DataStoreManager(context);
         dataValidation = new DataFieldsValidation();
 
@@ -144,10 +142,10 @@ public class LoginActivity extends AppCompatActivity {
             //if no empty fields, then proceed to calling api.
 
             //call the get response function which is the request from apiBuilder
-            auth.manualLoginResponse(new LoginManualRequest(loginEmail, loginPassword),
-                    new AuthCallback<LoginManualResponse>() {
+            auth.manualLoginResponse(new ManualLoginRequest(loginEmail, loginPassword),
+                    new AuthCallback<ManualLoginResponse>() {
                         @Override
-                        public void onSuccess(LoginManualResponse response) {
+                        public void onSuccess(ManualLoginResponse response) {
                             if (response.getStatus().equals("pending")) {
                                 Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
                                 //Loading first
@@ -155,21 +153,22 @@ public class LoginActivity extends AppCompatActivity {
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(intent);
                                 finish();
+                                return;
 
                             }
+                            globalUtility.insertDataToDataStore("access_token", dataStoreManager,
+                                    response.getAccess_token(),
+                                    () -> {
+                                        globalUtility.getDataFromDataStore("access_token", dataStoreManager, data -> {
+                                            Toast.makeText(context, "Successfully Login", Toast.LENGTH_LONG).show();
+                                            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                                            //Loading first
 
-                            dataStoreManager.saveDataFromJava("access_token", response.getAccess_token(), () -> {
-                                dataStoreManager.getStringFromJava("access_token", s -> {
-                                    Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                                    //Loading first
-                                    Toast.makeText(context, "Successfully Login", Toast.LENGTH_LONG).show();
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                    finish();
-                                    return null;
-                                });
-                                return null;
-                            });
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                            startActivity(intent);
+                                            finish();
+                                        });
+                                    });
                         }
 
                         @Override
@@ -212,14 +211,20 @@ public class LoginActivity extends AppCompatActivity {
                             finish();
                             //return it to stop here the logic
                             return;
-                        }
-                        //Add the access token in data storage
-                        globalUtility.insertDataToDataStore("access_token",
-                                dataStoreManager,
-                                response.getToken().getAccess_token(), () -> {
-                                    globalUtility.getDataFromDataStore("access_token", dataStoreManager, data -> {
+                        } else {
+                            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            //Add the access token in data storage
+                            globalUtility.insertDataToDataStore("access_token",
+                                    dataStoreManager,
+                                    response.getToken().getAccess_token(), () -> {
+                                        globalUtility.getDataFromDataStore("access_token", dataStoreManager, data -> {
+                                        });
                                     });
-                                });
+                            startActivity(intent);
+                            finish();
+                        }
+
                         //if no in if and else if, it means the user is verified
 
                         //This is the end of the if user action is logged in
@@ -246,7 +251,6 @@ public class LoginActivity extends AppCompatActivity {
             finish();
         });
     }
-
 
     @Override
     protected void onPause() {

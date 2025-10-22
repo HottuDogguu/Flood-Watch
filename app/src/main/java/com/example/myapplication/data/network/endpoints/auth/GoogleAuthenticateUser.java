@@ -15,5 +15,5 @@ public interface GoogleAuthenticateUser {
 
     @Headers("Content-Type: application/json")
     @POST("auth/google/callback")
-    Call<GoogleAuthLoginResponse> authenticateUser(@Body GoogleTokenRequest token);
+    Call<GoogleAuthLoginResponse> authenticateUser(@Body String token);
 }

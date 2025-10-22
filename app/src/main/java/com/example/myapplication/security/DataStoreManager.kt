@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.myapplication.utils.HashingUtility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -11,7 +12,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class DataStoreManager constructor( val context: Context) {
+class DataStoreManager constructor(val context: Context) {
+    private val hashingUtility = HashingUtility()
 
     companion object {
         @Volatile
@@ -23,15 +25,17 @@ class DataStoreManager constructor( val context: Context) {
             }
         }
 
-        private val Context.dataStore by preferencesDataStore("local")
+        private val Context.dataStore by preferencesDataStore("secure_user_prefs")
     }
 
     // ---------------- SAVE ----------------
     suspend fun saveData(key: String, value: String) {
+        val encryptedValue = hashingUtility.encrypt(value)
         context.dataStore.edit {
-            it[stringPreferencesKey(key)] = value
+            it[stringPreferencesKey(key)] = encryptedValue
         }
     }
+
 
     fun saveDataFromJava(key: String, value: String, callback: () -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -43,21 +47,30 @@ class DataStoreManager constructor( val context: Context) {
     }
 
     // ---------------- GET ----------------
-    suspend fun getString(key: String): String? {
-        return context.dataStore.data.map { preferences ->
-            preferences[stringPreferencesKey(key)] ?: ""
-        }.first()
+
+    suspend fun readData(key: String): String? {
+        val prefs = context.dataStore.data.first()
+        val encrypted = prefs[stringPreferencesKey(key)]
+        return encrypted?.let { hashingUtility.decrypt(it) }
     }
 
 
     fun getStringFromJava(key: String, callback: (String?) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
-            val value = getString(key)
+            val value = readData(key)
             withContext(Dispatchers.Main) {
                 callback(value)
             }
         }
     }
+
+
+    suspend fun clearAll() {
+        withContext(Dispatchers.IO) {
+            context.dataStore.edit { it.clear() }
+        }
+    }
+
 
     // ---------------- DELETE ----------------
     suspend fun deleteKey(key: String) {
@@ -71,6 +84,15 @@ class DataStoreManager constructor( val context: Context) {
             deleteKey(key) // suspend function
             withContext(Dispatchers.Main) {
                 callback() // notify Java when deletion is done
+            }
+        }
+    }
+
+    fun clearAllFromJava(callback: () -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            clearAll()
+            withContext(Dispatchers.Main) {
+                callback()
             }
         }
     }
