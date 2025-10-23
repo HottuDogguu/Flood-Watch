@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class DataStoreManager constructor(val context: Context) {
-    private val hashingUtility = HashingUtility()
 
     companion object {
         @Volatile
@@ -29,7 +28,7 @@ class DataStoreManager constructor(val context: Context) {
 
     // ---------------- SAVE ----------------
     suspend fun saveData(key: String, value: String) {
-        val encryptedValue = hashingUtility.encrypt(value)
+        val encryptedValue = value
         context.dataStore.edit {
             it[stringPreferencesKey(key)] = encryptedValue
         }
@@ -50,7 +49,7 @@ class DataStoreManager constructor(val context: Context) {
     suspend fun readData(key: String): String? {
         val prefs = context.dataStore.data.first()
         val encrypted = prefs[stringPreferencesKey(key)]
-        return encrypted?.let { hashingUtility.decrypt(it) }
+        return encrypted
     }
 
 

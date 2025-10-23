@@ -35,7 +35,7 @@
         android:usesCleartextTraffic="true" >
 
         <activity
-            android:name=".ui.activity.auth.UploadProfileActivity"
+            android:name=".ui.activity.auth.LoginActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,7 +47,7 @@
             android:name=".ui.activity.auth.SignupActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.auth.LoginActivity"
+            android:name=".ui.activity.auth.UploadProfileActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.auth.SignUpAsGoogleActivity"
