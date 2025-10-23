@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Flood Watch</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="app_icon">App Icon</string>
+    <string name="notifications">Notifications</string>
+    <string name="location">Location</string>
+    <string name="rainfall">Rainfall</string>
+    <string name="alerts">Alerts</string>
+    <string name="alert">Alert</string>
+    <string name="notification">Notification</string>
+    <string name="profile">Profile</string>
 </resources>

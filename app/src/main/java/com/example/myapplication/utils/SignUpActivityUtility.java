@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
-import com.example.myapplication.activities.auth.EmailVerificationActivity;
+import com.example.myapplication.ui.activity.auth.EmailVerificationActivity;
 import com.example.myapplication.calbacks.auth.AuthCallback;
 import com.example.myapplication.data.models.auth.ManualSignUpResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;

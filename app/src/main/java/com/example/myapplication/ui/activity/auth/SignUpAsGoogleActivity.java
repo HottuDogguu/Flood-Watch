@@ -1,4 +1,4 @@
-package com.example.myapplication.activities.auth;
+package com.example.myapplication.ui.activity.auth;
 
 import android.app.Activity;
 import android.content.Context;

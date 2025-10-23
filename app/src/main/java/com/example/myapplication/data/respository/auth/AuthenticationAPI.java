@@ -128,7 +128,6 @@ public class AuthenticationAPI {
                                 GoogleIdTokenCredential.createFrom(result.getCredential().getData());
                         String token = googleIdCredential.getIdToken();
                         callback.onSuccess(token);
-
                     }
 
                     @Override
@@ -143,8 +142,11 @@ public class AuthenticationAPI {
     public void googleLoginResponse(String webClientId,
                                     AuthCallback<GoogleAuthLoginResponse> callback) {
         this.googleGetToken(webClientId, new AuthCallback<String>() {
+
+
             @Override
             public void onSuccess(String request) {
+
                 GoogleAuthenticateUser googleAuthenticateUser = api.getRetrofit().create(GoogleAuthenticateUser.class);
                 //Call the api
                 googleAuthenticateUser.authenticateUser(request).enqueue(new Callback<GoogleAuthLoginResponse>() {

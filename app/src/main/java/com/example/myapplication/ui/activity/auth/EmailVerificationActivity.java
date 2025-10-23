@@ -1,4 +1,4 @@
-package com.example.myapplication.activities.auth;
+package com.example.myapplication.ui.activity.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
-import com.example.myapplication.activities.DashboardActivity;
+import com.example.myapplication.ui.activity.DashboardActivity;
 
 
 import org.json.JSONException;
@@ -36,7 +36,7 @@ public class EmailVerificationActivity extends AppCompatActivity {
         client = new OkHttpClient();
         userEmail = getIntent().getStringExtra("UserEmail");
         Toast.makeText(this, "Email" + userEmail, Toast.LENGTH_SHORT).show();
-        Request request = new Request.Builder().url("ws://192.168.7.41:8000/api/v1/fms/auth/verify/account/activation?email=" + userEmail + "-Android").build();
+        Request request = new Request.Builder().url("ws://192.168.7.41:8000/api/fms/v1/auth/verify/account/activation?email=" + userEmail + "-Android").build();
         WebSocketListener listener = new WebSocketListener() {
 
             @Override

@@ -74,4 +74,6 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
     implementation(libs.fragment)
+    implementation(libs.leanback)
+    implementation(libs.glide)
 }

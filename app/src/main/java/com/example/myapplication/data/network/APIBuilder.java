@@ -12,7 +12,7 @@ public class APIBuilder {
     public APIBuilder(){
         utility = new GlobalUtility();
         this.retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.7.41:9898/api/v1/fms/")
+                .baseUrl("http://192.168.7.56:9898/api/fms/v1/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }

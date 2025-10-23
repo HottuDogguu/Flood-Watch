@@ -8,13 +8,21 @@
     </item>
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <solid android:color="#1D4ED8" />
+            <gradient
+                android:angle="45"
+                android:startColor="#1D4ED8"
+                android:endColor="#7C3AED"
+                android:type="linear" />
             <corners android:radius="12dp" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#2563EB" />
+            <gradient
+                android:angle="45"
+                android:startColor="#2563EB"
+                android:endColor="#A855F7"
+                android:type="linear" />
             <corners android:radius="12dp" />
         </shape>
     </item>

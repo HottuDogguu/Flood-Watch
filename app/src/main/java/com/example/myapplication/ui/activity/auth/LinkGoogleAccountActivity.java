@@ -1,4 +1,4 @@
-package com.example.myapplication.activities.auth;
+package com.example.myapplication.ui.activity.auth;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
-import com.example.myapplication.activities.DashboardActivity;
+import com.example.myapplication.ui.activity.DashboardActivity;
 import com.example.myapplication.calbacks.auth.AuthCallback;
 import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;
 import com.example.myapplication.data.models.auth.ManualLoginResponse;

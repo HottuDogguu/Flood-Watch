@@ -3,14 +3,13 @@ package com.example.myapplication.ui.fragments.auth;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.myapplication.R;
-import com.example.myapplication.activities.auth.UploadProfileActivity;
+import com.example.myapplication.ui.activity.auth.UploadProfileActivity;
 
 public class PhotoSelectorFragment extends Fragment {
 
@@ -20,14 +19,6 @@ public class PhotoSelectorFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        myLifeCycleObserver = new LifeCycleObserver(requireActivity().getActivityResultRegistry(),
-                uri -> {
-                    if (getActivity() instanceof UploadProfileActivity) {
-                        ((UploadProfileActivity) getActivity()).showSelectedImage(uri);
-                    }
-                }
-        );
-        getLifecycle().addObserver(myLifeCycleObserver);
     }
 
     @Override

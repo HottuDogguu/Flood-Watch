@@ -1,65 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.myapplication"
-    android:usesCleartextTraffic="true">
-<!--    To require internet connection because of the API call-->
+    android:usesCleartextTraffic="true"
+    tools:ignore="MissingLeanbackLauncher">
+
+
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- For network connectivity monitoring -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:ignore="PhotoAndVideoPolicy,SelectedPhotoAccess" />
+
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"
+        tools:ignore="PhotoAndVideoPolicy,SelectedPhotoAccess" />
+
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="Flood Watch"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/round_icon_flood_watch"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
-        android:networkSecurityConfig="@xml/network_security_config"
-        android:theme="@style/Theme.FloodWatch">
-
-
+        android:theme="@style/Theme.FloodWatch"
+        android:usesCleartextTraffic="true" >
 
         <activity
-            android:name=".activities.auth.LoginActivity"
-            android:exported="true">
+            android:name=".ui.activity.auth.UploadProfileActivity"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name=".activities.auth.SignupActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activities.auth.UploadProfileActivity"
+            android:name=".ui.activity.auth.SignupActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.auth.SignUpAsGoogleActivity"
+            android:name=".ui.activity.auth.LoginActivity"
             android:exported="false" />
-
         <activity
-            android:name=".activities.auth.LinkGoogleAccountActivity"
+            android:name=".ui.activity.auth.SignUpAsGoogleActivity"
             android:exported="false" />
-
         <activity
-            android:name=".activities.HomeActivity"
+            android:name=".ui.activity.auth.LinkGoogleAccountActivity"
             android:exported="false" />
-
         <activity
-            android:name=".activities.DashboardActivity"
+            android:name=".ui.activity.HomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.DashboardActivity"
             android:exported="false"
-            android:parentActivityName=".activities.HomeActivity" />
-
+            android:parentActivityName=".ui.activity.HomeActivity" />
         <activity
-            android:name=".activities.AnnouncementActivity"
+            android:name=".ui.activity.AnnouncementActivity"
             android:exported="false"
-            android:parentActivityName=".activities.HomeActivity" />
+            android:parentActivityName=".ui.activity.HomeActivity" />
         <activity
-            android:name=".activities.auth.EmailVerificationActivity"
+            android:name=".ui.activity.auth.EmailVerificationActivity"
             android:exported="false" />
-
     </application>
 
 </manifest>

@@ -7,7 +7,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="#F3F4F6"
 
-    tools:context=".activities.auth.SignupActivity"
+    tools:context=".ui.activity.auth.SignupActivity"
     android:fillViewport="true">
 
     <LinearLayout

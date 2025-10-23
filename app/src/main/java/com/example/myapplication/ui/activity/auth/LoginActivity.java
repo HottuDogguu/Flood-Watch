@@ -1,4 +1,4 @@
-package com.example.myapplication.activities.auth;
+package com.example.myapplication.ui.activity.auth;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +17,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
-import com.example.myapplication.activities.DashboardActivity;
+import com.example.myapplication.ui.activity.DashboardActivity;
 import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
 import com.example.myapplication.calbacks.auth.AuthCallback;
 import com.example.myapplication.data.models.auth.ManualLoginRequest;
@@ -25,6 +25,7 @@ import com.example.myapplication.data.models.auth.ManualLoginResponse;
 import com.example.myapplication.data.respository.auth.AuthenticationAPI;
 import com.example.myapplication.data.validation.DataFieldsValidation;
 import com.example.myapplication.security.DataStoreManager;
+import com.example.myapplication.ui.activity.HomeActivity;
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -138,9 +139,7 @@ public class LoginActivity extends AppCompatActivity {
                 imm.showSoftInput(password, InputMethodManager.SHOW_IMPLICIT);
                 return;
             }
-
             //if no empty fields, then proceed to calling api.
-
             //call the get response function which is the request from apiBuilder
             auth.manualLoginResponse(new ManualLoginRequest(loginEmail, loginPassword),
                     new AuthCallback<ManualLoginResponse>() {
@@ -154,14 +153,14 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(intent);
                                 finish();
                                 return;
-
                             }
+
                             globalUtility.insertDataToDataStore("access_token", dataStoreManager,
                                     response.getAccess_token(),
                                     () -> {
                                         globalUtility.getDataFromDataStore("access_token", dataStoreManager, data -> {
                                             Toast.makeText(context, "Successfully Login", Toast.LENGTH_LONG).show();
-                                            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                             //Loading first
 
                                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -170,7 +169,6 @@ public class LoginActivity extends AppCompatActivity {
                                         });
                                     });
                         }
-
                         @Override
                         public void onError(Throwable t) {
                             String statusCode = t.getMessage();
@@ -197,7 +195,6 @@ public class LoginActivity extends AppCompatActivity {
                     String userActions = response.getAction();
                     int profile_setup_steps = response.getData().getProfile_setup_steps();
                     List<String> sign_in_type = response.getData().getSign_in_type();
-
                     if (userActions.equals("login")) {
                         //if the account does not linked in google, then it will go to the link page
                         if (!sign_in_type.contains("google")) {
@@ -210,7 +207,7 @@ public class LoginActivity extends AppCompatActivity {
                             startActivity(intent);
                             finish();
                             //return it to stop here the logic
-                            return;
+
                         } else {
                             Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -223,6 +220,7 @@ public class LoginActivity extends AppCompatActivity {
                                     });
                             startActivity(intent);
                             finish();
+
                         }
 
                         //if no in if and else if, it means the user is verified
