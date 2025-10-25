@@ -11,9 +11,9 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 
-import com.example.myapplication.security.DataStoreManager;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +22,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.nio.channels.FileChannel;
 import java.util.Enumeration;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,32 +35,6 @@ public class GlobalUtility {
     public GlobalUtility() {
     }
 
-    /**
-     * @param key        The key will pair to the data to be inserted in Data Store.
-     * @param dm         The Data Store Class
-     * @param value      The data to be inserted in data store.
-     * @param onComplete To check wether the process is complete .
-     */
-
-    public void insertDataToDataStore(String key, DataStoreManager dm, String value, Runnable onComplete) {
-        dm.saveDataFromJava(key, value, () -> {
-            onComplete.run();
-            return null;
-        });
-    }
-
-    public void deleteDataToDataStore(String key, DataStoreManager dm) {
-        dm.deleteKeyFromJava(key, () -> {
-            return null;
-        });
-    }
-
-    public void getDataFromDataStore(String key, DataStoreManager dm, Consumer<String> callback) {
-        dm.getStringFromJava(key, data -> {
-            callback.accept(data);
-            return null;
-        });
-    }
 
     public String getLocalIP() {
         try {
@@ -111,21 +86,36 @@ public class GlobalUtility {
     }
 
     public File uriToFile(Uri uri, Activity activity) throws IOException {
-        try (InputStream in = activity.getContentResolver().openInputStream(uri)) {
-            File file = File.createTempFile("upload_", ".jpg", activity.getCacheDir());
-            try (OutputStream out = new FileOutputStream(file)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (in != null) {
-                        in.transferTo(out);
-                    }
-                }
+        File file = File.createTempFile("upload_", ".jpg", activity.getCacheDir());
+
+        try (InputStream in = activity.getContentResolver().openInputStream(uri);
+             FileOutputStream out = new FileOutputStream(file)) {
+
+            if (in == null) {
+                throw new IOException("Cannot open input stream from URI");
             }
+
+            FileChannel inChannel = ((FileInputStream) in).getChannel();
+            FileChannel outChannel = out.getChannel();
+
+            long transferred = inChannel.transferTo(0, inChannel.size(), outChannel);
+
+            if (transferred == 0) {
+                throw new IOException("No bytes transferred - file may be empty");
+            }
+
+            Log.d("FileCopy", "File copied successfully. Size: " + file.length() + " bytes");
             return file;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to copy URI to file", e);
+
+        } catch (Exception e) {
+            Log.e("FileCopy", "Error copying file: " + e.getMessage(), e);
+            // Fallback to traditional copy if FileChannel fails
+            return null;
         }
     }
-    public void deleteFile(File file){
+
+
+    public void deleteFile(File file) {
         if (file != null && file.exists()) {
             boolean deleted = file.delete();
             if (deleted) {

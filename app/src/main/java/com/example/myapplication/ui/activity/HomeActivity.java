@@ -10,6 +10,7 @@ import android.widget.Toast;
 import android.window.OnBackInvokedDispatcher;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,7 +22,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.material.navigation.NavigationView;
 
-public class HomeActivity extends AppCompatActivity
+public class HomeActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener{
     private DrawerLayout drawerLayout;
     private TextView tvWaterLevel;
@@ -43,6 +44,7 @@ public class HomeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home);
+
         // Initialize views
         initViews();
 
@@ -52,14 +54,15 @@ public class HomeActivity extends AppCompatActivity
         // Setup navigation drawer
         setupNavigationDrawer();
 
+        // Setup back press handler (NEW APPROACH)
+        setupBackPressHandler();
+
         // Setup listeners
         setupListeners();
 
         // Update UI with initial data
         updateUI();
-}
-
-
+    }
 
     private void initViews() {
         activity = this;
@@ -92,6 +95,25 @@ public class HomeActivity extends AppCompatActivity
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+    }
+
+    private void setupBackPressHandler() {
+        // Use the new OnBackPressedDispatcher for predictive back gestures
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    // Option 1: Finish the activity
+                    finish();
+
+                    // Option 2: Use the default back behavior
+                    // setEnabled(false);
+                    // getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
     }
 
     private void setupListeners() {
@@ -131,7 +153,6 @@ public class HomeActivity extends AppCompatActivity
             statusColor = getResources().getColor(R.color.green_500, null);
             tvStatus.setBackgroundResource(R.drawable.bg_status_normal);
         }
-
 
         // Update other stats
         tvRainfall.setText(rainfall + "%");
@@ -175,26 +196,6 @@ public class HomeActivity extends AppCompatActivity
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    @NonNull
-    @Override
-    public OnBackInvokedDispatcher getOnBackInvokedDispatcher() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-        return super.getOnBackInvokedDispatcher();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
     }
 
     // Method to simulate water level updates (you can call this from your data source)

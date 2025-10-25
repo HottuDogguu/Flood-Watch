@@ -12,23 +12,23 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
+import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.ui.activity.DashboardActivity;
 import com.example.myapplication.calbacks.auth.AuthCallback;
 import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;
 import com.example.myapplication.data.models.auth.ManualLoginResponse;
 import com.example.myapplication.data.respository.auth.AuthenticationAPI;
-import com.example.myapplication.security.DataStoreManager;
 import com.example.myapplication.utils.GlobalUtility;
 
 
-public class LinkGoogleAccountActivity extends AppCompatActivity {
+public class LinkGoogleAccountActivity extends BaseActivity {
     private Button btnLinkAccount;
     private TextView tvBackToSignIn;
     private AuthenticationAPI autApi;
     private Activity activity;
     private Context context;
     private GlobalUtility globalUtility;
-    private DataStoreManager dataStoreManager;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,17 +45,6 @@ public class LinkGoogleAccountActivity extends AppCompatActivity {
                     Intent intent = new Intent(LinkGoogleAccountActivity.this, DashboardActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-                    //Add the access token in data storage
-                    globalUtility.insertDataToDataStore("access_token",
-                            dataStoreManager,
-                            response.getAccess_token(), () -> {
-                                globalUtility.getDataFromDataStore("access_token", dataStoreManager, data -> {
-                                    Toast.makeText(context, "Successfully Linked Account.", Toast.LENGTH_SHORT).show();
-                                    //Remove the extra in intent
-                                    getIntent().removeExtra("UserId");
-                                    getIntent().removeExtra("UserEmail");
-                                });
-                            });
                     //Start the new Activity or show it
                     startActivity(intent);
                     //then finish this current views
@@ -74,7 +63,6 @@ public class LinkGoogleAccountActivity extends AppCompatActivity {
         this.context = this;
         activity = new Activity();
         autApi = new AuthenticationAPI(activity);
-        dataStoreManager = new DataStoreManager(context);
         globalUtility = new GlobalUtility();
 
         this.btnLinkAccount = (Button) findViewById(R.id.btnLinkAccount);

@@ -1,8 +1,14 @@
 package com.example.myapplication.data.network;
 
+import com.example.myapplication.BuildConfig;
 import com.example.myapplication.utils.GlobalUtility;
 
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -34,8 +40,9 @@ public class APIBuilder {
                 })
                 .build();
         utility = new GlobalUtility();
+        String BASE_HTTP_URL= BuildConfig.API_HTTP_BASE_URL;
         this.retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.7.41:9898/api/fms/v1/")
+                .baseUrl(BASE_HTTP_URL)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();

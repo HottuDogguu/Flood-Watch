@@ -18,6 +18,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.data.models.auth.SignupPostRequest.*;
 import com.example.myapplication.data.respository.auth.AuthenticationAPI;
 import com.example.myapplication.data.validation.DataFieldsValidation;
+import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.utils.GlobalUtility;
 import com.example.myapplication.utils.SignUpActivityUtility;
 import com.google.android.material.textfield.TextInputEditText;
@@ -25,7 +26,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
 
-public class SignupActivity extends AppCompatActivity {
+public class SignupActivity extends BaseActivity {
 
     private Button signupButton;
     private Context context;
@@ -89,61 +90,61 @@ public class SignupActivity extends AppCompatActivity {
             String passwordValidateMessage = dataFieldsValidation.validatePassword(userPass);
             boolean isPasswordMatch = dataFieldsValidation.isPasswordMatch(userPass, userConfirmPass);
             //validation for empty fields
-//            if (isFullNameEmpty) {
-//                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "This field must not be empty!", false);
-//                return;
-//            } else {
-//                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "", true);
-//
-//            }
-//            if (isEmailEmpty) {
-//                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "This field must not be empty!", false);
-//                return;
-//            } else {
-//                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
-//
-//            }
-//            if (isContactNoEmpty) {
-//                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "This field must not be empty!", false);
-//                return;
-//            } else {
-//                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", true);
-//
-//            }
-//            if (isUserPasswordEmpty) {
-//                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "This field must not be empty!", false);
-//                return;
-//            } else {
-//                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "", true);
-//
-//            }
-//            //Validation for email, Contact no, Second Phone Number, Password and confirm password
-//            if (emailValidateMessage.isEmpty()) {
-//                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
-//            } else {
-//                setRequestFocusOnField(scrollView, txtEmail, tilEmail, emailValidateMessage, false);
-//            }
-//
-//            if (phoneValidateMessage.isEmpty()) {
-//                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", true);
-//            } else {
-//                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, phoneValidateMessage, false);
-//            }
-//            if (secondPhoneValidateMessage.isEmpty()) {
-//                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
-//            } else {
-//                setRequestFocusOnField(scrollView, txtEmail, tilEmail, emailValidateMessage, false);
-//            }
-//            if (passwordValidateMessage.isEmpty()) {
-//                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "", true);
-//            } else {
-//                setRequestFocusOnField(scrollView, txtPassword, tilPassword, passwordValidateMessage, false);
-//            }
-//            if (isPasswordMatch) {
-//                setRequestFocusOnField(scrollView, txtConfirmPass, tilConfirmPassword, "", true);
-//            } else {
-//                setRequestFocusOnField(scrollView, txtConfirmPass, tilConfirmPassword, "Password not match!", false);
-//            }
+            if (isFullNameEmpty) {
+                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "This field must not be empty!", false);
+                return;
+            } else {
+                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "", true);
+
+            }
+            if (isEmailEmpty) {
+                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "This field must not be empty!", false);
+                return;
+            } else {
+                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
+
+            }
+            if (isContactNoEmpty) {
+                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "This field must not be empty!", false);
+                return;
+            } else {
+                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", true);
+
+            }
+            if (isUserPasswordEmpty) {
+                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "This field must not be empty!", false);
+                return;
+            } else {
+                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "", true);
+
+            }
+            //Validation for email, Contact no, Second Phone Number, Password and confirm password
+            if (emailValidateMessage.isEmpty()) {
+                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
+            } else {
+                setRequestFocusOnField(scrollView, txtEmail, tilEmail, emailValidateMessage, false);
+            }
+
+            if (phoneValidateMessage.isEmpty()) {
+                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", true);
+            } else {
+                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, phoneValidateMessage, false);
+            }
+            if (secondPhoneValidateMessage.isEmpty()) {
+                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
+            } else {
+                setRequestFocusOnField(scrollView, txtEmail, tilEmail, emailValidateMessage, false);
+            }
+            if (passwordValidateMessage.isEmpty()) {
+                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "", true);
+            } else {
+                setRequestFocusOnField(scrollView, txtPassword, tilPassword, passwordValidateMessage, false);
+            }
+            if (isPasswordMatch) {
+                setRequestFocusOnField(scrollView, txtConfirmPass, tilConfirmPassword, "", true);
+            } else {
+                setRequestFocusOnField(scrollView, txtConfirmPass, tilConfirmPassword, "Password not match!", false);
+            }
 
             //call the API
             signUpActivityUtility.signUpUser(
@@ -169,8 +170,6 @@ public class SignupActivity extends AppCompatActivity {
             finish();
         });
     }
-
-
 
     private void initViews() {
         //initialize variables

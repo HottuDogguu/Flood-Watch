@@ -17,13 +17,13 @@ import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
 import com.example.myapplication.data.models.auth.ManualSignUpResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.respository.auth.AuthenticationAPI;
-import com.example.myapplication.security.DataStoreManager;
+import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.utils.GlobalUtility;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SignUpAsGoogleActivity extends AppCompatActivity {
+public class SignUpAsGoogleActivity extends BaseActivity {
 
     private EditText etFullName;
     private EditText etEmailAddress;
@@ -33,7 +33,6 @@ public class SignUpAsGoogleActivity extends AppCompatActivity {
     private Context context;
     private Activity activity;
     private GlobalUtility globalUtility;
-    private DataStoreManager dataStoreManager;
     // Init first
     private String email;
     String fullName;
@@ -78,19 +77,11 @@ public class SignUpAsGoogleActivity extends AppCompatActivity {
                 public void onSuccess(ManualSignUpResponse response) {
                     Intent intent = new Intent(SignUpAsGoogleActivity.this, UploadProfileActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    //Add the access token in data storage
-                    globalUtility.insertDataToDataStore("access_token",
-                            dataStoreManager,
-                            response.getToken().getAccess_token(), () -> {
-                                globalUtility.getDataFromDataStore("access_token", dataStoreManager, data -> {
-                                });
-                            });
 
                     Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
                     startActivity(intent);
                     finish();
                 }
-
                 @Override
                 public void onError(Throwable t) {
                     Toast.makeText(context, "An error occurred " + t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -109,7 +100,6 @@ public class SignUpAsGoogleActivity extends AppCompatActivity {
 
         authenticationAPI = new AuthenticationAPI(activity);
         globalUtility = new GlobalUtility();
-        dataStoreManager = new DataStoreManager(context);
 
         etFullName = (EditText) findViewById(R.id.etFullName);
         etEmailAddress = (EditText) findViewById(R.id.etEmail);

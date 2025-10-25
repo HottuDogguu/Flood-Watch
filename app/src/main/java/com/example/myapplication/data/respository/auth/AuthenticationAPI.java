@@ -23,6 +23,7 @@ import com.example.myapplication.data.models.auth.GoogleTokenRequest;
 import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;
 import com.example.myapplication.data.models.auth.ManualSignUpResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
+import com.example.myapplication.data.models.auth.UploadPhotoResponse;
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.calbacks.auth.AuthCallback;
 import com.example.myapplication.data.models.auth.ManualLoginRequest;
@@ -32,18 +33,26 @@ import com.example.myapplication.data.network.endpoints.auth.LinkAccountToGoogle
 import com.example.myapplication.data.network.endpoints.auth.ManualAuthenticateUser;
 
 import com.example.myapplication.data.network.endpoints.auth.SignUpUser;
+import com.example.myapplication.data.network.endpoints.auth.UploadProfileUser;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
+import kotlin.jvm.Throws;
+import okhttp3.MultipartBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Converter;
 import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class AuthenticationAPI {
 
@@ -252,5 +261,58 @@ public class AuthenticationAPI {
 
     }
 
+    public void uploadProfilePhoto(MultipartBody.Part imageFile, String access_token, AuthCallback<UploadPhotoResponse> callback){
+        UploadProfileUser uploadProfileUser = api.getRetrofit().create(UploadProfileUser.class);
+        uploadProfileUser.uploadPhoto(imageFile, access_token).enqueue(new Callback<UploadPhotoResponse>() {
+            @Override
+            public void onResponse(Call<UploadPhotoResponse> call, Response<UploadPhotoResponse> response) {
+                Log.d("API_RESPONSE", "Response code: " + response.code());
+                Log.d("API_RESPONSE", "Response message: " + response.message());
+
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("API_RESPONSE", "Success body: " + response.body().toString());
+                    callback.onSuccess(response.body());
+                } else {
+                    try {
+                        // For 200 status but error in body, check what's actually in the response
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            Log.e("API_RESPONSE", "Error body: " + errorBody);
+                            Log.e("API_RESPONSE", "Error content type: " + response.errorBody().contentType());
+
+                            // If it's 200 but we're in error handling, maybe the response format is wrong
+                            if (response.code() == 200) {
+                                // Try to parse as success response
+                                try {
+                                    Retrofit retrofit = api.getRetrofit();
+                                    Converter<ResponseBody, UploadPhotoResponse> converter =
+                                            retrofit.responseBodyConverter(UploadPhotoResponse.class, new Annotation[0]);
+                                    UploadPhotoResponse successResponse = converter.convert(response.errorBody());
+                                    if (successResponse != null) {
+                                        callback.onSuccess(successResponse);
+                                        return;
+                                    }
+                                } catch (Exception e) {
+                                    Log.e("API_RESPONSE", "Failed to parse as success response", e);
+                                }
+                            }
+                            callback.onError(new Exception("Server error: " + errorBody));
+                        } else {
+                            callback.onError(new Exception("Unknown error with code: " + response.code()));
+                        }
+                    } catch (IOException e) {
+                        Log.e("API_RESPONSE", "Error reading error body", e);
+                        callback.onError(new Exception("Network error: " + e.getMessage()));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UploadPhotoResponse> call, Throwable t) {
+            callback.onError(t);
+            }
+        });
+
+    }
 }
 
