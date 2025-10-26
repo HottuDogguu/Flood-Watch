@@ -1,32 +1,95 @@
 package com.example.myapplication.ui.activity;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.myapplication.security.DataStorageManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class BaseActivity extends AppCompatActivity {
     protected DataStorageManager dataStoreManager;
 
+    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dataStoreManager = DataStorageManager.getInstance(this);
+//        initializeFirebaseAndGetToken();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
+        }
     }
-
 
     @Override
     protected void onResume() {
         super.onResume();
     }
+
     @Override
     public void onUserInteraction() {
         super.onUserInteraction();
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
     }
 
+
+    private void initializeFirebaseAndGetToken() {
+        try {
+            // Check if Firebase app is initialized
+            if (FirebaseApp.getApps(this).isEmpty()) {
+                Log.d("FCM_NOTIF", "Firebase not initialized yet, delaying token retrieval");
+                // Retry after short delay
+                getWindow().getDecorView().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        getFCMToken();
+                    }
+                }, 1000);
+            } else {
+                getFCMToken();
+            }
+        } catch (Exception e) {
+            Log.e("FCM_NOTIF", "Firebase initialization error: " + e.getMessage());
+        }
+    }
+
+    private void getFCMToken() {
+        try {
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnCompleteListener(new OnCompleteListener<String>() {
+                        @Override
+                        public void onComplete(@NonNull Task<String> task) {
+                            if (!task.isSuccessful()) {
+                                Log.w("FCM_NOTIF", "Fetching FCM registration token failed", task.getException());
+                                return;
+                            }
+                            // Get new FCM registration token
+                            String token = task.getResult();
+                            Log.d("FCM_NOTIF", "FCM Token: " + token);
+                        }
+                    });
+        } catch (Exception e) {
+            Log.e("FCM_NOTIF", "Error in getFCMToken: " + e.getMessage());
+        }
+    }
+
 }
+
+

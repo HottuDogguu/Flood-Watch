@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.work.WorkManager;
 
 import com.example.myapplication.security.DataStorageManager;
+import com.google.firebase.FirebaseApp;
 
 
 public class App extends Application {
@@ -19,7 +20,13 @@ public class App extends Application {
         super.onCreate();
         // Initialize DataStoreManager
         DataStorageManager.getInstance(this);
-//        cancelAllPendingWork();
+        // Initialize Firebase when app starts
+        try {
+            FirebaseApp.initializeApp(this);
+            Log.d("FIREBASE INIT", "Firebase initialized in Application class");
+        } catch (Exception e) {
+            Log.e("FIREBASE INIT", "Error initializing Firebase in Application: " + e.getMessage());
+        }
     }
 
     private void cancelAllPendingWork() {

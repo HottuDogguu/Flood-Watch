@@ -1,11 +1,16 @@
 package com.example.myapplication.ui.activity.auth;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -13,6 +18,8 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
@@ -28,6 +35,8 @@ import com.example.myapplication.data.validation.DataFieldsValidation;
 
 import com.example.myapplication.utils.auth.LoginActivityUtility;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.List;
 
@@ -56,6 +65,8 @@ public class LoginActivity extends BaseActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
         initViews();
+        initializeFirebase();
+
 
 
 
@@ -150,6 +161,41 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
+    private void initializeFirebase() {
+        try {
+
+            // Check if Firebase is initialized
+            if (FirebaseApp.getApps(this).isEmpty()) {
+                Log.d("TAG", "Firebase not initialized yet");
+                // Retry after a short delay
+                new Handler().postDelayed(this::getFCMToken, 2000);
+            } else {
+              getFCMToken();
+            }
+        } catch (Exception e) {
+            Log.e("TAG", "Firebase initialization error: " + e.getMessage());
+        }
+    }
+
+    private void getFCMToken() {
+        try {
+            Log.d("TAG", "Attempting to get FCM token...");
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            String token = task.getResult();
+                            Log.d("TAG", "FCM Token: " + token);
+                        } else {
+                            Exception exception = task.getException();
+                            Log.e("TAG", "FCM token failed: " +
+                                    (exception != null ? exception.getMessage() : "Unknown error"));
+                        }
+                    });
+
+        } catch (Exception e) {
+            Log.e("TAG", "Error in getFCMToken: " + e.getMessage(), e);
+        }
+    }
 
     public void initViews() {
 

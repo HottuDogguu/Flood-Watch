@@ -5,7 +5,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.gms.google-services") version "4.4.3" apply false
+    id("com.google.gms.google-services")
 
 }
 val secretsFile = rootProject.file("secrets.properties")
@@ -71,7 +71,7 @@ android {
 
     dependencies {
         //For api handling
-        implementation("com.squareup.retrofit2:retrofit:3.0.0")
+        implementation("com.squareup.retrofit2:retrofit:2.9.0")  //  3.0.0 doesn't exist
         //for converting the response as json
         implementation("com.squareup.retrofit2:converter-gson:2.9.0")
         //for websocket
@@ -96,7 +96,13 @@ android {
         testImplementation(libs.junit)
         androidTestImplementation(libs.ext.junit)
         androidTestImplementation(libs.espresso.core)
-        implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
+
+        // Firebase - Use a stable version
+        implementation(platform("com.google.firebase:firebase-bom:32.7.0"))  // stable version
+        implementation("com.google.firebase:firebase-messaging")
+        implementation("com.google.firebase:firebase-analytics")
+
+        implementation("com.google.android.gms:play-services-base:18.2.0")
         implementation("androidx.credentials:credentials:1.3.0")
         implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     }
