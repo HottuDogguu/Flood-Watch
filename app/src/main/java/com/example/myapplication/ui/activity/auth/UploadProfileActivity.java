@@ -111,7 +111,6 @@ public class UploadProfileActivity extends BaseActivity {
 
                                @Override
                                public void onError(Throwable t) {
-                                   Log.i("INFO", t.getMessage());
                                   Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
                                }
                             });

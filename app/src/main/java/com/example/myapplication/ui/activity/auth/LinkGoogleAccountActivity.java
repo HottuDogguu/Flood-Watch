@@ -11,7 +11,9 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
+import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.ui.activity.DashboardActivity;
 import com.example.myapplication.calbacks.auth.AuthCallback;
@@ -27,7 +29,7 @@ public class LinkGoogleAccountActivity extends BaseActivity {
     private AuthenticationAPI autApi;
     private Activity activity;
     private Context context;
-    private GlobalUtility globalUtility;
+    private DataStorageManager dataStoreManager;
 
 
     @Override
@@ -39,21 +41,22 @@ public class LinkGoogleAccountActivity extends BaseActivity {
         btnLinkAccount.setOnClickListener(v -> {
             String userId = getIntent().getStringExtra("UserId");
             String userEmail = getIntent().getStringExtra("UserEmail");
-            autApi.linkUserAccountToGoogle(new LinkAccountToMultipleSiginMethodsRequest(userId,userEmail), new AuthCallback<ManualLoginResponse>() {
+            autApi.linkUserAccountToGoogle(new LinkAccountToMultipleSiginMethodsRequest(userId, userEmail), new AuthCallback<ManualLoginResponse>() {
                 @Override
                 public void onSuccess(ManualLoginResponse response) {
                     Intent intent = new Intent(LinkGoogleAccountActivity.this, DashboardActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
+                    // set access token
+                    dataStoreManager.putString(BuildConfig.ACCESS_TOKEN_KEY, response.getAccess_token());
                     //Start the new Activity or show it
                     startActivity(intent);
-                    //then finish this current views
-                    finish();
                 }
+
                 @Override
                 public void onError(Throwable t) {
                     //If encountered error, show the message
-                    Toast.makeText(activity, "An error occurred"+t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "An error occurred" + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         });
@@ -63,7 +66,7 @@ public class LinkGoogleAccountActivity extends BaseActivity {
         this.context = this;
         activity = new Activity();
         autApi = new AuthenticationAPI(activity);
-        globalUtility = new GlobalUtility();
+        dataStoreManager = DataStorageManager.getInstance(context);
 
         this.btnLinkAccount = (Button) findViewById(R.id.btnLinkAccount);
         this.tvBackToSignIn = (TextView) findViewById(R.id.tvBackToSignIn);

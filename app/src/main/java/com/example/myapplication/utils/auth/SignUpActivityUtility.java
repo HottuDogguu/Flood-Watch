@@ -1,4 +1,4 @@
-package com.example.myapplication.utils;
+package com.example.myapplication.utils.auth;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,10 +10,11 @@ import com.example.myapplication.data.models.auth.ManualSignUpResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.respository.auth.AuthenticationAPI;
 
-public class SignUpActivityUtility {
+public class SignUpActivityUtility extends  BaseAuthUtility{
     private AuthenticationAPI auth;
     private Context context;
     public SignUpActivityUtility(Context context, AuthenticationAPI auth){
+        super(context);
         this.auth = auth;
         this.context = context;
     }
@@ -28,8 +29,6 @@ public class SignUpActivityUtility {
             public void onSuccess(ManualSignUpResponse response) {
                 Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(context, EmailVerificationActivity.class);
-                //this will retrieve in EmailVerificationActivity.
-                //usage String email = getIntent.getStringExtra("UserEmail");
                 intent.putExtra("UserEmail", user.getEmail());
                 context.startActivity(intent);
             }

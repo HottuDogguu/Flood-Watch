@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.activity.auth;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.util.Log;
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
+import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.ui.activity.DashboardActivity;
 
@@ -32,11 +34,15 @@ public class EmailVerificationActivity extends BaseActivity {
     private WebSocket webSocket;
     private String userEmail;// pass your user's email here
     private OkHttpClient client;
+    private DataStorageManager dataStorageManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email_verification);
+
+
+        dataStorageManager = DataStorageManager.getInstance(this);
 
         String manufacturer = android.os.Build.MANUFACTURER;
         String model = android.os.Build.MODEL;
@@ -85,14 +91,19 @@ public class EmailVerificationActivity extends BaseActivity {
                     try {
                         JSONObject object = new JSONObject(text);
                         boolean isActivated = object.getBoolean("is_verified");
+                        String access_token = object.getString("access_token");
                         if (isActivated) {
                             // if is successful, then go to specific page
                             Intent intent = new Intent(EmailVerificationActivity.this, DashboardActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                            //set access token
+                            dataStorageManager.putString(BuildConfig.ACCESS_TOKEN_KEY,access_token);
+
                             startActivity(intent);
+
                             //Remove the extra before proceeding in email
                             getIntent().removeExtra("UserEmail");
-                            finish();
                             //Close the websocket after successful activation
                             client.dispatcher().executorService().shutdown();
                         }

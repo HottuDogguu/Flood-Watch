@@ -19,7 +19,7 @@ public class App extends Application {
         super.onCreate();
         // Initialize DataStoreManager
         DataStorageManager.getInstance(this);
-        cancelAllPendingWork();
+//        cancelAllPendingWork();
     }
 
     private void cancelAllPendingWork() {

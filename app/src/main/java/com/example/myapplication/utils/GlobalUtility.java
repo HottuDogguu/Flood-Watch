@@ -27,7 +27,14 @@ import java.util.Enumeration;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.myapplication.calbacks.auth.AuthCallback;
+import com.example.myapplication.data.models.errors.ApiErrorResponse;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
 import java.util.function.Consumer;
+
+import retrofit2.Response;
 
 public class GlobalUtility {
 
@@ -127,5 +134,29 @@ public class GlobalUtility {
             Log.w("FILE_DELETE", "File does not exist or is null");
         }
     }
+    public <T> void parseError(Response<T> response, AuthCallback<T> callback)  {
+        if (response.isSuccessful() && response.body() != null) {
+            callback.onSuccess(response.body());
+        } else {
+            if (response.errorBody() != null) {
+                // Parse the error response using Gson
+                try {
+                    String errorBody = response.errorBody().string();
+                    Log.e("API_RESPONSE", "Error body: " + errorBody);
+                    Gson gson = new Gson();
+                    ApiErrorResponse errorResponse = gson.fromJson(errorBody, ApiErrorResponse.class);
+                    callback.onError(new Exception("Error: " + errorResponse.getMessage() + " with Status Code of " + errorResponse.getStatus_code()));
 
+                } catch (JsonSyntaxException e ) {
+                    // If parsing fails, fall back to raw error
+                    Log.e("JSON ERROR", "Failed to parse error response", e);
+                    callback.onError(new Exception(e.getMessage()));
+                }catch (IOException ioe){
+                    Log.e("JSON ERROR", "Failed to parse error response");
+                    callback.onError(new Exception(ioe.getMessage()));
+                }
+            }
+        }
+
+    }
 }

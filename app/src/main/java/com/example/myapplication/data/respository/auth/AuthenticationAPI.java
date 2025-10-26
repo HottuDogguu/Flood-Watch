@@ -18,12 +18,14 @@ import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
 
+import com.example.myapplication.calbacks.auth.APIResponseHandler;
 import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
 import com.example.myapplication.data.models.auth.GoogleTokenRequest;
 import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;
 import com.example.myapplication.data.models.auth.ManualSignUpResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.models.auth.UploadPhotoResponse;
+import com.example.myapplication.data.models.errors.ApiErrorResponse;
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.calbacks.auth.AuthCallback;
 import com.example.myapplication.data.models.auth.ManualLoginRequest;
@@ -34,8 +36,11 @@ import com.example.myapplication.data.network.endpoints.auth.ManualAuthenticateU
 
 import com.example.myapplication.data.network.endpoints.auth.SignUpUser;
 import com.example.myapplication.data.network.endpoints.auth.UploadProfileUser;
+import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,10 +63,12 @@ public class AuthenticationAPI {
 
     private Activity activity;
     private APIBuilder api;
+    private GlobalUtility globalUtility;
 
     public AuthenticationAPI(Activity activity) {
         this.activity = activity;
         this.api = new APIBuilder();
+        this.globalUtility = new GlobalUtility();
 
     }
 
@@ -71,30 +78,11 @@ public class AuthenticationAPI {
         auth.authenticateUser(requestPost.getEmail(), requestPost.getPassword()).enqueue(new Callback<ManualLoginResponse>() {
             @Override
             public void onResponse(@NonNull Call<ManualLoginResponse> call, @NonNull Response<ManualLoginResponse> response) {
-
-                // Check if no error
-                if (response.isSuccessful() && response.body() != null) {
-                    //then set data on callback on success
-                    callback.onSuccess(response.body());
-                } else {
-                    //otherwise set error on callback
-                    try {
-
-                        String errorBody = response.errorBody().string();
-                        JSONObject errorJson = new JSONObject(errorBody);
-                        String detailMessage = errorJson.optString("detail", "Unknown error");
-                        callback.onError(new Exception(String.valueOf(response.code())));
-                        Toast.makeText(activity, detailMessage, Toast.LENGTH_LONG).show();
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+                globalUtility.parseError(response,callback);
             }
-
             @Override
             public void onFailure(@NonNull Call<ManualLoginResponse> call, @NonNull Throwable t) {
-                callback.onError(t);
+
             }
         });
     }
@@ -225,8 +213,22 @@ public class AuthenticationAPI {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
+                    if (response.errorBody() != null) {
+                        String errorBody = response.errorBody().toString();
+                        Log.e("API_RESPONSE", "Error body: " + errorBody);
+                        callback.onError(new Exception("Unknown error with code: " + response.code()));
+                        // Parse the error response using Gson
+                        try {
+                            Gson gson = new Gson();
+                            ApiErrorResponse errorResponse = gson.fromJson(errorBody, ApiErrorResponse.class);
+                            callback.onError(new Exception("Error :" + errorResponse.getMessage() + " with status code of " + errorResponse.getStatus_code()));
 
-                    callback.onError(new Exception("Sign Up failed: " + response.code()));
+                        } catch (JsonSyntaxException e) {
+                            // If parsing fails, fall back to raw error
+                            Log.e("API_RESPONSE", "Failed to parse error response", e);
+                            callback.onError(new Exception(errorBody));
+                        }
+                    }
                 }
             }
 
@@ -242,15 +244,8 @@ public class AuthenticationAPI {
         linkAccountToGoogleSignInMethod.authenticateUser(request).enqueue(new Callback<ManualLoginResponse>() {
             @Override
             public void onResponse(Call<ManualLoginResponse> call, Response<ManualLoginResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
-                } else {
-                    try {
-                        callback.onError(new Exception(response.errorBody().string()));
-                    } catch (Exception e) {
-                        callback.onError(new RuntimeException(e));
-                    }
-                }
+                //Handle success and error response
+                globalUtility.parseError(response,callback);
             }
 
             @Override
@@ -261,57 +256,39 @@ public class AuthenticationAPI {
 
     }
 
-    public void uploadProfilePhoto(MultipartBody.Part imageFile, String access_token, AuthCallback<UploadPhotoResponse> callback){
+    public void uploadProfilePhoto(MultipartBody.Part imageFile, String access_token, AuthCallback<UploadPhotoResponse> callback) {
         UploadProfileUser uploadProfileUser = api.getRetrofit().create(UploadProfileUser.class);
         uploadProfileUser.uploadPhoto(imageFile, access_token).enqueue(new Callback<UploadPhotoResponse>() {
             @Override
             public void onResponse(Call<UploadPhotoResponse> call, Response<UploadPhotoResponse> response) {
-                Log.d("API_RESPONSE", "Response code: " + response.code());
-                Log.d("API_RESPONSE", "Response message: " + response.message());
-
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d("API_RESPONSE", "Success body: " + response.body().toString());
                     callback.onSuccess(response.body());
                 } else {
-                    try {
-                        // For 200 status but error in body, check what's actually in the response
-                        if (response.errorBody() != null) {
-                            String errorBody = response.errorBody().string();
-                            Log.e("API_RESPONSE", "Error body: " + errorBody);
-                            Log.e("API_RESPONSE", "Error content type: " + response.errorBody().contentType());
+                    if (response.errorBody() != null) {
+                        String errorBody = response.errorBody().toString();
+                        Log.e("API_RESPONSE", "Error body: " + errorBody);
+                        callback.onError(new Exception("Unknown error with code: " + response.code()));
+                        // Parse the error response using Gson
+                        try {
+                            Gson gson = new Gson();
+                            ApiErrorResponse errorResponse = gson.fromJson(errorBody, ApiErrorResponse.class);
+                            callback.onError(new Exception("Error :" + errorResponse.getMessage() + " with status code of " + errorResponse.getStatus_code()));
 
-                            // If it's 200 but we're in error handling, maybe the response format is wrong
-                            if (response.code() == 200) {
-                                // Try to parse as success response
-                                try {
-                                    Retrofit retrofit = api.getRetrofit();
-                                    Converter<ResponseBody, UploadPhotoResponse> converter =
-                                            retrofit.responseBodyConverter(UploadPhotoResponse.class, new Annotation[0]);
-                                    UploadPhotoResponse successResponse = converter.convert(response.errorBody());
-                                    if (successResponse != null) {
-                                        callback.onSuccess(successResponse);
-                                        return;
-                                    }
-                                } catch (Exception e) {
-                                    Log.e("API_RESPONSE", "Failed to parse as success response", e);
-                                }
-                            }
-                            callback.onError(new Exception("Server error: " + errorBody));
-                        } else {
-                            callback.onError(new Exception("Unknown error with code: " + response.code()));
+                        } catch (JsonSyntaxException e) {
+                            // If parsing fails, fall back to raw error
+                            Log.e("API_RESPONSE", "Failed to parse error response", e);
+                            callback.onError(new Exception(errorBody));
                         }
-                    } catch (IOException e) {
-                        Log.e("API_RESPONSE", "Error reading error body", e);
-                        callback.onError(new Exception("Network error: " + e.getMessage()));
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<UploadPhotoResponse> call, Throwable t) {
-            callback.onError(t);
+                callback.onError(t);
             }
         });
+
 
     }
 }

@@ -2,6 +2,7 @@ package com.example.myapplication.ui.activity.auth;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -12,7 +13,7 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.RequiresApi;
 
 import com.example.myapplication.R;
 import com.example.myapplication.data.models.auth.SignupPostRequest.*;
@@ -20,7 +21,7 @@ import com.example.myapplication.data.respository.auth.AuthenticationAPI;
 import com.example.myapplication.data.validation.DataFieldsValidation;
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.utils.GlobalUtility;
-import com.example.myapplication.utils.SignUpActivityUtility;
+import com.example.myapplication.utils.auth.SignUpActivityUtility;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -28,7 +29,7 @@ import java.util.Objects;
 
 public class SignupActivity extends BaseActivity {
 
-    private Button signupButton;
+    private Button signupButton, btnGoogleSignup;
     private Context context;
     private AuthenticationAPI auth;
     private GlobalUtility utility;
@@ -58,6 +59,7 @@ public class SignupActivity extends BaseActivity {
             tilConfirmPassword;
     private DataFieldsValidation dataFieldsValidation;
 
+    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,6 +156,9 @@ public class SignupActivity extends BaseActivity {
             //Set the data to be inserted in database, it will validate soon.
         });
 
+        btnGoogleSignup.setOnClickListener(v -> {
+            signUpActivityUtility.triggerGoogleButton(auth);
+        });
         //When press back button
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -163,12 +168,13 @@ public class SignupActivity extends BaseActivity {
         });
 
         //back to signIn page
-        tvSignIn.setOnClickListener(v ->{
+        tvSignIn.setOnClickListener(v -> {
             Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         });
+
     }
 
     private void initViews() {
@@ -191,6 +197,7 @@ public class SignupActivity extends BaseActivity {
         txtPassword = (TextInputEditText) findViewById(R.id.etPassword);
         scrollView = findViewById(R.id.signupScrollView);
         tvSignIn = (TextView) findViewById(R.id.tvSignIn);
+        btnGoogleSignup = (Button) findViewById(R.id.btnGoogleSignUp);
 
         tilEmail = (TextInputLayout) findViewById(R.id.tilEmail);
         tilFullName = (TextInputLayout) findViewById(R.id.tilFullName);
