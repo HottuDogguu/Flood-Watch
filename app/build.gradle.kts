@@ -25,6 +25,7 @@ android {
 
     namespace = "com.example.myapplication"
     compileSdk = 36
+
     buildFeatures{
         buildConfig = true
     }
@@ -60,8 +61,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+                "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -107,8 +107,6 @@ android {
         implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     }
 }
-
-
 
 
 dependencies {

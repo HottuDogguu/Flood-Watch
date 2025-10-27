@@ -3,6 +3,7 @@ package com.example.myapplication.data.respository.auth;
 import android.app.Activity;
 import android.os.Build;
 import android.os.CancellationSignal;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -51,6 +52,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import kotlin.jvm.Throws;
+import okhttp3.Headers;
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -140,10 +142,8 @@ public class AuthenticationAPI {
                                     AuthCallback<GoogleAuthLoginResponse> callback) {
         this.googleGetToken(webClientId, new AuthCallback<String>() {
 
-
             @Override
             public void onSuccess(String request) {
-
                 GoogleAuthenticateUser googleAuthenticateUser = api.getRetrofit().create(GoogleAuthenticateUser.class);
                 //Call the api
                 googleAuthenticateUser.authenticateUser(request).enqueue(new Callback<GoogleAuthLoginResponse>() {
@@ -243,13 +243,13 @@ public class AuthenticationAPI {
         LinkAccountToGoogleSignInMethod linkAccountToGoogleSignInMethod = api.getRetrofit().create(LinkAccountToGoogleSignInMethod.class);
         linkAccountToGoogleSignInMethod.authenticateUser(request).enqueue(new Callback<ManualLoginResponse>() {
             @Override
-            public void onResponse(Call<ManualLoginResponse> call, Response<ManualLoginResponse> response) {
+            public void onResponse(@NonNull Call<ManualLoginResponse> call, @NonNull Response<ManualLoginResponse> response) {
                 //Handle success and error response
                 globalUtility.parseError(response,callback);
             }
 
             @Override
-            public void onFailure(Call<ManualLoginResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<ManualLoginResponse> call, @NonNull Throwable t) {
                 callback.onError(t);
             }
         });
@@ -257,6 +257,7 @@ public class AuthenticationAPI {
     }
 
     public void uploadProfilePhoto(MultipartBody.Part imageFile, String access_token, AuthCallback<UploadPhotoResponse> callback) {
+
         UploadProfileUser uploadProfileUser = api.getRetrofit().create(UploadProfileUser.class);
         uploadProfileUser.uploadPhoto(imageFile, access_token).enqueue(new Callback<UploadPhotoResponse>() {
             @Override

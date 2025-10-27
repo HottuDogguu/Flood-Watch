@@ -1,8 +1,11 @@
 package com.example.myapplication.ui.activity;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,12 +21,17 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
+import com.example.myapplication.ui.activity.users.MDRRMOContactsActivity;
+import com.example.myapplication.ui.activity.users.ProfileActivity;
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.material.navigation.NavigationView;
 
+import java.io.File;
+
 public class HomeActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
+        implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawerLayout;
     private TextView tvWaterLevel;
     private TextView tvStatus;
@@ -33,12 +41,18 @@ public class HomeActivity extends BaseActivity
     private Button btnViewMap;
     private Button btnEmergency;
     private ImageView btnNotifications;
+    private ImageView navHeaderImage;
+    // Navigation header views
+    private TextView navHeaderName;
+    private TextView navHeaderLocation;
+    private NavigationView navigationView;
 
     private double currentWaterLevel = 2.3;
     private int rainfall = 68;
     private int activeAlerts = 2;
     private GlobalUtility globalUtility;
     private Activity activity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +76,8 @@ public class HomeActivity extends BaseActivity
 
         // Update UI with initial data
         updateUI();
+
+        loadUserProfile();
     }
 
     private void initViews() {
@@ -76,6 +92,14 @@ public class HomeActivity extends BaseActivity
         btnEmergency = findViewById(R.id.btn_emergency);
         btnNotifications = findViewById(R.id.btn_notifications);
         globalUtility = new GlobalUtility();
+        navigationView = findViewById(R.id.nav_view);
+
+        // Initialize navigation header views
+        View headerView = navigationView.getHeaderView(0);
+        navHeaderName = headerView.findViewById(R.id.nav_user_name);
+        navHeaderLocation = headerView.findViewById(R.id.nav_user_location);
+        navHeaderImage = headerView.findViewById(R.id.nav_profile_image);
+
     }
 
     private void setupToolbar() {
@@ -87,7 +111,6 @@ public class HomeActivity extends BaseActivity
     }
 
     private void setupNavigationDrawer() {
-        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -96,6 +119,46 @@ public class HomeActivity extends BaseActivity
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
     }
+
+    private void loadUserProfile() {
+        // Load user data from SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("UserProfile", MODE_PRIVATE);
+
+        String name = prefs.getString("name", "Prince Raven F.");
+        String location = prefs.getString("location", "Calauan, Laguna");
+        String profilePicturePath = prefs.getString("profile_picture", null);
+
+        // Update navigation header
+        if (navHeaderName != null) {
+            navHeaderName.setText(name);
+        }
+
+        if (navHeaderLocation != null) {
+            navHeaderLocation.setText(location);
+        }
+
+        // Update profile picture
+        if (navHeaderImage != null) {
+            if (profilePicturePath != null && !profilePicturePath.isEmpty()) {
+                File file = new File(profilePicturePath);
+                if (file.exists()) {
+                    Glide.with(this)
+                            .load(file)
+                            .circleCrop()
+                            .placeholder(R.drawable.ic_user)
+                            .error(R.drawable.ic_user)
+                            .into(navHeaderImage);
+                } else {
+                    // If file doesn't exist, use default
+                    navHeaderImage.setImageResource(R.drawable.ic_user);
+                }
+            } else {
+                // No profile picture saved, use default
+                navHeaderImage.setImageResource(R.drawable.ic_user);
+            }
+        }
+    }
+
 
     private void setupBackPressHandler() {
         // Use the new OnBackPressedDispatcher for predictive back gestures
@@ -162,7 +225,7 @@ public class HomeActivity extends BaseActivity
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        if(hasFocus){
+        if (hasFocus) {
             globalUtility.hideSystemUI(activity);
         }
     }
@@ -178,20 +241,29 @@ public class HomeActivity extends BaseActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_profile) {
-            Toast.makeText(this, "My Profile", Toast.LENGTH_SHORT).show();
-            // TODO: Navigate to Profile Activity
+            // Navigate to Profile Activity
+            Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_mdrrmo) {
             Toast.makeText(this, "MDRRMO Contacts", Toast.LENGTH_SHORT).show();
-            // TODO: Navigate to MDRRMO Contacts Activity
+            // Navigate to MDRRMO Contacts Activity
+            Intent intent = new Intent(HomeActivity.this, MDRRMOContactsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_news) {
             Toast.makeText(this, "Latest News", Toast.LENGTH_SHORT).show();
             // TODO: Navigate to News Activity
+            // Intent intent = new Intent(HomeActivity.this, NewsActivity.class);
+            // startActivity(intent);
         } else if (id == R.id.nav_history) {
             Toast.makeText(this, "Flood History", Toast.LENGTH_SHORT).show();
             // TODO: Navigate to History Activity
+            // Intent intent = new Intent(HomeActivity.this, FloodHistoryActivity.class);
+            // startActivity(intent);
         } else if (id == R.id.nav_map) {
             Toast.makeText(this, "Map", Toast.LENGTH_SHORT).show();
             // TODO: Navigate to Map Activity
+            // Intent intent = new Intent(HomeActivity.this, MapActivity.class);
+            // startActivity(intent);
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
