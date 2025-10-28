@@ -9,24 +9,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.ui.activity.DashboardActivity;
-import com.example.myapplication.calbacks.auth.AuthCallback;
+import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;
 import com.example.myapplication.data.models.auth.ManualLoginResponse;
-import com.example.myapplication.data.respository.auth.AuthenticationAPI;
-import com.example.myapplication.utils.GlobalUtility;
+import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
 
 
 public class LinkGoogleAccountActivity extends BaseActivity {
     private Button btnLinkAccount;
     private TextView tvBackToSignIn;
-    private AuthenticationAPI autApi;
+    private AuthenticationAPIRequestHandler autApi;
     private Activity activity;
     private Context context;
     private DataStorageManager dataStoreManager;
@@ -41,7 +39,7 @@ public class LinkGoogleAccountActivity extends BaseActivity {
         btnLinkAccount.setOnClickListener(v -> {
             String userId = getIntent().getStringExtra("UserId");
             String userEmail = getIntent().getStringExtra("UserEmail");
-            autApi.linkUserAccountToGoogle(new LinkAccountToMultipleSiginMethodsRequest(userId, userEmail), new AuthCallback<ManualLoginResponse>() {
+            autApi.linkUserAccountToGoogle(new LinkAccountToMultipleSiginMethodsRequest(userId, userEmail), new ResponseCallback<ManualLoginResponse>() {
                 @Override
                 public void onSuccess(ManualLoginResponse response) {
                     Intent intent = new Intent(LinkGoogleAccountActivity.this, DashboardActivity.class);
@@ -65,7 +63,7 @@ public class LinkGoogleAccountActivity extends BaseActivity {
     private void initViews() {
         this.context = this;
         activity = new Activity();
-        autApi = new AuthenticationAPI(activity);
+        autApi = new AuthenticationAPIRequestHandler(activity);
         dataStoreManager = DataStorageManager.getInstance(context);
 
         this.btnLinkAccount = (Button) findViewById(R.id.btnLinkAccount);

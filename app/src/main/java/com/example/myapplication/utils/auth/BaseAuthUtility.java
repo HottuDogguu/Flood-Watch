@@ -10,12 +10,11 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 
 import com.example.myapplication.BuildConfig;
-import com.example.myapplication.calbacks.auth.AuthCallback;
+import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
-import com.example.myapplication.data.respository.auth.AuthenticationAPI;
+import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
 import com.example.myapplication.ui.activity.DashboardActivity;
 import com.example.myapplication.ui.activity.auth.LinkGoogleAccountActivity;
-import com.example.myapplication.ui.activity.auth.LoginActivity;
 import com.example.myapplication.ui.activity.auth.SignUpAsGoogleActivity;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -39,10 +38,10 @@ public class BaseAuthUtility {
         imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
     }
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public void triggerGoogleButton(AuthenticationAPI authenticationAPI){
+    public void triggerGoogleButton(AuthenticationAPIRequestHandler authenticationAPI){
 
 
-            authenticationAPI.googleLoginResponse(BuildConfig.WEB_CLIENT_ID, new AuthCallback<GoogleAuthLoginResponse>() {
+            authenticationAPI.googleLoginResponse(BuildConfig.WEB_CLIENT_ID, new ResponseCallback<GoogleAuthLoginResponse>() {
                 @Override
                 public void onSuccess(GoogleAuthLoginResponse response) {
                     String userActions = response.getAction();

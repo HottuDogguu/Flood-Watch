@@ -138,7 +138,7 @@
                     app:boxStrokeColor="#2563EB"
                     app:boxStrokeWidth="2dp"
                     app:hintTextColor="#2563EB"
-                    app:helperText="Enter your full legal name"
+                    app:helperText="Your full legal name"
                     app:helperTextTextColor="#9CA3AF">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -214,7 +214,39 @@
                         android:padding="16dp"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Location Input -->
+                <!-- Second Phone Input -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:boxBackgroundMode="outline"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:startIconDrawable="@drawable/ic_phone"
+                    app:startIconTint="#6B7280"
+                    app:boxStrokeColor="#2563EB"
+                    app:boxStrokeWidth="2dp"
+                    app:hintTextColor="#2563EB"
+                    app:prefixText="+63 "
+                    app:prefixTextColor="#6B7280"
+                    app:helperText="Used for emergency alerts"
+                    app:helperTextTextColor="#9CA3AF">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_edit_seocnd_phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Second Phone Number"
+                        android:inputType="phone"
+                        android:textSize="16sp"
+                        android:textColor="#1F2937"
+                        android:padding="16dp"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!--Street Location Input -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -230,25 +262,25 @@
                     app:boxStrokeColor="#2563EB"
                     app:boxStrokeWidth="2dp"
                     app:hintTextColor="#2563EB"
-                    app:helperText="City or municipality"
+                    app:helperText="Current Street"
                     app:helperTextTextColor="#9CA3AF">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_edit_location"
+                        android:id="@+id/et_edit_street_location"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Location"
+                        android:hint="Street"
                         android:inputType="textPostalAddress|textCapWords"
                         android:textSize="16sp"
                         android:textColor="#1F2937"
                         android:padding="16dp"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Address Input -->
+                <!--Barangay Location Input -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="28dp"
+                    android:layout_marginBottom="20dp"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     app:boxBackgroundMode="outline"
                     app:boxCornerRadiusTopStart="16dp"
@@ -260,21 +292,49 @@
                     app:boxStrokeColor="#2563EB"
                     app:boxStrokeWidth="2dp"
                     app:hintTextColor="#2563EB"
-                    app:helperText="Your complete residential address"
+                    app:helperText="Current Barangay"
                     app:helperTextTextColor="#9CA3AF">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_edit_address"
+                        android:id="@+id/et_edit_barangay_location"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Complete Address"
-                        android:inputType="textPostalAddress|textMultiLine|textCapSentences"
+                        android:hint="Barangay"
+                        android:inputType="textPostalAddress|textCapWords"
                         android:textSize="16sp"
                         android:textColor="#1F2937"
-                        android:padding="16dp"
-                        android:minLines="3"
-                        android:gravity="top"/>
+                        android:padding="16dp"/>
                 </com.google.android.material.textfield.TextInputLayout>
+                <!-- City Location Input -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:boxBackgroundMode="outline"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:startIconDrawable="@drawable/ic_map_pin"
+                    app:startIconTint="#6B7280"
+                    app:boxStrokeColor="#2563EB"
+                    app:boxStrokeWidth="2dp"
+                    app:hintTextColor="#2563EB"
+                    app:helperText="Current City or municipality"
+                    app:helperTextTextColor="#9CA3AF">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_edit_city_location"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="City"
+                        android:inputType="textPostalAddress|textCapWords"
+                        android:textSize="16sp"
+                        android:textColor="#1F2937"
+                        android:padding="16dp"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
 
                 <!-- Action Buttons -->
                 <LinearLayout

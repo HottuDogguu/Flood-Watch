@@ -1,10 +1,7 @@
 package com.example.myapplication.ui.activity.auth;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,31 +11,23 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.BaseActivity;
-import com.example.myapplication.ui.activity.DashboardActivity;
-import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
-import com.example.myapplication.calbacks.auth.AuthCallback;
+import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.ManualLoginRequest;
 import com.example.myapplication.data.models.auth.ManualLoginResponse;
-import com.example.myapplication.data.respository.auth.AuthenticationAPI;
+import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
 import com.example.myapplication.data.validation.DataFieldsValidation;
 
 import com.example.myapplication.utils.auth.LoginActivityUtility;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
-
-import java.util.List;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
@@ -50,7 +39,7 @@ public class LoginActivity extends BaseActivity {
     private TextView signupButton;
     private TextInputLayout loginEmailTextInput, loginPasswordTextInput;
     private Context context;
-    private AuthenticationAPI auth;
+    private AuthenticationAPIRequestHandler auth;
 
     private DataStorageManager dataStoreManager;
     private DataFieldsValidation dataValidation;
@@ -135,7 +124,7 @@ public class LoginActivity extends BaseActivity {
             //if no empty fields, then proceed to calling api.
             //call the get response function which is the request from apiBuilder
             auth.manualLoginResponse(new ManualLoginRequest(loginEmail, loginPassword),
-                    new AuthCallback<ManualLoginResponse>() {
+                    new ResponseCallback<ManualLoginResponse>() {
                         @Override
                         public void onSuccess(ManualLoginResponse response) {
                             loginActivityUtility.handleOnSuccess(response);
@@ -201,7 +190,7 @@ public class LoginActivity extends BaseActivity {
 
         // initialized variables
         context = this; // Set context
-        auth = new AuthenticationAPI(this);
+        auth = new AuthenticationAPIRequestHandler(this);
         dataStoreManager = DataStorageManager.getInstance(context);
 
         dataValidation = new DataFieldsValidation();

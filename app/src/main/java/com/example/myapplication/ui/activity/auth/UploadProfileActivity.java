@@ -3,7 +3,6 @@ package com.example.myapplication.ui.activity.auth;
 
 import android.app.Activity;
 
-import android.content.Intent;
 import android.net.Uri;
 
 import android.os.Bundle;
@@ -17,27 +16,22 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
-import com.example.myapplication.calbacks.auth.AuthCallback;
+import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.UploadPhotoResponse;
-import com.example.myapplication.data.respository.auth.AuthenticationAPI;
+import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
 
 import com.example.myapplication.ui.activity.BaseActivity;
-import com.example.myapplication.ui.activity.HomeActivity;
 import com.example.myapplication.utils.GlobalUtility;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -50,7 +44,7 @@ public class UploadProfileActivity extends BaseActivity {
 
     private Activity activity;
     private Uri uri;
-    private AuthenticationAPI authenticationAPI;
+    private AuthenticationAPIRequestHandler authenticationAPI;
     private DataStorageManager dataStoreManager;
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -68,7 +62,7 @@ public class UploadProfileActivity extends BaseActivity {
         dataStoreManager = DataStorageManager.getInstance(this);
 
 
-        authenticationAPI = new AuthenticationAPI(activity);
+        authenticationAPI = new AuthenticationAPIRequestHandler(activity);
         globalUtility = new GlobalUtility();
 
 
@@ -103,7 +97,7 @@ public class UploadProfileActivity extends BaseActivity {
 
                             .subscribe(access_token -> { //
                                 Toast.makeText(activity, "message: " + access_token, Toast.LENGTH_SHORT).show();
-                          authenticationAPI.uploadProfilePhoto(imagePart, "Bearer "+access_token, new AuthCallback<UploadPhotoResponse>() {
+                          authenticationAPI.uploadProfilePhoto(imagePart, "Bearer "+access_token, new ResponseCallback<UploadPhotoResponse>() {
                                @Override
                               public void onSuccess(UploadPhotoResponse response) {
                                   Toast.makeText(activity, "message"+response.getMessage(), Toast.LENGTH_SHORT).show();

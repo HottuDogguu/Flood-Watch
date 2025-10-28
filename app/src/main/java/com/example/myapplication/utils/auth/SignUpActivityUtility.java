@@ -5,15 +5,15 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import com.example.myapplication.ui.activity.auth.EmailVerificationActivity;
-import com.example.myapplication.calbacks.auth.AuthCallback;
+import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.ManualSignUpResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
-import com.example.myapplication.data.respository.auth.AuthenticationAPI;
+import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
 
 public class SignUpActivityUtility extends  BaseAuthUtility{
-    private AuthenticationAPI auth;
+    private AuthenticationAPIRequestHandler auth;
     private Context context;
-    public SignUpActivityUtility(Context context, AuthenticationAPI auth){
+    public SignUpActivityUtility(Context context, AuthenticationAPIRequestHandler auth){
         super(context);
         this.auth = auth;
         this.context = context;
@@ -24,7 +24,7 @@ public class SignUpActivityUtility extends  BaseAuthUtility{
                            SignupPostRequest.PersonalInformation personalInformation){
 
         SignupPostRequest postRequest = new SignupPostRequest(user,address,personalInformation);
-        this.auth.manualSignUp(postRequest, new AuthCallback<ManualSignUpResponse>() {
+        this.auth.manualSignUp(postRequest, new ResponseCallback<ManualSignUpResponse>() {
             @Override
             public void onSuccess(ManualSignUpResponse response) {
                 Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();

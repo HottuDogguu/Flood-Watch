@@ -9,14 +9,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
-import com.example.myapplication.calbacks.auth.AuthCallback;
+import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
 import com.example.myapplication.data.models.auth.ManualSignUpResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
-import com.example.myapplication.data.respository.auth.AuthenticationAPI;
+import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.utils.GlobalUtility;
 
@@ -29,7 +28,7 @@ public class SignUpAsGoogleActivity extends BaseActivity {
     private EditText etEmailAddress;
     private EditText etContactNo;
     private Button btnManualSignUp;
-    private AuthenticationAPI authenticationAPI;
+    private AuthenticationAPIRequestHandler authenticationAPI;
     private Context context;
     private Activity activity;
     private GlobalUtility globalUtility;
@@ -72,7 +71,7 @@ public class SignUpAsGoogleActivity extends BaseActivity {
             var personalInfo = new SignupPostRequest.PersonalInformation(contactNo, null);
             SignupPostRequest request = new SignupPostRequest(user, address, personalInfo);
 
-            authenticationAPI.googleSignUp(request, new AuthCallback<ManualSignUpResponse>() {
+            authenticationAPI.googleSignUp(request, new ResponseCallback<ManualSignUpResponse>() {
                 @Override
                 public void onSuccess(ManualSignUpResponse response) {
                     Intent intent = new Intent(SignUpAsGoogleActivity.this, UploadProfileActivity.class);
@@ -98,7 +97,7 @@ public class SignUpAsGoogleActivity extends BaseActivity {
         this.activity = this;
 
 
-        authenticationAPI = new AuthenticationAPI(activity);
+        authenticationAPI = new AuthenticationAPIRequestHandler(activity);
         globalUtility = new GlobalUtility();
 
         etFullName = (EditText) findViewById(R.id.etFullName);

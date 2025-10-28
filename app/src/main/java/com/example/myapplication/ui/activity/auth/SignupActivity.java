@@ -17,7 +17,7 @@ import androidx.annotation.RequiresApi;
 
 import com.example.myapplication.R;
 import com.example.myapplication.data.models.auth.SignupPostRequest.*;
-import com.example.myapplication.data.respository.auth.AuthenticationAPI;
+import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
 import com.example.myapplication.data.validation.DataFieldsValidation;
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.utils.GlobalUtility;
@@ -31,7 +31,7 @@ public class SignupActivity extends BaseActivity {
 
     private Button signupButton, btnGoogleSignup;
     private Context context;
-    private AuthenticationAPI auth;
+    private AuthenticationAPIRequestHandler auth;
     private GlobalUtility utility;
     private ScrollView scrollView;
     private TextView tvSignIn;
@@ -179,7 +179,7 @@ public class SignupActivity extends BaseActivity {
     private void initViews() {
         //initialize variables
         this.context = this;
-        auth = new AuthenticationAPI(this);
+        auth = new AuthenticationAPIRequestHandler(this);
         utility = new GlobalUtility();
         signupButton = (Button) findViewById(R.id.btnManualSignUp);
 

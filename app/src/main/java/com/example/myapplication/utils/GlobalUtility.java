@@ -5,9 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
-import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 
@@ -17,7 +15,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -27,12 +24,10 @@ import java.util.Enumeration;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.myapplication.calbacks.auth.AuthCallback;
+import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.errors.ApiErrorResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-
-import java.util.function.Consumer;
 
 import retrofit2.Response;
 
@@ -134,7 +129,7 @@ public class GlobalUtility {
             Log.w("FILE_DELETE", "File does not exist or is null");
         }
     }
-    public <T> void parseError(Response<T> response, AuthCallback<T> callback)  {
+    public <T> void parseAPIResponse(Response<T> response, ResponseCallback<T> callback)  {
         if (response.isSuccessful() && response.body() != null) {
             callback.onSuccess(response.body());
         } else {
@@ -157,6 +152,5 @@ public class GlobalUtility {
                 }
             }
         }
-
     }
 }
