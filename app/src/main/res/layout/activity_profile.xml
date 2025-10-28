@@ -93,30 +93,30 @@
                         android:textColor="#1A1A1A"
                         android:layout_marginTop="16dp"/>
 
-                    <!-- Location -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center"
-                        android:layout_marginTop="8dp">
+<!--                    &lt;!&ndash; Location &ndash;&gt;-->
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:orientation="horizontal"-->
+<!--                        android:gravity="center"-->
+<!--                        android:layout_marginTop="8dp">-->
 
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_map_pin"
-                            android:contentDescription="Location"
-                            app:tint="#6B7280"/>
+<!--                        <ImageView-->
+<!--                            android:layout_width="16dp"-->
+<!--                            android:layout_height="16dp"-->
+<!--                            android:src="@drawable/ic_map_pin"-->
+<!--                            android:contentDescription="Location"-->
+<!--                            app:tint="#6B7280"/>-->
 
-                        <TextView
-                            android:id="@+id/tv_location"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Calauan, Laguna"
-                            android:textSize="14sp"
-                            android:textColor="#6B7280"
-                            android:layout_marginStart="6dp"/>
-                    </LinearLayout>
+<!--                        <TextView-->
+<!--                            android:id="@+id/tv_location"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="Calauan, Laguna"-->
+<!--                            android:textSize="14sp"-->
+<!--                            android:textColor="#6B7280"-->
+<!--                            android:layout_marginStart="6dp"/>-->
+<!--                    </LinearLayout>-->
 
                     <!-- Edit Profile Button -->
                     <com.google.android.material.button.MaterialButton

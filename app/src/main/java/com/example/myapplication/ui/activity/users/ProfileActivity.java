@@ -1,5 +1,8 @@
 package com.example.myapplication.ui.activity.users;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,8 +15,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
+import com.example.myapplication.calbacks.ResponseCallback;
+import com.example.myapplication.data.models.users.UsersGetInformationResponse;
+import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
+import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.auth.LoginActivity;
+import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
@@ -25,14 +34,22 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.widget.ImageView;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+
 import com.bumptech.glide.Glide;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
+
 public class ProfileActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
@@ -45,6 +62,12 @@ public class ProfileActivity extends AppCompatActivity {
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private ActivityResultLauncher<Intent> pickImageLauncher;
     private ActivityResultLauncher<Uri> takePictureLauncher;
+    private Activity activity;
+    private Context context;
+    private UsersAPIRequestHandler apiRequesthandler;
+    private DataStorageManager dataStorageManager;
+    CompositeDisposable compositeDisposable;
+    private GlobalUtility globalUtility;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,25 +96,6 @@ public class ProfileActivity extends AppCompatActivity {
         loadProfilePicture();
     }
 
-    private void initViews() {
-        toolbar = findViewById(R.id.toolbar);
-        tvUserName = findViewById(R.id.tv_user_name);
-        tvLocation = findViewById(R.id.tv_location);
-        tvEmail = findViewById(R.id.tv_email);
-        tvPhone = findViewById(R.id.tv_phone);
-        tvAddress = findViewById(R.id.tv_address);
-        btnEditProfile = findViewById(R.id.btn_edit_profile);
-
-        switchFloodAlerts = findViewById(R.id.switch_flood_alerts);
-        switchWeatherUpdates = findViewById(R.id.switch_weather_updates);
-        switchEmergencyAlerts = findViewById(R.id.switch_emergency_alerts);
-
-        btnChangePassword = findViewById(R.id.btn_change_password);
-        btnPrivacyPolicy = findViewById(R.id.btn_privacy_policy);
-        btnLogout = findViewById(R.id.btn_logout);
-
-        ivProfilePicture = findViewById(R.id.iv_profile_picture);
-    }
 
     private void setupToolbar() {
         setSupportActionBar(toolbar);
@@ -103,25 +107,36 @@ public class ProfileActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
+
     private void loadUserData() {
-        // Load user data from SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("UserProfile", MODE_PRIVATE);
+        Disposable flowable = dataStorageManager.getString(BuildConfig.ACCESS_TOKEN_KEY)
+                .firstElement()
+                .subscribe(token -> {
+                    token = "Bearer " + token;
+                    //Function to get the user information
+                    apiRequesthandler.getUserInformation(token, new ResponseCallback<UsersGetInformationResponse>() {
+                        @Override
+                        public void onSuccess(UsersGetInformationResponse response) {
+                            String formattedAddress = globalUtility.formatAddress(response.getData().getAddress().getStreet(),
+                                    response.getData().getAddress().getBarangay(),
+                                    response.getData().getAddress().getCity());
+                            String contactNo ="+63 "+response.getData().getPersonalInformation().getContact_number();
+                            tvUserName.setText(response.getData().getFullname());
+                            tvEmail.setText(response.getData().getEmail());
+                            tvPhone.setText(contactNo);
+                            tvLocation.setText(formattedAddress);
+                        }
 
-        String name = prefs.getString("name", "Prince Raven F.");
-        String email = prefs.getString("email", "prince.raven@email.com");
-        String phone = prefs.getString("phone", "+63 912 345 6789");
-        String location = prefs.getString("location", "Calauan, Laguna");
-        String address = prefs.getString("address", "Calauan, Laguna, Philippines");
+                        @Override
+                        public void onError(Throwable t) {
 
-        // Set the data to views
-        tvUserName.setText(name);
-        tvEmail.setText(email);
-        tvPhone.setText(phone);
-        tvLocation.setText(location);
-        tvAddress.setText(address);
+                        }
+                    });
+                });
 
-        // Load saved notification preferences
-        loadNotificationPreferences();
+        compositeDisposable.add(flowable);
+
+
     }
 
     private void loadNotificationPreferences() {
@@ -132,7 +147,6 @@ public class ProfileActivity extends AppCompatActivity {
         switchEmergencyAlerts.setChecked(getSharedPreferences("NotificationPrefs", MODE_PRIVATE)
                 .getBoolean("emergency_alerts", true));
     }
-
 
     private void setupClickListeners() {
         // Edit Profile button
@@ -238,19 +252,23 @@ public class ProfileActivity extends AppCompatActivity {
         TextInputEditText etEditName = dialogView.findViewById(R.id.et_edit_name);
         TextInputEditText etEditEmail = dialogView.findViewById(R.id.et_edit_email);
         TextInputEditText etEditPhone = dialogView.findViewById(R.id.et_edit_phone);
-        TextInputEditText etEditLocation = dialogView.findViewById(R.id.et_edit_location);
-        TextInputEditText etEditAddress = dialogView.findViewById(R.id.et_edit_address);
+
+//
+//        TextInputEditText etstreetLoc = dialogView.findViewById(R.id.et_edit_location);
+//        TextInputEditText etstreetLoc = dialogView.findViewById(R.id.et_edit_location);
+//        TextInputEditText etstreetLoc = dialogView.findViewById(R.id.et_edit_location);
+//        TextInputEditText etEditAddress = dialogView.findViewById(R.id.et_edit_address);
         MaterialButton btnCancel = dialogView.findViewById(R.id.btn_cancel);
         MaterialButton btnSave = dialogView.findViewById(R.id.btn_save);
         TextView tvChangePhoto = dialogView.findViewById(R.id.tv_change_photo);
         ImageView ivProfilePictureEdit = dialogView.findViewById(R.id.iv_profile_picture_edit);
 
-        // Load current data into dialog fields
-        etEditName.setText(tvUserName.getText().toString());
-        etEditEmail.setText(tvEmail.getText().toString());
-        etEditPhone.setText(tvPhone.getText().toString());
-        etEditLocation.setText(tvLocation.getText().toString());
-        etEditAddress.setText(tvAddress.getText().toString());
+//        // Load current data into dialog fields
+//        etEditName.setText(tvUserName.getText().toString());
+//        etEditEmail.setText(tvEmail.getText().toString());
+//        etEditPhone.setText(tvPhone.getText().toString());
+//        etEditLocation.setText(tvLocation.getText().toString());
+//        etEditAddress.setText(tvAddress.getText().toString());
 
         // NEW: Load current profile picture in dialog
         String savedImagePath = getSharedPreferences("UserProfile", MODE_PRIVATE)
@@ -276,47 +294,14 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Save button - existing code stays the same
         btnSave.setOnClickListener(v -> {
-            // Get updated values
-            String name = etEditName.getText().toString().trim();
-            String email = etEditEmail.getText().toString().trim();
-            String phone = etEditPhone.getText().toString().trim();
-            String location = etEditLocation.getText().toString().trim();
-            String address = etEditAddress.getText().toString().trim();
 
-            // Validate inputs
-            if (name.isEmpty()) {
-                etEditName.setError("Name is required");
-                etEditName.requestFocus();
-                return;
-            }
 
-            if (email.isEmpty()) {
-                etEditEmail.setError("Email is required");
-                etEditEmail.requestFocus();
-                return;
-            }
-
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                etEditEmail.setError("Please enter a valid email");
-                etEditEmail.requestFocus();
-                return;
-            }
-
-            if (phone.isEmpty()) {
-                etEditPhone.setError("Phone number is required");
-                etEditPhone.requestFocus();
-                return;
-            }
-
-            // Save to SharedPreferences
-            saveProfileData(name, email, phone, location, address);
-
-            // Update UI
-            tvUserName.setText(name);
-            tvEmail.setText(email);
-            tvPhone.setText(phone);
-            tvLocation.setText(location);
-            tvAddress.setText(address);
+//            // Update UI
+//            tvUserName.setText(name);
+//            tvEmail.setText(email);
+//            tvPhone.setText(phone);
+//            tvLocation.setText(location);
+//            tvAddress.setText(address);
 
             // Show success message
             Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
@@ -522,4 +507,32 @@ public class ProfileActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void initViews() {
+        activity = this;
+        context = this;
+        toolbar = findViewById(R.id.toolbar);
+        tvUserName = findViewById(R.id.tv_user_name);
+        tvLocation = findViewById(R.id.tv_address);
+        tvEmail = findViewById(R.id.tv_email);
+        tvPhone = findViewById(R.id.tv_phone);
+        tvAddress = findViewById(R.id.tv_address);
+        btnEditProfile = findViewById(R.id.btn_edit_profile);
+
+        switchFloodAlerts = findViewById(R.id.switch_flood_alerts);
+        switchWeatherUpdates = findViewById(R.id.switch_weather_updates);
+        switchEmergencyAlerts = findViewById(R.id.switch_emergency_alerts);
+
+        btnChangePassword = findViewById(R.id.btn_change_password);
+        btnPrivacyPolicy = findViewById(R.id.btn_privacy_policy);
+        btnLogout = findViewById(R.id.btn_logout);
+
+        ivProfilePicture = findViewById(R.id.iv_profile_picture);
+
+        apiRequesthandler = new UsersAPIRequestHandler(activity, context);
+        dataStorageManager = DataStorageManager.getInstance(context);
+        compositeDisposable = new CompositeDisposable();
+        globalUtility = new GlobalUtility();
+    }
+
 }

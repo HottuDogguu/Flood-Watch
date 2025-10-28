@@ -129,7 +129,8 @@ public class GlobalUtility {
             Log.w("FILE_DELETE", "File does not exist or is null");
         }
     }
-    public <T> void parseAPIResponse(Response<T> response, ResponseCallback<T> callback)  {
+
+    public <T> void parseAPIResponse(Response<T> response, ResponseCallback<T> callback) {
         if (response.isSuccessful() && response.body() != null) {
             callback.onSuccess(response.body());
         } else {
@@ -142,15 +143,19 @@ public class GlobalUtility {
                     ApiErrorResponse errorResponse = gson.fromJson(errorBody, ApiErrorResponse.class);
                     callback.onError(new Exception("Error: " + errorResponse.getMessage() + " with Status Code of " + errorResponse.getStatus_code()));
 
-                } catch (JsonSyntaxException e ) {
+                } catch (JsonSyntaxException e) {
                     // If parsing fails, fall back to raw error
                     Log.e("JSON ERROR", "Failed to parse error response", e);
                     callback.onError(new Exception(e.getMessage()));
-                }catch (IOException ioe){
+                } catch (IOException ioe) {
                     Log.e("JSON ERROR", "Failed to parse error response");
                     callback.onError(new Exception(ioe.getMessage()));
                 }
             }
         }
+    }
+
+    public String formatAddress(String street, String barangay, String city) {
+        return street + ", " + barangay + ", " + city + ", Laguna, Philippines";
     }
 }

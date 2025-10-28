@@ -146,27 +146,27 @@ public class SignupPostRequest {
     }
 
     public static class PersonalInformation {
-        public PersonalInformation(String contact_number, String second__number) {
+        public PersonalInformation(String contact_number, String second_number) {
             this.contact_number = contact_number;
-            this.second__number = second__number;
+            this.second_number = second_number;
         }
 
-        String contact_number, second__number;
+        String contact_number, second_number;
 
         public String getContact_number() {
             return contact_number;
         }
 
-        public String getSecond__number() {
-            return second__number;
+        public String getSecond_number() {
+            return second_number;
         }
 
         public void setContact_number(String contact_number) {
             this.contact_number = contact_number;
         }
 
-        public void setSecond__number(String second__number) {
-            this.second__number = second__number;
+        public void setSecond_number(String second_number) {
+            this.second_number = second_number;
         }
 
     }
