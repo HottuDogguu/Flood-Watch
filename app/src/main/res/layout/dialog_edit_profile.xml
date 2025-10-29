@@ -236,7 +236,7 @@
                     app:helperTextTextColor="#9CA3AF">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_edit_seocnd_phone"
+                        android:id="@+id/et_edit_second_phone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Second Phone Number"

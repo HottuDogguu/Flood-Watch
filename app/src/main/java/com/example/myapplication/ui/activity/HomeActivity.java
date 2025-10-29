@@ -115,8 +115,12 @@ public class HomeActivity extends BaseActivity
         btnViewMap = findViewById(R.id.btn_view_map);
         btnEmergency = findViewById(R.id.btn_emergency);
         btnNotifications = findViewById(R.id.btn_notifications);
+
         globalUtility = new GlobalUtility();
         navigationView = findViewById(R.id.nav_view);
+        //KEYS
+        USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
+        ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
 
         // Initialize navigation header views
         View headerView = navigationView.getHeaderView(0);
@@ -127,9 +131,6 @@ public class HomeActivity extends BaseActivity
         apiRequesthandler = new UsersAPIRequestHandler(activity, context);
         compositeDisposable = new CompositeDisposable();
 
-        //KEYS
-        USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
-        ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
 
     }
 
@@ -156,6 +157,7 @@ public class HomeActivity extends BaseActivity
         Disposable flowable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
                 .firstElement()
                 .subscribe(token -> {
+                    Toast.makeText(activity, "Token" + token, Toast.LENGTH_SHORT).show();
                     token = "Bearer " + token;
                     //Function to get the user information
                     apiRequesthandler.getUserInformation(token, new ResponseCallback<UsersGetInformationResponse>() {

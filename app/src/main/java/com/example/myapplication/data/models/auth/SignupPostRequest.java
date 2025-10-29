@@ -106,6 +106,11 @@ public class SignupPostRequest {
             this.city = city;
             this.province = province;
         }
+        public Address(String street, String barangay, String city) {
+            this.street = street;
+            this.barangay = barangay;
+            this.city = city;
+        }
 
         String barangay;
         String city;

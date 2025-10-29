@@ -1,6 +1,5 @@
 package com.example.myapplication.ui.activity.users;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +24,10 @@ import com.bumptech.glide.request.target.Target;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
+import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.models.users.UsersGetInformationResponse;
+import com.example.myapplication.data.models.users.UsersUpdateInformationRequest;
+import com.example.myapplication.data.models.users.UsersUpdateInformationResponse;
 import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.auth.LoginActivity;
@@ -36,10 +38,8 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.provider.MediaStore;
 import android.widget.ImageView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -48,19 +48,19 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 
-import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 
 public class ProfileActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
-    private TextView tvUserName, tvLocation, tvEmail, tvPhone, tvAddress;
+    private TextView tvUserName, tvLocation, tvEmail, tvPhone;
     private MaterialButton btnEditProfile;
     private SwitchMaterial switchFloodAlerts, switchWeatherUpdates, switchEmergencyAlerts;
     private LinearLayout btnChangePassword, btnPrivacyPolicy, btnLogout;
@@ -69,11 +69,12 @@ public class ProfileActivity extends AppCompatActivity {
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private ActivityResultLauncher<Intent> pickImageLauncher;
     private ActivityResultLauncher<Uri> takePictureLauncher;
+    private ActivityResultLauncher<Uri> getPictureFromURI;
     private Activity activity;
     private Context context;
-    private UsersAPIRequestHandler apiRequesthandler;
+    private UsersAPIRequestHandler apiRequestHandler;
     private DataStorageManager dataStorageManager;
-    CompositeDisposable compositeDisposable;
+    private CompositeDisposable compositeDisposable;
     private GlobalUtility globalUtility;
     private TextView navFullname;
     private String USER_DATA_KEY;
@@ -102,10 +103,7 @@ public class ProfileActivity extends AppCompatActivity {
         // Setup switch listeners
         setupSwitchListeners();
 
-        // NEW: Load profile picture
-        loadProfilePicture();
     }
-
 
     private void setupToolbar() {
         setSupportActionBar(toolbar);
@@ -118,21 +116,22 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
-        Disposable flowable = dataStorageManager.getString(accessTokenKey)
+
+        Disposable flowable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
                 .firstElement()
                 .subscribe(token -> {
                     token = "Bearer " + token;
                     //Function to get the user information
-                    apiRequesthandler.getUserInformation(token, new ResponseCallback<UsersGetInformationResponse>() {
+                    apiRequestHandler.getUserInformation(token, new ResponseCallback<UsersGetInformationResponse>() {
                         @Override
                         public void onSuccess(UsersGetInformationResponse response) {
-                            String formattedAddress = globalUtility.formatAddress(response.getData().getAddress().getStreet(),
+                            String formattedAddress = globalUtility.formatAddress(
+                                    response.getData().getAddress().getStreet(),
                                     response.getData().getAddress().getBarangay(),
                                     response.getData().getAddress().getCity());
-                            String contactNo = response.getData().getPersonalInformation().getContact_number();
 
-                            tvUserName.setText("hey");
+                            String contactNo = response.getData().getPersonalInformation().getContact_number();
+                            tvUserName.setText(response.getData().getFullname());
                             tvEmail.setText(response.getData().getEmail());
                             tvPhone.setText(contactNo);
                             tvLocation.setText(formattedAddress);
@@ -163,7 +162,10 @@ public class ProfileActivity extends AppCompatActivity {
 
                         }
                     });
+
                 });
+
+        compositeDisposable.add(flowable);
 
     }
 
@@ -272,6 +274,7 @@ public class ProfileActivity extends AppCompatActivity {
         TextInputEditText etEditName = dialogView.findViewById(R.id.et_edit_name);
         TextInputEditText etEditEmail = dialogView.findViewById(R.id.et_edit_email);
         TextInputEditText etEditPhone = dialogView.findViewById(R.id.et_edit_phone);
+        TextInputEditText etEditSecondPhone = dialogView.findViewById(R.id.et_edit_second_phone);
 
         TextInputEditText etStreetLoc = dialogView.findViewById(R.id.et_edit_street_location);
         TextInputEditText etBarnagayLoc = dialogView.findViewById(R.id.et_edit_barangay_location);
@@ -283,33 +286,20 @@ public class ProfileActivity extends AppCompatActivity {
         ivProfilePictureEdit = dialogView.findViewById(R.id.iv_profile_picture_edit);
 
 //        // Load current data into dialog fields
-        Disposable userData = dataStorageManager.getUserData(USER_DATA_KEY)
-                .subscribe(data ->{
-
+        Disposable disposable = dataStorageManager.getUserData(USER_DATA_KEY)
+                .subscribe(data -> {
+                    Gson gson = new Gson();
+                    UsersGetInformationResponse.UserData userData = gson.fromJson(data, UsersGetInformationResponse.UserData.class);
+                    etEditName.setText(userData.getFullname());
+                    etEditEmail.setText(userData.getEmail());
+                    etEditPhone.setText(userData.getPersonalInformation().getContact_number());
+                    etEditSecondPhone.setText(userData.getPersonalInformation().getSecond_number());
+                    etStreetLoc.setText(userData.getAddress().getStreet());
+                    etBarnagayLoc.setText(userData.getAddress().getBarangay());
+                    etCityLoc.setText(userData.getAddress().getCity());
+                    ivProfilePictureEdit.setImageTintMode(null);
+                    ivProfilePictureEdit.setImageDrawable(ivProfilePicture.getDrawable());
                 });
-
-        etEditName.setText(tvUserName.getText().toString());
-        etEditEmail.setText(tvEmail.getText().toString());
-        etEditPhone.setText(tvPhone.getText().toString());
-        etStreetLoc.setText(tvLocation.getText().toString());
-        etBarnagayLoc.setText(tvLocation.getText().toString());
-        etCityLoc.setText(tvAddress.getText().toString());
-        ivProfilePictureEdit.setImageTintMode(null);
-        ivProfilePictureEdit.setImageDrawable(ivProfilePicture.getDrawable());
-
-        // NEW: Load current profile picture in dialog
-        String savedImagePath = getSharedPreferences("UserProfile", MODE_PRIVATE)
-                .getString("profile_picture", null);
-        if (savedImagePath != null && !savedImagePath.isEmpty()) {
-            File file = new File(savedImagePath);
-            if (file.exists()) {
-                Glide.with(this)
-                        .load(file)
-                        .circleCrop()
-                        .placeholder(R.drawable.ic_user)
-                        .into(ivProfilePictureEdit);
-            }
-        }
 
         // NEW: Change photo click
         tvChangePhoto.setOnClickListener(v -> {
@@ -317,24 +307,57 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         // Cancel button
-        btnCancel.setOnClickListener(v -> dialog.dismiss());
-
+        btnCancel.setOnClickListener(v -> {
+            this.currentPhotoUri = null;
+            dialog.dismiss();
+        });
         // Save button - existing code stays the same
         btnSave.setOnClickListener(v -> {
+            Disposable dispo = dataStorageManager.getString(ACCESS_TOKEN_KEY)
+                    .subscribe(accessToken -> {
+                        //User Perosnal information
+                        SignupPostRequest.PersonalInformation personalInformation = new SignupPostRequest.PersonalInformation(
+                                Objects.requireNonNull(etEditPhone.getText()).toString(),
+                                Objects.requireNonNull(etEditSecondPhone.getText()).toString()
+                        );
+                        //User Address
+                        SignupPostRequest.Address address = new SignupPostRequest.Address(
+                                Objects.requireNonNull(etStreetLoc.getText()).toString(),
+                                Objects.requireNonNull(etBarnagayLoc.getText()).toString(),
+                                Objects.requireNonNull(etCityLoc.getText()).toString());
+                        //convert URI to File
+                        File imageFile = null;
+                        if (currentPhotoUri != null) {
+                            imageFile = globalUtility.uriToFile(currentPhotoUri, activity);
+                        }
+                        //The Request Body
+                        UsersUpdateInformationRequest request = new UsersUpdateInformationRequest(imageFile,
+                                Objects.requireNonNull(etEditName.getText()).toString(),
+                                Objects.requireNonNull(etEditEmail.getText()).toString(),
+                                personalInformation,
+                                address);
+                        //Call the api
+                        apiRequestHandler.updateUserInfo(request, accessToken, new ResponseCallback<UsersUpdateInformationResponse>() {
+                            @Override
+                            public void onSuccess(UsersUpdateInformationResponse response) {
+                                // Show success message
+                                Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
+//                                dataStorageManager.putUserData(USER_DATA_KEY, r);
+                                // Close dialog
+                                dialog.dismiss();
+                            }
 
+                            @Override
+                            public void onError(Throwable t) {
+                                Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
-//            // Update UI
-//            tvUserName.setText(name);
-//            tvEmail.setText(email);
-//            tvPhone.setText(phone);
-//            tvLocation.setText(location);
-//            tvAddress.setText(address);
+                    }, error ->{
+                        Log.i("UPdate Profile", Objects.requireNonNull(error.getMessage()));
+                    });
+            compositeDisposable.add(dispo);
 
-            // Show success message
-            Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
-
-            // Close dialog
-            dialog.dismiss();
         });
 
         dialog.show();
@@ -369,9 +392,10 @@ public class ProfileActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Uri imageUri = result.getData().getData();
-                        if (imageUri != null) {
-                            handleImageSelection(imageUri);
+                        currentPhotoUri = result.getData().getData();
+                        if (currentPhotoUri != null) {
+                            ivProfilePictureEdit.setImageURI(currentPhotoUri);
+
                         }
                     }
                 }
@@ -382,7 +406,7 @@ public class ProfileActivity extends AppCompatActivity {
                 new ActivityResultContracts.TakePicture(),
                 success -> {
                     if (success && currentPhotoUri != null) {
-                        handleImageSelection(currentPhotoUri);
+                        ivProfilePictureEdit.setImageURI(currentPhotoUri);
                     }
                 }
         );
@@ -464,87 +488,17 @@ public class ProfileActivity extends AppCompatActivity {
         return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
-    private void handleImageSelection(Uri imageUri) {
-        try {
-            // Save image to internal storage
-            String savedPath = saveImageToInternalStorage(imageUri);
-
-            // Save path to SharedPreferences
-            getSharedPreferences("UserProfile", MODE_PRIVATE)
-                    .edit()
-                    .putString("profile_picture", savedPath)
-                    .apply();
-
-            // Update UI
-            loadProfilePicture();
-
-            Toast.makeText(this, "Profile picture updated!", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-    }
-
-    private String saveImageToInternalStorage(Uri imageUri) throws IOException {
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-
-        // Resize bitmap to save space (500x500 max)
-        int maxSize = 500;
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        float ratio = Math.min((float) maxSize / width, (float) maxSize / height);
-
-        int newWidth = Math.round(width * ratio);
-        int newHeight = Math.round(height * ratio);
-
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
-
-        // Save to internal storage
-        File directory = getDir("profile_images", MODE_PRIVATE);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        File file = new File(directory, "profile_picture.jpg");
-
-        FileOutputStream fos = new FileOutputStream(file);
-        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
-        fos.close();
-
-        // Clean up
-        bitmap.recycle();
-        resizedBitmap.recycle();
-
-        return file.getAbsolutePath();
-    }
-
-    private void loadProfilePicture() {
-        String savedImagePath = getSharedPreferences("UserProfile", MODE_PRIVATE)
-                .getString("profile_picture", null);
-
-        if (savedImagePath != null && !savedImagePath.isEmpty()) {
-            File file = new File(savedImagePath);
-            if (file.exists()) {
-                Glide.with(this)
-                        .load(file)
-                        .circleCrop()
-                        .placeholder(R.drawable.ic_user)
-                        .error(R.drawable.ic_user)
-                        .into(ivProfilePicture);
-            }
-        }
-    }
 
     private void initViews() {
         activity = this;
         context = this;
         toolbar = findViewById(R.id.toolbar);
         tvUserName = findViewById(R.id.tv_user_name);
-        tvLocation = findViewById(R.id.tv_address);
         tvEmail = findViewById(R.id.tv_email);
         tvPhone = findViewById(R.id.tv_phone);
-        tvAddress = findViewById(R.id.tv_address);
+        tvLocation = findViewById(R.id.tv_address);
         btnEditProfile = findViewById(R.id.btn_edit_profile);
+
 
         switchFloodAlerts = findViewById(R.id.switch_flood_alerts);
         switchWeatherUpdates = findViewById(R.id.switch_weather_updates);
@@ -555,16 +509,19 @@ public class ProfileActivity extends AppCompatActivity {
         btnLogout = findViewById(R.id.btn_logout);
         navFullname = findViewById(R.id.nav_user_name);
 
+
         ivProfilePicture = findViewById(R.id.iv_profile_picture);
 
-        apiRequesthandler = new UsersAPIRequestHandler(activity, context);
+        apiRequestHandler = new UsersAPIRequestHandler(activity, context);
         dataStorageManager = DataStorageManager.getInstance(context);
+
         compositeDisposable = new CompositeDisposable();
         globalUtility = new GlobalUtility();
-
         //KEYS
         USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
         ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
+
+
     }
 
 }

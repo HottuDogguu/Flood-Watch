@@ -27,16 +27,11 @@ import com.example.myapplication.data.models.auth.ManualLoginResponse;
 import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
 import com.example.myapplication.data.validation.DataFieldsValidation;
 
-import com.example.myapplication.utils.GlobalUtility;
 import com.example.myapplication.utils.auth.LoginActivityUtility;
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 
-import java.io.IOException;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 

@@ -52,9 +52,13 @@ public class UsersAPIRequestHandler {
         try {
             String tokenHeader = "Bearer " + token;
             UserUpdateInformation updateInformation = api.getRetrofit().create(UserUpdateInformation.class);
-            updateInformation.updateInfo(request.getFullnameBody(), request.getImagePart(), request.getEmailBody(), request.getContactNumberBody(),
-                    request.getSecondNumberBody(), request.getStreetBody(), request.getBarangayBody(),
-                    request.getCityBody(), tokenHeader).enqueue(new Callback<UsersUpdateInformationResponse>() {
+            updateInformation.updateInfo(request.getFullnameBody(),
+                    request.getImagePart(),
+                    request.getEmailBody(), request.getContactNumberBody(),
+                    request.getSecondNumberBody(), request.getStreetBody(),
+                    request.getBarangayBody(),
+                    request.getCityBody(), tokenHeader)
+                    .enqueue(new Callback<UsersUpdateInformationResponse>() {
                 @Override
                 public void onResponse(@NonNull Call<UsersUpdateInformationResponse> call, @NonNull Response<UsersUpdateInformationResponse> response) {
                     globalUtility.parseAPIResponse(response, callback);

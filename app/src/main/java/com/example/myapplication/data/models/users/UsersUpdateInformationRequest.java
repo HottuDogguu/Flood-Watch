@@ -30,16 +30,29 @@ public class UsersUpdateInformationRequest {
             SignupPostRequest.PersonalInformation personalInformation,
             SignupPostRequest.Address address
     ) {
-        fullnameBody = RequestBody.create(fullname, MediaType.parse("text/plain"));
-        emailBody = RequestBody.create(email, MediaType.parse("text/plain"));
-        contactNumberBody = RequestBody.create(personalInformation.getContact_number(), MediaType.parse("text/plain"));
-        secondNumberBody = RequestBody.create(personalInformation.getSecond_number(), MediaType.parse("text/plain"));
-        streetBody = RequestBody.create(address.getStreet(), MediaType.parse("text/plain"));
-        barangayBody = RequestBody.create(address.getBarangay(), MediaType.parse("text/plain"));
-        cityBody = RequestBody.create(address.getCity(), MediaType.parse("text/plain"));
-        provinceBody = RequestBody.create(address.getProvince(), MediaType.parse("text/plain"));
-        requestFile = RequestBody.create(MediaType.parse("image/*"), imageFile);
-        imagePart = MultipartBody.Part.createFormData("image_file", imageFile.getName(), requestFile);
+        fullnameBody = RequestBody.create(MediaType.parse("text/plain"), fullname != null ? fullname : "");
+        emailBody = RequestBody.create(MediaType.parse("text/plain"), email != null ? email : "");
+        contactNumberBody = RequestBody.create(MediaType.parse("text/plain"),
+                personalInformation.getContact_number() != null ? personalInformation.getContact_number() : "");
+        secondNumberBody = RequestBody.create(MediaType.parse("text/plain"),
+                personalInformation.getSecond_number() != null ? personalInformation.getSecond_number() : "");
+        streetBody = RequestBody.create(MediaType.parse("text/plain"),
+                address.getStreet() != null ? address.getStreet() : "");
+        barangayBody = RequestBody.create(MediaType.parse("text/plain"),
+                address.getBarangay() != null ? address.getBarangay() : "");
+        cityBody = RequestBody.create(MediaType.parse("text/plain"),
+                address.getCity() != null ? address.getCity() : "");
+        provinceBody = RequestBody.create(MediaType.parse("text/plain"),
+                address.getProvince() != null ? address.getProvince() : "");
+
+        // ✅ Handle nullable image safely
+        if (imageFile != null) {
+            requestFile = RequestBody.create(MediaType.parse("image/*"), imageFile);
+            imagePart = MultipartBody.Part.createFormData("image_file", imageFile.getName(), requestFile);
+        } else {
+            requestFile = null;
+            imagePart = null;
+        }
     }
 
     public RequestBody getFullnameBody() {
