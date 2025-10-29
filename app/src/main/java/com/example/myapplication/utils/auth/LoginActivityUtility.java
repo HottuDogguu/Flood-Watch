@@ -11,12 +11,14 @@ import com.example.myapplication.data.models.auth.ManualLoginResponse;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.HomeActivity;
 import com.example.myapplication.ui.activity.auth.EmailVerificationActivity;
+import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class LoginActivityUtility extends BaseAuthUtility{
 
     private Context context;
     private DataStorageManager dataStorageManager;
+    private GlobalUtility globalUtility;
     private EditText email, password;
 
     TextInputLayout loginEmailTextInput, loginPasswordTextInput;
@@ -34,6 +36,7 @@ public class LoginActivityUtility extends BaseAuthUtility{
 
         this.context = context;
         this.dataStorageManager = dataStorageManager;
+        this.globalUtility = new GlobalUtility();
         this.email = email;
         this.password = password;
         this.loginEmailTextInput = loginEmailTextInput;
@@ -67,7 +70,8 @@ public class LoginActivityUtility extends BaseAuthUtility{
 
     private void saveTokenAndNavigateToHomaPage(ManualLoginResponse response) {
         //Set to data store
-        dataStorageManager.putString(BuildConfig.ACCESS_TOKEN_KEY, response.getAccess_token());
+        String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY,context);
+        dataStorageManager.putString(accessTokenKey, response.getAccess_token());
         Toast.makeText(context, "Successfully Login: ", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this.context, HomeActivity.class);
         context.startActivity(intent);

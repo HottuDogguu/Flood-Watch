@@ -1,34 +1,50 @@
 package com.example.myapplication.ui.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.window.OnBackInvokedDispatcher;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
+import com.example.myapplication.calbacks.ResponseCallback;
+import com.example.myapplication.data.models.users.UsersGetInformationResponse;
+import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
+import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.users.MDRRMOContactsActivity;
 import com.example.myapplication.ui.activity.users.ProfileActivity;
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.File;
+
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 public class HomeActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -52,6 +68,13 @@ public class HomeActivity extends BaseActivity
     private int activeAlerts = 2;
     private GlobalUtility globalUtility;
     private Activity activity;
+    private Context context;
+    private DataStorageManager dataStorageManager;
+    private UsersAPIRequestHandler apiRequesthandler;
+    private CompositeDisposable compositeDisposable;
+    private String USER_DATA_KEY;
+    private String ACCESS_TOKEN_KEY;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +105,7 @@ public class HomeActivity extends BaseActivity
 
     private void initViews() {
         activity = this;
+        context = this;
         drawerLayout = findViewById(R.id.drawer_layout);
         tvWaterLevel = findViewById(R.id.tv_water_level);
         tvStatus = findViewById(R.id.tv_status);
@@ -99,6 +123,13 @@ public class HomeActivity extends BaseActivity
         navHeaderName = headerView.findViewById(R.id.nav_user_name);
         navHeaderLocation = headerView.findViewById(R.id.nav_user_location);
         navHeaderImage = headerView.findViewById(R.id.nav_profile_image);
+        dataStorageManager = DataStorageManager.getInstance(context);
+        apiRequesthandler = new UsersAPIRequestHandler(activity, context);
+        compositeDisposable = new CompositeDisposable();
+
+        //KEYS
+        USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
+        ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
 
     }
 
@@ -111,52 +142,65 @@ public class HomeActivity extends BaseActivity
     }
 
     private void setupNavigationDrawer() {
-        navigationView.setNavigationItemSelectedListener(this);
 
+        navigationView.setNavigationItemSelectedListener(this);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, findViewById(R.id.toolbar),
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
+
         toggle.syncState();
     }
 
     private void loadUserProfile() {
-        // Load user data from SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("UserProfile", MODE_PRIVATE);
+        Disposable flowable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
+                .firstElement()
+                .subscribe(token -> {
+                    token = "Bearer " + token;
+                    //Function to get the user information
+                    apiRequesthandler.getUserInformation(token, new ResponseCallback<UsersGetInformationResponse>() {
+                        @Override
+                        public void onSuccess(UsersGetInformationResponse response) {
+                            String formattedAddress = response.getData().getAddress().getCity() + ", Laguna";
+                            navHeaderName.setText(response.getData().getFullname());
+                            navHeaderLocation.setText(formattedAddress);
 
-        String name = prefs.getString("name", "Prince Raven F.");
-        String location = prefs.getString("location", "Calauan, Laguna");
-        String profilePicturePath = prefs.getString("profile_picture", null);
+                            String profileUrl = response.getData().getProfileImage().getImg_url();
+                            Glide.with(context)
+                                    .load(profileUrl)
+                                    .listener(new RequestListener<Drawable>() {
+                                        @Override
+                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                            Log.e("Glide", "Image load failed", e);
+                                            return false;
+                                        }
 
-        // Update navigation header
-        if (navHeaderName != null) {
-            navHeaderName.setText(name);
-        }
+                                        @Override
+                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                            navHeaderImage.setImageTintList(null);
+                                            Log.d("Glide", "Image loaded successfully");
+                                            return false;
+                                        }
+                                    })
+                                    .circleCrop()
+                                    .placeholder(R.drawable.ic_user)
+                                    .into(navHeaderImage);
 
-        if (navHeaderLocation != null) {
-            navHeaderLocation.setText(location);
-        }
+                            //add these data to Data store
+                            //get teh user key in yaml file
+                            //then store it in the data store
+                            dataStorageManager.putUserData(USER_DATA_KEY, response.getData());
 
-        // Update profile picture
-        if (navHeaderImage != null) {
-            if (profilePicturePath != null && !profilePicturePath.isEmpty()) {
-                File file = new File(profilePicturePath);
-                if (file.exists()) {
-                    Glide.with(this)
-                            .load(file)
-                            .circleCrop()
-                            .placeholder(R.drawable.ic_user)
-                            .error(R.drawable.ic_user)
-                            .into(navHeaderImage);
-                } else {
-                    // If file doesn't exist, use default
-                    navHeaderImage.setImageResource(R.drawable.ic_user);
-                }
-            } else {
-                // No profile picture saved, use default
-                navHeaderImage.setImageResource(R.drawable.ic_user);
-            }
-        }
+                        }
+
+                        @Override
+                        public void onError(Throwable t) {
+
+                        }
+                    });
+
+                });
+        compositeDisposable.add(flowable);
     }
 
 
@@ -224,19 +268,6 @@ public class HomeActivity extends BaseActivity
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        if (hasFocus) {
-            globalUtility.hideSystemUI(activity);
-        }
-    }
-
-    @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        globalUtility.hideSystemUI(activity);
-    }
-
-    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
@@ -286,5 +317,9 @@ public class HomeActivity extends BaseActivity
     public void updateAlerts(int newAlerts) {
         activeAlerts = newAlerts;
         updateUI();
+    }
+
+    public void loadUserInfo() {
+
     }
 }

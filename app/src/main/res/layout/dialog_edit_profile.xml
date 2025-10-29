@@ -81,8 +81,8 @@
 
                             <ImageView
                                 android:id="@+id/iv_profile_picture_edit"
-                                android:layout_width="50dp"
-                                android:layout_height="50dp"
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
                                 android:src="@drawable/ic_user"
                                 android:contentDescription="Profile Picture"
                                 app:tint="#2563EB"/>

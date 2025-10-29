@@ -2,6 +2,7 @@ package com.example.myapplication.ui.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,21 +16,32 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+
 public class BaseActivity extends AppCompatActivity {
     protected DataStorageManager dataStoreManager;
+    protected GlobalUtility globalUtility;
+    protected Context context;
+    protected Activity activity;
+    protected CompositeDisposable compositeDisposable;
 
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dataStoreManager = DataStorageManager.getInstance(this);
+        context = this;
+        activity = this;
+        dataStoreManager = DataStorageManager.getInstance(context);
+        globalUtility = new GlobalUtility();
+        compositeDisposable = new CompositeDisposable();
 //        initializeFirebaseAndGetToken();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
         }
     }
@@ -42,13 +54,21 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     public void onUserInteraction() {
         super.onUserInteraction();
+        globalUtility.hideSystemUI(activity);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        compositeDisposable.dispose();
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (hasFocus) {
+            globalUtility.hideSystemUI(activity);
+        }
+    }
 
     private void initializeFirebaseAndGetToken() {
         try {

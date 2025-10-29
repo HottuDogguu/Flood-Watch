@@ -21,6 +21,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.channels.FileChannel;
 import java.util.Enumeration;
+import java.util.Map;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -29,12 +30,19 @@ import com.example.myapplication.data.models.errors.ApiErrorResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
+
 import retrofit2.Response;
 
 public class GlobalUtility {
 
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalUtility.class);
+
     public GlobalUtility() {
+
     }
 
 
@@ -157,5 +165,23 @@ public class GlobalUtility {
 
     public String formatAddress(String street, String barangay, String city) {
         return street + ", " + barangay + ", " + city + ", Laguna, Philippines";
+    }
+
+    public String getValueInYAML(String key, Context context) {
+        Yaml yamlReader = new Yaml();
+        try {
+            InputStream inputStream = context.getAssets().open("secrets.yaml");
+            Map<String, String> data = yamlReader.load(inputStream);
+            inputStream.close();
+
+            if (data != null) {
+                //return the value
+                return data.get(key);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        return null;
     }
 }

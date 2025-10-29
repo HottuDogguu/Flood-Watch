@@ -3,6 +3,7 @@ package com.example.myapplication.ui.activity.auth;
 
 import android.app.Activity;
 
+import android.content.Context;
 import android.net.Uri;
 
 import android.os.Bundle;
@@ -43,6 +44,7 @@ public class UploadProfileActivity extends BaseActivity {
     private GlobalUtility globalUtility;
 
     private Activity activity;
+    private Context context;
     private Uri uri;
     private AuthenticationAPIRequestHandler authenticationAPI;
     private DataStorageManager dataStoreManager;
@@ -55,6 +57,7 @@ public class UploadProfileActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.upload_profile_picture);
         activity = this;
+        context = this;
         // Registers a photo picker activity launcher in single-select mode.
         btnSelectPhoto = (Button) findViewById(R.id.btnUploadPhoto);
         ivProfilePreview = (ImageView) findViewById(R.id.ivProfilePreview);
@@ -62,7 +65,7 @@ public class UploadProfileActivity extends BaseActivity {
         dataStoreManager = DataStorageManager.getInstance(this);
 
 
-        authenticationAPI = new AuthenticationAPIRequestHandler(activity);
+        authenticationAPI = new AuthenticationAPIRequestHandler(activity, this);
         globalUtility = new GlobalUtility();
 
 
@@ -93,22 +96,21 @@ public class UploadProfileActivity extends BaseActivity {
                     MultipartBody.Part imagePart = MultipartBody.Part.createFormData("image_file", imageFile.getName(), requestFile);
 
                     //to get the access token in data store
-                    Disposable token = dataStoreManager.getString(BuildConfig.ACCESS_TOKEN_KEY)
-
+                    String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
+                    Disposable token = dataStoreManager.getString(accessTokenKey)
                             .subscribe(access_token -> { //
-                                Toast.makeText(activity, "message: " + access_token, Toast.LENGTH_SHORT).show();
-                          authenticationAPI.uploadProfilePhoto(imagePart, "Bearer "+access_token, new ResponseCallback<UploadPhotoResponse>() {
-                               @Override
-                              public void onSuccess(UploadPhotoResponse response) {
-                                  Toast.makeText(activity, "message"+response.getMessage(), Toast.LENGTH_SHORT).show();
-                               }
+                        authenticationAPI.uploadProfilePhoto(imagePart, "Bearer " + access_token, new ResponseCallback<UploadPhotoResponse>() {
+                            @Override
+                            public void onSuccess(UploadPhotoResponse response) {
+                                Toast.makeText(activity, "message" + response.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
 
-                               @Override
-                               public void onError(Throwable t) {
-                                  Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
-                               }
-                            });
-                            });
+                            @Override
+                            public void onError(Throwable t) {
+                                Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    });
                     compositeDisposable.add(token);
 
                 } else {

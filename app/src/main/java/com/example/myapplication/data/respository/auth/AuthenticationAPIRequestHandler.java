@@ -1,6 +1,7 @@
 package com.example.myapplication.data.respository.auth;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Build;
 import android.os.CancellationSignal;
 
@@ -45,12 +46,14 @@ import retrofit2.Response;
 public class AuthenticationAPIRequestHandler {
 
     private Activity activity;
+    private Context context;
     private APIBuilder api;
     private GlobalUtility globalUtility;
 
-    public AuthenticationAPIRequestHandler(Activity activity) {
+    public AuthenticationAPIRequestHandler(Activity activity, Context context) {
+        this.context = context;
         this.activity = activity;
-        this.api = new APIBuilder();
+        this.api = new APIBuilder(context);
         this.globalUtility = new GlobalUtility();
 
     }

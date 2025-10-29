@@ -5,16 +5,23 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
@@ -58,7 +65,7 @@ public class ProfileActivity extends AppCompatActivity {
     private SwitchMaterial switchFloodAlerts, switchWeatherUpdates, switchEmergencyAlerts;
     private LinearLayout btnChangePassword, btnPrivacyPolicy, btnLogout;
     private Uri currentPhotoUri;
-    private ImageView ivProfilePicture;
+    private ImageView ivProfilePicture, ivProfilePictureEdit;
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private ActivityResultLauncher<Intent> pickImageLauncher;
     private ActivityResultLauncher<Uri> takePictureLauncher;
@@ -68,6 +75,9 @@ public class ProfileActivity extends AppCompatActivity {
     private DataStorageManager dataStorageManager;
     CompositeDisposable compositeDisposable;
     private GlobalUtility globalUtility;
+    private TextView navFullname;
+    private String USER_DATA_KEY;
+    private String ACCESS_TOKEN_KEY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,9 +117,9 @@ public class ProfileActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
-
     private void loadUserData() {
-        Disposable flowable = dataStorageManager.getString(BuildConfig.ACCESS_TOKEN_KEY)
+        String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
+        Disposable flowable = dataStorageManager.getString(accessTokenKey)
                 .firstElement()
                 .subscribe(token -> {
                     token = "Bearer " + token;
@@ -120,11 +130,32 @@ public class ProfileActivity extends AppCompatActivity {
                             String formattedAddress = globalUtility.formatAddress(response.getData().getAddress().getStreet(),
                                     response.getData().getAddress().getBarangay(),
                                     response.getData().getAddress().getCity());
-                            String contactNo ="+63 "+response.getData().getPersonalInformation().getContact_number();
-                            tvUserName.setText(response.getData().getFullname());
+                            String contactNo = response.getData().getPersonalInformation().getContact_number();
+
+                            tvUserName.setText("hey");
                             tvEmail.setText(response.getData().getEmail());
                             tvPhone.setText(contactNo);
                             tvLocation.setText(formattedAddress);
+                            String profileUrl = response.getData().getProfileImage().getImg_url();
+                            Glide.with(context)
+                                    .load(profileUrl)
+                                    .listener(new RequestListener<Drawable>() {
+                                        @Override
+                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                            Log.e("Glide", "Image load failed", e);
+                                            return false;
+                                        }
+
+                                        @Override
+                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                            ivProfilePicture.setImageTintList(null);
+                                            Log.d("Glide", "Image loaded successfully");
+                                            return false;
+                                        }
+                                    })
+                                    .circleCrop()
+                                    .placeholder(R.drawable.ic_user)
+                                    .into(ivProfilePicture);
                         }
 
                         @Override
@@ -133,9 +164,6 @@ public class ProfileActivity extends AppCompatActivity {
                         }
                     });
                 });
-
-        compositeDisposable.add(flowable);
-
 
     }
 
@@ -196,11 +224,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void saveNotificationPreference(String key, boolean value) {
-        // Save to SharedPreferences
-        getSharedPreferences("NotificationPrefs", MODE_PRIVATE)
-                .edit()
-                .putBoolean(key, value)
-                .apply();
+        // will implement soon
     }
 
     private void showLogoutDialog() {
@@ -211,12 +235,12 @@ public class ProfileActivity extends AppCompatActivity {
                     // Clear user session
                     clearUserSession();
 
+                    // TODO implement real logout from api
+
                     // Navigate to MainActivity (Login screen)
                     Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
-                    finish();
-
                     Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Cancel", null)
@@ -225,10 +249,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void clearUserSession() {
         // Clear SharedPreferences or any stored session data
-        getSharedPreferences("UserSession", MODE_PRIVATE)
-                .edit()
-                .clear()
-                .apply();
+        dataStorageManager.clearAll();
     }
 
     @Override
@@ -247,28 +268,34 @@ public class ProfileActivity extends AppCompatActivity {
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.drawable.screen_background_light);
         }
-
         // Get dialog views
         TextInputEditText etEditName = dialogView.findViewById(R.id.et_edit_name);
         TextInputEditText etEditEmail = dialogView.findViewById(R.id.et_edit_email);
         TextInputEditText etEditPhone = dialogView.findViewById(R.id.et_edit_phone);
 
-//
-//        TextInputEditText etstreetLoc = dialogView.findViewById(R.id.et_edit_location);
-//        TextInputEditText etstreetLoc = dialogView.findViewById(R.id.et_edit_location);
-//        TextInputEditText etstreetLoc = dialogView.findViewById(R.id.et_edit_location);
+        TextInputEditText etStreetLoc = dialogView.findViewById(R.id.et_edit_street_location);
+        TextInputEditText etBarnagayLoc = dialogView.findViewById(R.id.et_edit_barangay_location);
+        TextInputEditText etCityLoc = dialogView.findViewById(R.id.et_edit_city_location);
 //        TextInputEditText etEditAddress = dialogView.findViewById(R.id.et_edit_address);
         MaterialButton btnCancel = dialogView.findViewById(R.id.btn_cancel);
         MaterialButton btnSave = dialogView.findViewById(R.id.btn_save);
         TextView tvChangePhoto = dialogView.findViewById(R.id.tv_change_photo);
-        ImageView ivProfilePictureEdit = dialogView.findViewById(R.id.iv_profile_picture_edit);
+        ivProfilePictureEdit = dialogView.findViewById(R.id.iv_profile_picture_edit);
 
 //        // Load current data into dialog fields
-//        etEditName.setText(tvUserName.getText().toString());
-//        etEditEmail.setText(tvEmail.getText().toString());
-//        etEditPhone.setText(tvPhone.getText().toString());
-//        etEditLocation.setText(tvLocation.getText().toString());
-//        etEditAddress.setText(tvAddress.getText().toString());
+        Disposable userData = dataStorageManager.getUserData(USER_DATA_KEY)
+                .subscribe(data ->{
+
+                });
+
+        etEditName.setText(tvUserName.getText().toString());
+        etEditEmail.setText(tvEmail.getText().toString());
+        etEditPhone.setText(tvPhone.getText().toString());
+        etStreetLoc.setText(tvLocation.getText().toString());
+        etBarnagayLoc.setText(tvLocation.getText().toString());
+        etCityLoc.setText(tvAddress.getText().toString());
+        ivProfilePictureEdit.setImageTintMode(null);
+        ivProfilePictureEdit.setImageDrawable(ivProfilePicture.getDrawable());
 
         // NEW: Load current profile picture in dialog
         String savedImagePath = getSharedPreferences("UserProfile", MODE_PRIVATE)
@@ -526,6 +553,7 @@ public class ProfileActivity extends AppCompatActivity {
         btnChangePassword = findViewById(R.id.btn_change_password);
         btnPrivacyPolicy = findViewById(R.id.btn_privacy_policy);
         btnLogout = findViewById(R.id.btn_logout);
+        navFullname = findViewById(R.id.nav_user_name);
 
         ivProfilePicture = findViewById(R.id.iv_profile_picture);
 
@@ -533,6 +561,10 @@ public class ProfileActivity extends AppCompatActivity {
         dataStorageManager = DataStorageManager.getInstance(context);
         compositeDisposable = new CompositeDisposable();
         globalUtility = new GlobalUtility();
+
+        //KEYS
+        USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
+        ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
     }
 
 }

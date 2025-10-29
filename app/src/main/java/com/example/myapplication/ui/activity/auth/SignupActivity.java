@@ -179,7 +179,7 @@ public class SignupActivity extends BaseActivity {
     private void initViews() {
         //initialize variables
         this.context = this;
-        auth = new AuthenticationAPIRequestHandler(this);
+        auth = new AuthenticationAPIRequestHandler(this,context);
         utility = new GlobalUtility();
         signupButton = (Button) findViewById(R.id.btnManualSignUp);
 

@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.activity.auth;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.ui.activity.DashboardActivity;
+import com.example.myapplication.utils.GlobalUtility;
 
 
 import org.json.JSONException;
@@ -34,12 +36,16 @@ public class EmailVerificationActivity extends BaseActivity {
     private WebSocket webSocket;
     private String userEmail;// pass your user's email here
     private OkHttpClient client;
+    private GlobalUtility globalUtility;
+    private Context context;
     private DataStorageManager dataStorageManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email_verification);
+        context = this;
+        globalUtility = new GlobalUtility();
 
 
         dataStorageManager = DataStorageManager.getInstance(this);
@@ -60,8 +66,9 @@ public class EmailVerificationActivity extends BaseActivity {
                 .build();
 
         userEmail = getIntent().getStringExtra("UserEmail");
-        Toast.makeText(this, "Email" + userEmail, Toast.LENGTH_SHORT).show();
-        Request request = new Request.Builder().url(BuildConfig.API_WEBSOCKET_BASE_URL +"auth/verify/account/activation?email=" + userEmail + "-Android").build();
+        String WEBSOCKET_URL = globalUtility.getValueInYAML(BuildConfig.API_WEBSOCKET_BASE_URL, this);
+
+        Request request = new Request.Builder().url(WEBSOCKET_URL + "auth/verify/account/activation?email=" + userEmail + "-Android").build();
         WebSocketListener listener = new WebSocketListener() {
 
             @Override
@@ -98,7 +105,8 @@ public class EmailVerificationActivity extends BaseActivity {
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
                             //set access token
-                            dataStorageManager.putString(BuildConfig.ACCESS_TOKEN_KEY,access_token);
+                            String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
+                            dataStorageManager.putString(accessTokenKey, access_token);
 
                             startActivity(intent);
 

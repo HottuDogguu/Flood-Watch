@@ -8,18 +8,13 @@ plugins {
     id("com.google.gms.google-services")
 
 }
-val secretsFile = rootProject.file("secrets.properties")
-val secrets = Properties()
-if (secretsFile.exists()) {
 
-    secrets.load(secretsFile.inputStream()) }
-
-
-val ACCESS_TOKEN_KEY: String = secrets.getProperty("ACCESS_TOKEN_KEY") ?: ""
-val WEB_CLIENT_ID: String = secrets.getProperty("WEB_CLIENT_ID") ?: ""
-val API_HTTP_BASE_URL: String = secrets.getProperty("API_HTTP_BASE_URL") ?: ""
-val API_WEBSOCKET_BASE_URL: String = secrets.getProperty("API_WEBSOCKET_BASE_URL") ?: ""
-
+//These are the Key in yaml
+val ACCESS_TOKEN_KEY: String = "ACCESS_TOKEN_KEY"
+val USER_INFORMATION_KEY: String = "USER_INFORMATION_KEY"
+val WEB_CLIENT_ID: String = "WEB_CLIENT_ID"
+val API_HTTP_BASE_URL: String = "API_HTTP_BASE_URL"
+val API_WEBSOCKET_BASE_URL: String ="API_WEBSOCKET_BASE_URL"
 
 android {
 
@@ -42,6 +37,7 @@ android {
 
         buildConfigField("String", "ACCESS_TOKEN_KEY", "\"${ACCESS_TOKEN_KEY }\"")
         buildConfigField("String", "WEB_CLIENT_ID", "\"${WEB_CLIENT_ID }\"")
+        buildConfigField("String", "USER_INFORMATION_KEY", "\"${USER_INFORMATION_KEY }\"")
         buildConfigField("String", "API_HTTP_BASE_URL", "\"${API_HTTP_BASE_URL }\"")
         buildConfigField("String", "API_WEBSOCKET_BASE_URL", "\"${API_WEBSOCKET_BASE_URL }\"")
     }
@@ -58,7 +54,7 @@ android {
        }
         release {
 
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro")
@@ -105,6 +101,11 @@ android {
         implementation("com.google.android.gms:play-services-base:18.2.0")
         implementation("androidx.credentials:credentials:1.3.0")
         implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+        //Glide
+        implementation("com.github.bumptech.glide:glide:5.0.5")
+        //Yaml Reader
+        implementation("org.yaml:snakeyaml:2.5")
+
     }
 }
 
@@ -115,5 +116,5 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.fragment)
     implementation(libs.leanback)
-    implementation(libs.glide)
+
 }

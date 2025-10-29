@@ -97,7 +97,7 @@ public class SignUpAsGoogleActivity extends BaseActivity {
         this.activity = this;
 
 
-        authenticationAPI = new AuthenticationAPIRequestHandler(activity);
+        authenticationAPI = new AuthenticationAPIRequestHandler(activity,context);
         globalUtility = new GlobalUtility();
 
         etFullName = (EditText) findViewById(R.id.etFullName);

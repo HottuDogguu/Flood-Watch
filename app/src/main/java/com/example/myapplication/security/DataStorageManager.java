@@ -10,6 +10,14 @@ import androidx.datastore.preferences.rxjava3.RxPreferenceDataStoreBuilder;
 import androidx.datastore.rxjava3.RxDataStore;
 
 import com.example.myapplication.BuildConfig;
+import com.example.myapplication.data.models.users.UsersGetInformationResponse;
+import com.example.myapplication.data.network.endpoints.users.UserGetInformation;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import org.json.JSONObject;
+
+import java.util.Objects;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Flowable;
@@ -106,6 +114,37 @@ public class DataStorageManager {
                 .observeOn(AndroidSchedulers.mainThread()); // Observe on main thread;
     }
 
+    public void putUserData(String key, UsersGetInformationResponse.UserData userInfo){
+        Preferences.Key<String> KEY = PreferencesKeys.stringKey(key);
+        Gson gson = new Gson();
+        if(userInfo != null){
+            try{
+                String userJson = gson.toJson(userInfo);
+                compositeDisposable.add(
+                        dataStore.updateDataAsync(preferences -> {
+                                    MutablePreferences mutablePreferences = preferences.toMutablePreferences();
+                                    mutablePreferences.set(KEY, userJson);
+                                    return Single.just(mutablePreferences);
+                                })
+                                .subscribeOn(Schedulers.io())
+                                .subscribe()
+                );
+            }catch(Exception e){
+                Log.e("DATA_STORAGE_ERROR", Objects.requireNonNull(e.getMessage()));
+            }
+
+        }
+
+    }
+
+    public Flowable<String> getUserData(String key){
+        Preferences.Key<String> KEY = PreferencesKeys.stringKey(key);
+        return dataStore.data()
+                .map(preferences -> preferences.get(KEY) != null ? preferences.get(KEY) : "")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()); // Observe on main thread;
+    }
+
     public void putLong(Preferences.Key<Long> key, long value) {
         compositeDisposable.add(
                 dataStore.updateDataAsync(preferences -> {
@@ -121,7 +160,8 @@ public class DataStorageManager {
     public Flowable<Long> getLong(Preferences.Key<Long> key, long defaultValue) {
         return dataStore.data()
                 .map(preferences -> preferences.get(key) != null ? preferences.get(key) : defaultValue)
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public void putBoolean(Preferences.Key<Boolean> key, boolean value) {

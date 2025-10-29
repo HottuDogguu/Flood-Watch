@@ -19,6 +19,7 @@ import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;
 import com.example.myapplication.data.models.auth.ManualLoginResponse;
 import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
+import com.example.myapplication.utils.GlobalUtility;
 
 
 public class LinkGoogleAccountActivity extends BaseActivity {
@@ -28,6 +29,7 @@ public class LinkGoogleAccountActivity extends BaseActivity {
     private Activity activity;
     private Context context;
     private DataStorageManager dataStoreManager;
+    private GlobalUtility globalUtility;
 
 
     @Override
@@ -35,6 +37,7 @@ public class LinkGoogleAccountActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_link_google_account);
         initViews();
+
 
         btnLinkAccount.setOnClickListener(v -> {
             String userId = getIntent().getStringExtra("UserId");
@@ -45,8 +48,9 @@ public class LinkGoogleAccountActivity extends BaseActivity {
                     Intent intent = new Intent(LinkGoogleAccountActivity.this, DashboardActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
+                    String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY,context);
                     // set access token
-                    dataStoreManager.putString(BuildConfig.ACCESS_TOKEN_KEY, response.getAccess_token());
+                    dataStoreManager.putString(accessTokenKey, response.getAccess_token());
                     //Start the new Activity or show it
                     startActivity(intent);
                 }
@@ -63,8 +67,10 @@ public class LinkGoogleAccountActivity extends BaseActivity {
     private void initViews() {
         this.context = this;
         activity = new Activity();
-        autApi = new AuthenticationAPIRequestHandler(activity);
+        autApi = new AuthenticationAPIRequestHandler(activity,context);
         dataStoreManager = DataStorageManager.getInstance(context);
+        globalUtility = new GlobalUtility();
+
 
         this.btnLinkAccount = (Button) findViewById(R.id.btnLinkAccount);
         this.tvBackToSignIn = (TextView) findViewById(R.id.tvBackToSignIn);

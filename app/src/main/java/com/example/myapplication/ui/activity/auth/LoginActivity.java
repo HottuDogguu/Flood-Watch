@@ -1,16 +1,19 @@
 package com.example.myapplication.ui.activity.auth;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.RequiresApi;
@@ -24,10 +27,16 @@ import com.example.myapplication.data.models.auth.ManualLoginResponse;
 import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
 import com.example.myapplication.data.validation.DataFieldsValidation;
 
+import com.example.myapplication.utils.GlobalUtility;
 import com.example.myapplication.utils.auth.LoginActivityUtility;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
+
+import java.io.IOException;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
@@ -55,9 +64,6 @@ public class LoginActivity extends BaseActivity {
         setContentView(R.layout.activity_login);
         initViews();
         initializeFirebase();
-
-
-
 
         //OnClickListener
         //listener for email when typing
@@ -140,7 +146,7 @@ public class LoginActivity extends BaseActivity {
 
         //When the user click Signin as Google or continue as google
         googleBtn.setOnClickListener(v -> {
-        loginActivityUtility.triggerGoogleButton(auth);
+            loginActivityUtility.triggerGoogleButton(auth);
         });
         signupButton.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
@@ -159,7 +165,7 @@ public class LoginActivity extends BaseActivity {
                 // Retry after a short delay
                 new Handler().postDelayed(this::getFCMToken, 2000);
             } else {
-              getFCMToken();
+                getFCMToken();
             }
         } catch (Exception e) {
             Log.e("TAG", "Firebase initialization error: " + e.getMessage());
@@ -190,7 +196,7 @@ public class LoginActivity extends BaseActivity {
 
         // initialized variables
         context = this; // Set context
-        auth = new AuthenticationAPIRequestHandler(this);
+        auth = new AuthenticationAPIRequestHandler(this, context);
         dataStoreManager = DataStorageManager.getInstance(context);
 
         dataValidation = new DataFieldsValidation();
@@ -207,8 +213,6 @@ public class LoginActivity extends BaseActivity {
         this.loginActivityUtility = new LoginActivityUtility(
                 context, dataStoreManager, email, password,
                 loginEmailTextInput, loginPasswordTextInput);
-
-
     }
 
     @Override
@@ -222,7 +226,6 @@ public class LoginActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         compositeDisposable.dispose();
-
     }
 
 }

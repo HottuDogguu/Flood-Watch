@@ -3,6 +3,7 @@ package com.example.myapplication.data.respository.users;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -37,14 +38,12 @@ public class UsersAPIRequestHandler {
     private DataStorageManager dataStorageManager;
     private Context context;
 
-
     public UsersAPIRequestHandler(Activity activity, Context context) {
         this.context = context;
         this.activity = activity;
-        this.api = new APIBuilder();
+        this.api = new APIBuilder(context);
         this.globalUtility = new GlobalUtility();
         dataStorageManager = DataStorageManager.getInstance(context);
-
     }
 
     public void updateUserInfo(UsersUpdateInformationRequest request,
@@ -71,23 +70,21 @@ public class UsersAPIRequestHandler {
         }
 
     }
-
     public void getUserInformation(String token, ResponseCallback<UsersGetInformationResponse> callback) {
         UserGetInformation userGetInformation = api.getRetrofit().create(UserGetInformation.class);
         userGetInformation.getUser(token).enqueue(new Callback<UsersGetInformationResponse>() {
             @Override
             public void onResponse(Call<UsersGetInformationResponse> call, Response<UsersGetInformationResponse> response) {
                 // handle new access token
+                String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
                 Headers header = response.headers();
                 String headerName = "X-New-Access-Token";
                 if (header.get(headerName) != null) {
                     String newToken = header.get(headerName);
-                    dataStorageManager.putString(BuildConfig.ACCESS_TOKEN_KEY, newToken);
+                    dataStorageManager.putString(accessTokenKey, newToken);
                 }
-
                 globalUtility.parseAPIResponse(response, callback);
             }
-
             @Override
             public void onFailure(Call<UsersGetInformationResponse> call, Throwable t) {
                 callback.onError(t);

@@ -1,5 +1,7 @@
 package com.example.myapplication.data.network;
 
+import android.content.Context;
+
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.utils.GlobalUtility;
 
@@ -20,8 +22,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class APIBuilder {
     private Retrofit retrofit;
     private GlobalUtility utility;
+    private Context context;
 
-    public APIBuilder(){
+    public APIBuilder(Context context) {
+        this.context = context;
         String manufacturer = android.os.Build.MANUFACTURER;
         String model = android.os.Build.MODEL;
         String androidVersion = android.os.Build.VERSION.RELEASE;
@@ -30,7 +34,7 @@ public class APIBuilder {
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new Interceptor() {
                     @Override
-                    public Response intercept(Chain chain) throws IOException, IOException {
+                    public Response intercept(Chain chain) throws IOException {
                         Request original = chain.request();
                         Request request = original.newBuilder()
                                 .header("User-Agent", deviceName + " (Android " + androidVersion + ")")
@@ -40,13 +44,15 @@ public class APIBuilder {
                 })
                 .build();
         utility = new GlobalUtility();
-        String BASE_HTTP_URL= BuildConfig.API_HTTP_BASE_URL;
+        String BASE_HTTP_URL = utility.getValueInYAML(
+                BuildConfig.API_HTTP_BASE_URL, context);
         this.retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_HTTP_URL)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
+
     public Retrofit getRetrofit() {
         return retrofit;
     }

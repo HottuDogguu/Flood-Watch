@@ -1,6 +1,8 @@
 package com.example.myapplication.data.models.users;
 
-public class UsersGetInformationResponse {
+import java.io.Serializable;
+
+public class UsersGetInformationResponse implements Serializable{
     String status, message;
     UserData data;
 
@@ -30,7 +32,7 @@ public class UsersGetInformationResponse {
     }
 
 
-    public static class UserData {
+    public static class UserData implements Serializable {
 
         String id, fullname, email, status, role;
         int profile_setup_steps;
@@ -123,7 +125,7 @@ public class UsersGetInformationResponse {
     }
 
 
-    public static class UserAddress {
+    public static class UserAddress implements Serializable {
         public String getCity() {
             if (this.city == null || this.city.isEmpty()) return "";
             return city;
@@ -182,7 +184,7 @@ public class UsersGetInformationResponse {
         int id;
     }
 
-    public static class UserPersonalInformation {
+    public static class UserPersonalInformation implements Serializable {
         public String getSecond_number() {
             if (this.second_number == null || this.second_number.isEmpty()) return "";
             return second_number;
@@ -221,7 +223,7 @@ public class UsersGetInformationResponse {
         int id;
     }
 
-    public static class UserProfileImage {
+    public static class UserProfileImage implements Serializable{
         int id;
         String public_key, img_url, user_id;
 
