@@ -3,8 +3,7 @@ package com.example.myapplication.ui.activity.users;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,15 +11,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
@@ -32,7 +26,9 @@ import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.auth.LoginActivity;
 import com.example.myapplication.utils.GlobalUtility;
+import com.example.myapplication.utils.home.BaseHomepageUtility;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -80,6 +76,9 @@ public class ProfileActivity extends AppCompatActivity {
     private String USER_DATA_KEY;
     private String ACCESS_TOKEN_KEY;
 
+    private final String TAG = "PROFILE_ACTIVITY";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,13 +94,14 @@ public class ProfileActivity extends AppCompatActivity {
         setupToolbar();
 
         // Load user data
-        loadUserData();
+        initialLoadUserData();
 
         // Setup click listeners
         setupClickListeners();
 
         // Setup switch listeners
         setupSwitchListeners();
+
 
     }
 
@@ -111,62 +111,56 @@ public class ProfileActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
-    private void loadUserData() {
+    private void updateProfileUI(UsersGetInformationResponse.UserData userData) {
+        String formattedAddress = globalUtility.formatAddress(
+                userData.getAddress().getStreet(),
+                userData.getAddress().getBarangay(),
+                userData.getAddress().getCity());
 
-        Disposable flowable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
+        tvUserName.setText(userData.getFullname());
+        tvEmail.setText(userData.getEmail());
+        tvPhone.setText(userData.getPersonalInformation().getContact_number());
+        tvLocation.setText(formattedAddress);
+    }
+
+    private void setProfilePictureUsingURL(String profileUrl) {
+        Glide.with(this)
+                .load(profileUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_user)
+                .error(R.drawable.ic_user)
+                .into(ivProfilePicture);
+    }
+
+    private void setProfilePictureWithUri(Uri uri) {
+        ivProfilePicture.setImageURI(uri);
+    }
+
+
+    private void initialLoadUserData() {
+        Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
                 .firstElement()
-                .subscribe(token -> {
-                    token = "Bearer " + token;
-                    //Function to get the user information
-                    apiRequestHandler.getUserInformation(token, new ResponseCallback<UsersGetInformationResponse>() {
-                        @Override
-                        public void onSuccess(UsersGetInformationResponse response) {
-                            String formattedAddress = globalUtility.formatAddress(
-                                    response.getData().getAddress().getStreet(),
-                                    response.getData().getAddress().getBarangay(),
-                                    response.getData().getAddress().getCity());
-
-                            String contactNo = response.getData().getPersonalInformation().getContact_number();
-                            tvUserName.setText(response.getData().getFullname());
-                            tvEmail.setText(response.getData().getEmail());
-                            tvPhone.setText(contactNo);
-                            tvLocation.setText(formattedAddress);
-                            String profileUrl = response.getData().getProfileImage().getImg_url();
-                            Glide.with(context)
-                                    .load(profileUrl)
-                                    .listener(new RequestListener<Drawable>() {
-                                        @Override
-                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                            Log.e("Glide", "Image load failed", e);
-                                            return false;
-                                        }
-
-                                        @Override
-                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                            ivProfilePicture.setImageTintList(null);
-                                            Log.d("Glide", "Image loaded successfully");
-                                            return false;
-                                        }
-                                    })
-                                    .circleCrop()
-                                    .placeholder(R.drawable.ic_user)
-                                    .into(ivProfilePicture);
-                        }
-
-                        @Override
-                        public void onError(Throwable t) {
-
-                        }
-                    });
-
+                .subscribe(data -> {
+                    Gson gson = new Gson();
+                    UsersGetInformationResponse.UserData userData = gson.fromJson(data, UsersGetInformationResponse.UserData.class);
+                    updateProfileUI(userData); // update the data in fields
+                    setProfilePictureUsingURL(userData.getProfileImage().getImg_url());
                 });
+        compositeDisposable.add(disposable);
+    }
 
-        compositeDisposable.add(flowable);
-
+    private void loadUserData() {
+        Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
+                .firstElement()
+                .subscribe(data -> {
+                    Gson gson = new Gson();
+                    UsersGetInformationResponse.UserData userData = gson.fromJson(data, UsersGetInformationResponse.UserData.class);
+                    updateProfileUI(userData); // update the data in fields
+                });
+        compositeDisposable.add(disposable);
     }
 
     private void loadNotificationPreferences() {
@@ -261,6 +255,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void showEditProfileDialog() {
+        Gson gson = new Gson();
         // Create dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_profile, null);
@@ -285,21 +280,22 @@ public class ProfileActivity extends AppCompatActivity {
         TextView tvChangePhoto = dialogView.findViewById(R.id.tv_change_photo);
         ivProfilePictureEdit = dialogView.findViewById(R.id.iv_profile_picture_edit);
 
-//        // Load current data into dialog fields
+        // Load current data into dialog fields
         Disposable disposable = dataStorageManager.getUserData(USER_DATA_KEY)
+                .firstElement()
                 .subscribe(data -> {
-                    Gson gson = new Gson();
-                    UsersGetInformationResponse.UserData userData = gson.fromJson(data, UsersGetInformationResponse.UserData.class);
-                    etEditName.setText(userData.getFullname());
-                    etEditEmail.setText(userData.getEmail());
-                    etEditPhone.setText(userData.getPersonalInformation().getContact_number());
-                    etEditSecondPhone.setText(userData.getPersonalInformation().getSecond_number());
-                    etStreetLoc.setText(userData.getAddress().getStreet());
-                    etBarnagayLoc.setText(userData.getAddress().getBarangay());
-                    etCityLoc.setText(userData.getAddress().getCity());
+                    UsersGetInformationResponse.UserData userDataFromGson = gson.fromJson(data, UsersGetInformationResponse.UserData.class);
+                    etEditName.setText(userDataFromGson.getFullname());
+                    etEditEmail.setText(userDataFromGson.getEmail());
+                    etEditPhone.setText(userDataFromGson.getPersonalInformation().getContact_number());
+                    etEditSecondPhone.setText(userDataFromGson.getPersonalInformation().getSecond_number());
+                    etStreetLoc.setText(userDataFromGson.getAddress().getStreet());
+                    etBarnagayLoc.setText(userDataFromGson.getAddress().getBarangay());
+                    etCityLoc.setText(userDataFromGson.getAddress().getCity());
                     ivProfilePictureEdit.setImageTintMode(null);
                     ivProfilePictureEdit.setImageDrawable(ivProfilePicture.getDrawable());
                 });
+        compositeDisposable.add(disposable);
 
         // NEW: Change photo click
         tvChangePhoto.setOnClickListener(v -> {
@@ -309,13 +305,15 @@ public class ProfileActivity extends AppCompatActivity {
         // Cancel button
         btnCancel.setOnClickListener(v -> {
             this.currentPhotoUri = null;
+
             dialog.dismiss();
         });
-        // Save button - existing code stays the same
+        // Save button
         btnSave.setOnClickListener(v -> {
             Disposable dispo = dataStorageManager.getString(ACCESS_TOKEN_KEY)
+                    .firstOrError()
                     .subscribe(accessToken -> {
-                        //User Perosnal information
+                        //User Perosonal information
                         SignupPostRequest.PersonalInformation personalInformation = new SignupPostRequest.PersonalInformation(
                                 Objects.requireNonNull(etEditPhone.getText()).toString(),
                                 Objects.requireNonNull(etEditSecondPhone.getText()).toString()
@@ -340,11 +338,33 @@ public class ProfileActivity extends AppCompatActivity {
                         apiRequestHandler.updateUserInfo(request, accessToken, new ResponseCallback<UsersUpdateInformationResponse>() {
                             @Override
                             public void onSuccess(UsersUpdateInformationResponse response) {
+
+                                apiRequestHandler.getUserInformation(accessToken, new ResponseCallback<UsersGetInformationResponse>() {
+                                    @Override
+                                    public void onSuccess(UsersGetInformationResponse response1) {
+                                        //convert the object to string using gson and store it in data store
+                                        String newUserData = gson.toJson(response1.getData());
+                                        dataStorageManager.putString(USER_DATA_KEY, newUserData);
+
+                                        updateProfileUI(response1.getData());
+                                        //set the image from current URI
+                                        setProfilePictureWithUri(currentPhotoUri);
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable t) {
+                                        Log.e(TAG, Objects.requireNonNull(t.getMessage()));
+                                        Toast.makeText(ProfileActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+
                                 // Show success message
                                 Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
 //                                dataStorageManager.putUserData(USER_DATA_KEY, r);
                                 // Close dialog
                                 dialog.dismiss();
+
                             }
 
                             @Override
@@ -353,25 +373,15 @@ public class ProfileActivity extends AppCompatActivity {
                             }
                         });
 
-                    }, error ->{
-                        Log.i("UPdate Profile", Objects.requireNonNull(error.getMessage()));
+                    }, error -> {
+                        Log.i("Update Profile", Objects.requireNonNull(error.getMessage()));
                     });
+
             compositeDisposable.add(dispo);
 
         });
 
         dialog.show();
-    }
-
-    private void saveProfileData(String name, String email, String phone, String location, String address) {
-        SharedPreferences prefs = getSharedPreferences("UserProfile", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("name", name);
-        editor.putString("email", email);
-        editor.putString("phone", phone);
-        editor.putString("location", location);
-        editor.putString("address", address);
-        editor.apply();
     }
 
     private void setupActivityResultLaunchers() {
@@ -392,6 +402,7 @@ public class ProfileActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        //set the uri of select image to the global variable currentPhotoUri
                         currentPhotoUri = result.getData().getData();
                         if (currentPhotoUri != null) {
                             ivProfilePictureEdit.setImageURI(currentPhotoUri);
@@ -421,7 +432,7 @@ public class ProfileActivity extends AppCompatActivity {
             } else {
                 showImagePickerDialog();
             }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        } else {
             // Android 6-12 requires READ_EXTERNAL_STORAGE
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -429,9 +440,6 @@ public class ProfileActivity extends AppCompatActivity {
             } else {
                 showImagePickerDialog();
             }
-        } else {
-            // Below Android 6, no runtime permission needed
-            showImagePickerDialog();
         }
     }
 
@@ -463,9 +471,9 @@ public class ProfileActivity extends AppCompatActivity {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA);
             return;
         }
-
         try {
             File photoFile = createImageFile();
+            //convert File to Uri and set it to the global variable called currentPhotoUri
             currentPhotoUri = FileProvider.getUriForFile(this,
                     getApplicationContext().getPackageName() + ".fileprovider",
                     photoFile);
@@ -521,7 +529,12 @@ public class ProfileActivity extends AppCompatActivity {
         USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
         ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
 
-
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUserData(); // Refresh data every time the user comes back
+
+    }
 }

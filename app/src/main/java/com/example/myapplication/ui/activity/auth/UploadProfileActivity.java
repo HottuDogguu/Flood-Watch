@@ -104,7 +104,6 @@ public class UploadProfileActivity extends BaseActivity {
                             public void onSuccess(UploadPhotoResponse response) {
                                 Toast.makeText(activity, "message" + response.getMessage(), Toast.LENGTH_SHORT).show();
                             }
-
                             @Override
                             public void onError(Throwable t) {
                                 Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();

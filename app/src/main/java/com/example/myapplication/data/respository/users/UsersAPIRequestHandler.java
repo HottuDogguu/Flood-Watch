@@ -29,6 +29,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.http.Header;
+import retrofit2.http.Part;
 
 public class UsersAPIRequestHandler {
 
@@ -50,6 +51,7 @@ public class UsersAPIRequestHandler {
                                String token,
                                ResponseCallback<UsersUpdateInformationResponse> callback) {
         try {
+
             String tokenHeader = "Bearer " + token;
             UserUpdateInformation updateInformation = api.getRetrofit().create(UserUpdateInformation.class);
             updateInformation.updateInfo(request.getFullnameBody(),
@@ -76,6 +78,7 @@ public class UsersAPIRequestHandler {
     }
     public void getUserInformation(String token, ResponseCallback<UsersGetInformationResponse> callback) {
         UserGetInformation userGetInformation = api.getRetrofit().create(UserGetInformation.class);
+        token = "Bearer " + token;
         userGetInformation.getUser(token).enqueue(new Callback<UsersGetInformationResponse>() {
             @Override
             public void onResponse(Call<UsersGetInformationResponse> call, Response<UsersGetInformationResponse> response) {

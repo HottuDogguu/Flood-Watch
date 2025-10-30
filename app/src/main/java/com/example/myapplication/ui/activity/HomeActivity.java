@@ -39,9 +39,10 @@ import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.users.MDRRMOContactsActivity;
 import com.example.myapplication.ui.activity.users.ProfileActivity;
 import com.example.myapplication.utils.GlobalUtility;
+import com.example.myapplication.utils.home.BaseHomepageUtility;
 import com.google.android.material.navigation.NavigationView;
+import com.google.gson.Gson;
 
-import java.io.File;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -59,8 +60,8 @@ public class HomeActivity extends BaseActivity
     private ImageView btnNotifications;
     private ImageView navHeaderImage;
     // Navigation header views
-    private TextView navHeaderName;
-    private TextView navHeaderLocation;
+    private TextView navHeaderName,navHeaderLocation;
+
     private NavigationView navigationView;
 
     private double currentWaterLevel = 2.3;
@@ -74,6 +75,7 @@ public class HomeActivity extends BaseActivity
     private CompositeDisposable compositeDisposable;
     private String USER_DATA_KEY;
     private String ACCESS_TOKEN_KEY;
+    private BaseHomepageUtility baseHomepageUtility;
 
 
     @Override
@@ -84,6 +86,8 @@ public class HomeActivity extends BaseActivity
 
         // Initialize views
         initViews();
+        //set user data to the data storage
+        setDataFromDataStorage();
 
         // Setup toolbar
         setupToolbar();
@@ -100,7 +104,6 @@ public class HomeActivity extends BaseActivity
         // Update UI with initial data
         updateUI();
 
-        loadUserProfile();
     }
 
     private void initViews() {
@@ -131,6 +134,10 @@ public class HomeActivity extends BaseActivity
         apiRequesthandler = new UsersAPIRequestHandler(activity, context);
         compositeDisposable = new CompositeDisposable();
 
+        //init homepage utility
+        baseHomepageUtility = new BaseHomepageUtility(
+                context,
+                activity);
 
     }
 
@@ -153,58 +160,6 @@ public class HomeActivity extends BaseActivity
         toggle.syncState();
     }
 
-    private void loadUserProfile() {
-        Disposable flowable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
-                .firstElement()
-                .subscribe(token -> {
-                    Toast.makeText(activity, "Token" + token, Toast.LENGTH_SHORT).show();
-                    token = "Bearer " + token;
-                    //Function to get the user information
-                    apiRequesthandler.getUserInformation(token, new ResponseCallback<UsersGetInformationResponse>() {
-                        @Override
-                        public void onSuccess(UsersGetInformationResponse response) {
-                            String formattedAddress = response.getData().getAddress().getCity() + ", Laguna";
-                            navHeaderName.setText(response.getData().getFullname());
-                            navHeaderLocation.setText(formattedAddress);
-
-                            String profileUrl = response.getData().getProfileImage().getImg_url();
-                            Glide.with(context)
-                                    .load(profileUrl)
-                                    .listener(new RequestListener<Drawable>() {
-                                        @Override
-                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                            Log.e("Glide", "Image load failed", e);
-                                            return false;
-                                        }
-
-                                        @Override
-                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                            navHeaderImage.setImageTintList(null);
-                                            Log.d("Glide", "Image loaded successfully");
-                                            return false;
-                                        }
-                                    })
-                                    .circleCrop()
-                                    .placeholder(R.drawable.ic_user)
-                                    .into(navHeaderImage);
-
-                            //add these data to Data store
-                            //get teh user key in yaml file
-                            //then store it in the data store
-                            dataStorageManager.putUserData(USER_DATA_KEY, response.getData());
-
-                        }
-
-                        @Override
-                        public void onError(Throwable t) {
-
-                        }
-                    });
-
-                });
-        compositeDisposable.add(flowable);
-    }
-
 
     private void setupBackPressHandler() {
         // Use the new OnBackPressedDispatcher for predictive back gestures
@@ -214,12 +169,6 @@ public class HomeActivity extends BaseActivity
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START);
                 } else {
-                    // Option 1: Finish the activity
-                    finish();
-
-                    // Option 2: Use the default back behavior
-                    // setEnabled(false);
-                    // getOnBackPressedDispatcher().onBackPressed();
                 }
             }
         });
@@ -320,8 +269,41 @@ public class HomeActivity extends BaseActivity
         activeAlerts = newAlerts;
         updateUI();
     }
-
-    public void loadUserInfo() {
-
+    public void setDataFromDataStorage() {
+        Disposable flowable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
+                .firstElement()
+                .subscribe(token -> {
+                    //Function to get the user information
+                    apiRequesthandler.getUserInformation(token, new ResponseCallback<UsersGetInformationResponse>() {
+                        @Override
+                        public void onSuccess(UsersGetInformationResponse response) {
+                            // Save new user data
+                            Gson gson = new Gson();
+                            String jsonData = gson.toJson(response.getData());
+                            dataStorageManager.putString(USER_DATA_KEY, jsonData);
+                            //set data into nav header
+                            baseHomepageUtility.loadNavBarProfileData(
+                                    navHeaderName,
+                                    navHeaderLocation,
+                                    navHeaderImage,
+                                    USER_DATA_KEY);
+                        }
+                        @Override
+                        public void onError(Throwable t) {
+                        }
+                    });
+                });
+        compositeDisposable.add(flowable);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //Update the Nav bar data after updating
+        baseHomepageUtility.loadNavBarProfileData(
+                navHeaderName,
+                navHeaderLocation,
+                navHeaderImage,
+                USER_DATA_KEY
+        );
     }
 }

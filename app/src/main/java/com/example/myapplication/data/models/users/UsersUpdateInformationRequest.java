@@ -48,7 +48,7 @@ public class UsersUpdateInformationRequest {
         // ✅ Handle nullable image safely
         if (imageFile != null) {
             requestFile = RequestBody.create(MediaType.parse("image/*"), imageFile);
-            imagePart = MultipartBody.Part.createFormData("image_file", imageFile.getName(), requestFile);
+            imagePart = MultipartBody.Part.createFormData("img_file", imageFile.getName(), requestFile);
         } else {
             requestFile = null;
             imagePart = null;

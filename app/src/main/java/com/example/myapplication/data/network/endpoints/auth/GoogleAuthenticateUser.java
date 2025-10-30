@@ -13,7 +13,7 @@ public interface GoogleAuthenticateUser {
 
     //This is the endpoint of the google login
 
-    @Headers("Content-Type: application/json")
+    @Headers({"Content-Type: application/json"})
     @POST("auth/google/callback")
     Call<GoogleAuthLoginResponse> authenticateUser(@Body String token);
 }

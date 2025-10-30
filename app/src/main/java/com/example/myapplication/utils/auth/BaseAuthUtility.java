@@ -16,6 +16,7 @@ import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestH
 import com.example.myapplication.ui.activity.DashboardActivity;
 import com.example.myapplication.ui.activity.auth.LinkGoogleAccountActivity;
 import com.example.myapplication.ui.activity.auth.SignUpAsGoogleActivity;
+import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.List;
@@ -23,9 +24,11 @@ import java.util.List;
 public class BaseAuthUtility {
 
     private Context context;
+    private GlobalUtility globalUtility;
 
     public BaseAuthUtility(Context context){
         this.context = context;
+        globalUtility = new GlobalUtility();
     }
 
     public void setRequestFocusOnField(EditText editText, TextInputLayout inputLayout, String message) {
@@ -39,9 +42,8 @@ public class BaseAuthUtility {
     }
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void triggerGoogleButton(AuthenticationAPIRequestHandler authenticationAPI){
-
-
-            authenticationAPI.googleLoginResponse(BuildConfig.WEB_CLIENT_ID, new ResponseCallback<GoogleAuthLoginResponse>() {
+            String webClient = globalUtility.getValueInYAML(BuildConfig.WEB_CLIENT_ID,context);
+            authenticationAPI.googleLoginResponse(webClient, new ResponseCallback<GoogleAuthLoginResponse>() {
                 @Override
                 public void onSuccess(GoogleAuthLoginResponse response) {
                     String userActions = response.getAction();
@@ -57,7 +59,6 @@ public class BaseAuthUtility {
                             intent.putExtra("UserEmail", response.getData().getEmail());
                             intent.putExtra("UserId", response.getData().getId());
                             context.startActivity(intent);
-
                         } else {
                             Intent intent = new Intent(context, DashboardActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
