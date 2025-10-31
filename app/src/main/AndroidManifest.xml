@@ -97,10 +97,7 @@
         <activity
             android:name=".ui.activity.HomeActivity"
             android:exported="false" />
-        <activity
-            android:name=".ui.activity.DashboardActivity"
-            android:exported="false"
-            android:parentActivityName=".ui.activity.HomeActivity" />
+
         <activity
             android:name=".ui.activity.AnnouncementActivity"
             android:exported="false"

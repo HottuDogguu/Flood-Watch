@@ -13,7 +13,7 @@ import com.example.myapplication.BuildConfig;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
 import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
-import com.example.myapplication.ui.activity.DashboardActivity;
+import com.example.myapplication.ui.activity.HomeActivity;
 import com.example.myapplication.ui.activity.auth.LinkGoogleAccountActivity;
 import com.example.myapplication.ui.activity.auth.SignUpAsGoogleActivity;
 import com.example.myapplication.utils.GlobalUtility;
@@ -60,7 +60,7 @@ public class BaseAuthUtility {
                             intent.putExtra("UserId", response.getData().getId());
                             context.startActivity(intent);
                         } else {
-                            Intent intent = new Intent(context, DashboardActivity.class);
+                            Intent intent = new Intent(context, HomeActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             context.startActivity(intent);
                         }

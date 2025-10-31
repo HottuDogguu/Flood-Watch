@@ -36,6 +36,7 @@ import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.users.UsersGetInformationResponse;
 import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.ui.activity.auth.EmailVerificationActivity;
 import com.example.myapplication.ui.activity.users.MDRRMOContactsActivity;
 import com.example.myapplication.ui.activity.users.ProfileActivity;
 import com.example.myapplication.utils.GlobalUtility;
@@ -60,7 +61,7 @@ public class HomeActivity extends BaseActivity
     private ImageView btnNotifications;
     private ImageView navHeaderImage;
     // Navigation header views
-    private TextView navHeaderName,navHeaderLocation;
+    private TextView navHeaderName, navHeaderLocation;
 
     private NavigationView navigationView;
 
@@ -119,11 +120,8 @@ public class HomeActivity extends BaseActivity
         btnEmergency = findViewById(R.id.btn_emergency);
         btnNotifications = findViewById(R.id.btn_notifications);
 
-        globalUtility = new GlobalUtility();
+
         navigationView = findViewById(R.id.nav_view);
-        //KEYS
-        USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
-        ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
 
         // Initialize navigation header views
         View headerView = navigationView.getHeaderView(0);
@@ -132,12 +130,16 @@ public class HomeActivity extends BaseActivity
         navHeaderImage = headerView.findViewById(R.id.nav_profile_image);
         dataStorageManager = DataStorageManager.getInstance(context);
         apiRequesthandler = new UsersAPIRequestHandler(activity, context);
-        compositeDisposable = new CompositeDisposable();
-
+        globalUtility = new GlobalUtility();
         //init homepage utility
         baseHomepageUtility = new BaseHomepageUtility(
                 context,
                 activity);
+        compositeDisposable = new CompositeDisposable();
+
+        //KEYS
+        USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
+        ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
 
     }
 
@@ -269,6 +271,7 @@ public class HomeActivity extends BaseActivity
         activeAlerts = newAlerts;
         updateUI();
     }
+
     public void setDataFromDataStorage() {
         Disposable flowable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
                 .firstElement()
@@ -281,29 +284,32 @@ public class HomeActivity extends BaseActivity
                             Gson gson = new Gson();
                             String jsonData = gson.toJson(response.getData());
                             dataStorageManager.putString(USER_DATA_KEY, jsonData);
-                            //set data into nav header
+
+                            //Update the Nav bar data after updating
                             baseHomepageUtility.loadNavBarProfileData(
                                     navHeaderName,
                                     navHeaderLocation,
                                     navHeaderImage,
-                                    USER_DATA_KEY);
+                                    response.getData());
                         }
+
                         @Override
                         public void onError(Throwable t) {
+                            Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                            //navigate to login activity
+                            baseHomepageUtility.navigateToLogin();
                         }
                     });
                 });
         compositeDisposable.add(flowable);
+
     }
+
+
     @Override
     protected void onResume() {
         super.onResume();
-        //Update the Nav bar data after updating
-        baseHomepageUtility.loadNavBarProfileData(
-                navHeaderName,
-                navHeaderLocation,
-                navHeaderImage,
-                USER_DATA_KEY
-        );
+        //refresh again from the api
+        setDataFromDataStorage();
     }
 }

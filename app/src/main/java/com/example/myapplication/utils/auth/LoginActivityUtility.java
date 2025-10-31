@@ -66,13 +66,15 @@ public class LoginActivityUtility extends BaseAuthUtility{
         Toast.makeText(context, throwable.getMessage(), Toast.LENGTH_LONG).show();
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
+
+
     }
 
     private void saveTokenAndNavigateToHomaPage(ManualLoginResponse response) {
         //Set to data store
         String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY,context);
         dataStorageManager.putString(accessTokenKey, response.getAccess_token());
-        Toast.makeText(context, "Successfully Login: ", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, "Successfully Login.", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this.context, HomeActivity.class);
         context.startActivity(intent);
     }

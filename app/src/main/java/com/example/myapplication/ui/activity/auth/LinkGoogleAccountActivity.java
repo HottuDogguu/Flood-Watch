@@ -14,11 +14,11 @@ import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.BaseActivity;
-import com.example.myapplication.ui.activity.DashboardActivity;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;
 import com.example.myapplication.data.models.auth.ManualLoginResponse;
 import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
+import com.example.myapplication.ui.activity.HomeActivity;
 import com.example.myapplication.utils.GlobalUtility;
 
 
@@ -45,7 +45,7 @@ public class LinkGoogleAccountActivity extends BaseActivity {
             autApi.linkUserAccountToGoogle(new LinkAccountToMultipleSiginMethodsRequest(userId, userEmail), new ResponseCallback<ManualLoginResponse>() {
                 @Override
                 public void onSuccess(ManualLoginResponse response) {
-                    Intent intent = new Intent(LinkGoogleAccountActivity.this, DashboardActivity.class);
+                    Intent intent = new Intent(LinkGoogleAccountActivity.this, HomeActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
                     String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY,context);
@@ -62,7 +62,16 @@ public class LinkGoogleAccountActivity extends BaseActivity {
                 }
             });
         });
+
+        tvBackToSignIn.setOnClickListener(v ->{
+            Intent intent = new Intent(LinkGoogleAccountActivity.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            //Start the new Activity
+            startActivity(intent);
+        });
     }
+
+
 
     private void initViews() {
         this.context = this;

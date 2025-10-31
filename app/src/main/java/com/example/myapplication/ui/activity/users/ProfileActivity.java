@@ -19,6 +19,7 @@ import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
+import com.example.myapplication.data.models.users.UserLogoutResponse;
 import com.example.myapplication.data.models.users.UsersGetInformationResponse;
 import com.example.myapplication.data.models.users.UsersUpdateInformationRequest;
 import com.example.myapplication.data.models.users.UsersUpdateInformationResponse;
@@ -230,14 +231,8 @@ public class ProfileActivity extends AppCompatActivity {
                 .setPositiveButton("Logout", (dialog, which) -> {
                     // Clear user session
                     clearUserSession();
-
-                    // TODO implement real logout from api
-
                     // Navigate to MainActivity (Login screen)
-                    Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -245,7 +240,26 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void clearUserSession() {
         // Clear SharedPreferences or any stored session data
-        dataStorageManager.clearAll();
+        Disposable disposable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
+                .firstElement()
+                .subscribe(accessToken -> {
+                    apiRequestHandler.logOutUser(accessToken, new ResponseCallback<UserLogoutResponse>() {
+                        @Override
+                        public void onSuccess(UserLogoutResponse response) {
+                            dataStorageManager.clearAll();
+                            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(Throwable t) {
+
+                        }
+                    });
+                });
+        compositeDisposable.add(disposable);
     }
 
     @Override
@@ -528,6 +542,12 @@ public class ProfileActivity extends AppCompatActivity {
         //KEYS
         USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
         ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
     }
 

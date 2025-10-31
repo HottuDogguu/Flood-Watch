@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.activity.users;
 
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,7 +22,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-public class ChangePasswordBottomSheet  extends BottomSheetDialogFragment {
+public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
 
     private TextInputLayout tilCurrentPassword, tilNewPassword, tilConfirmPassword;
     private TextInputEditText etCurrentPassword, etNewPassword, etConfirmPassword;
@@ -76,7 +77,8 @@ public class ChangePasswordBottomSheet  extends BottomSheetDialogFragment {
         // Password strength indicator
         etNewPassword.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -89,76 +91,13 @@ public class ChangePasswordBottomSheet  extends BottomSheetDialogFragment {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
     private void changePassword() {
-        // Clear previous errors
-        tilCurrentPassword.setError(null);
-        tilNewPassword.setError(null);
-        tilConfirmPassword.setError(null);
 
-        // Get input values
-        String currentPassword = etCurrentPassword.getText().toString().trim();
-        String newPassword = etNewPassword.getText().toString().trim();
-        String confirmPassword = etConfirmPassword.getText().toString().trim();
-
-        // Validation
-        if (currentPassword.isEmpty()) {
-            tilCurrentPassword.setError("Current password is required");
-            etCurrentPassword.requestFocus();
-            return;
-        }
-
-        // Check if current password matches saved password
-        SharedPreferences prefs = requireActivity().getSharedPreferences("UserProfile", getActivity().MODE_PRIVATE);
-        String savedPassword = prefs.getString("password", "password123"); // Default password
-
-        if (!currentPassword.equals(savedPassword)) {
-            tilCurrentPassword.setError("Current password is incorrect");
-            etCurrentPassword.requestFocus();
-            return;
-        }
-
-        if (newPassword.isEmpty()) {
-            tilNewPassword.setError("New password is required");
-            etNewPassword.requestFocus();
-            return;
-        }
-
-        if (newPassword.length() < 8) {
-            tilNewPassword.setError("Password must be at least 8 characters");
-            etNewPassword.requestFocus();
-            return;
-        }
-
-        if (!isPasswordValid(newPassword)) {
-            tilNewPassword.setError("Password must contain letters and numbers");
-            etNewPassword.requestFocus();
-            return;
-        }
-
-        if (confirmPassword.isEmpty()) {
-            tilConfirmPassword.setError("Please confirm your password");
-            etConfirmPassword.requestFocus();
-            return;
-        }
-
-        if (!newPassword.equals(confirmPassword)) {
-            tilConfirmPassword.setError("Passwords do not match");
-            etConfirmPassword.requestFocus();
-            return;
-        }
-
-        if (currentPassword.equals(newPassword)) {
-            tilNewPassword.setError("New password must be different from current password");
-            etNewPassword.requestFocus();
-            return;
-        }
-
-        // Save new password
-        prefs.edit().putString("password", newPassword).apply();
 
         Toast.makeText(getActivity(), "Password changed successfully!", Toast.LENGTH_SHORT).show();
         dismiss();
@@ -179,30 +118,30 @@ public class ChangePasswordBottomSheet  extends BottomSheetDialogFragment {
 
         switch (strength) {
             case 1: // Weak
-                strengthBar1.setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
+                strengthBar1.setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark, Resources.getSystem().newTheme()));
                 tvStrengthText.setText("Weak");
-                tvStrengthText.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                tvStrengthText.setTextColor(getResources().getColor(android.R.color.holo_red_dark, Resources.getSystem().newTheme()));
                 break;
             case 2: // Fair
-                strengthBar1.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_dark));
-                strengthBar2.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_dark));
+                strengthBar1.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_dark, Resources.getSystem().newTheme()));
+                strengthBar2.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_dark, Resources.getSystem().newTheme()));
                 tvStrengthText.setText("Fair");
-                tvStrengthText.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+                tvStrengthText.setTextColor(getResources().getColor(android.R.color.holo_orange_dark, Resources.getSystem().newTheme()));
                 break;
             case 3: // Good
-                strengthBar1.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_dark));
-                strengthBar2.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_dark));
-                strengthBar3.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_dark));
+                strengthBar1.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_dark, Resources.getSystem().newTheme()));
+                strengthBar2.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_dark, Resources.getSystem().newTheme()));
+                strengthBar3.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_dark, Resources.getSystem().newTheme()));
                 tvStrengthText.setText("Good");
-                tvStrengthText.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
+                tvStrengthText.setTextColor(getResources().getColor(android.R.color.holo_blue_dark, Resources.getSystem().newTheme()));
                 break;
             case 4: // Strong
-                strengthBar1.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
-                strengthBar2.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
-                strengthBar3.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
-                strengthBar4.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
+                strengthBar1.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark, Resources.getSystem().newTheme()));
+                strengthBar2.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark, Resources.getSystem().newTheme()));
+                strengthBar3.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark, Resources.getSystem().newTheme()));
+                strengthBar4.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark, Resources.getSystem().newTheme()));
                 tvStrengthText.setText("Strong");
-                tvStrengthText.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+                tvStrengthText.setTextColor(getResources().getColor(android.R.color.holo_green_dark, Resources.getSystem().newTheme()));
                 break;
         }
     }

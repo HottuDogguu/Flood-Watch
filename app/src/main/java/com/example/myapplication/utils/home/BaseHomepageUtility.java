@@ -2,6 +2,7 @@ package com.example.myapplication.utils.home;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.widget.ImageView;
@@ -18,6 +19,8 @@ import com.bumptech.glide.request.target.Target;
 import com.example.myapplication.R;
 import com.example.myapplication.data.models.users.UsersGetInformationResponse;
 import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.ui.activity.auth.EmailVerificationActivity;
+import com.example.myapplication.ui.activity.auth.LoginActivity;
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.gson.Gson;
 
@@ -47,24 +50,26 @@ public class BaseHomepageUtility {
     public void loadNavBarProfileData(TextView navHeaderName,
                                       TextView navHeaderLocation,
                                       ImageView navHeaderImage,
-                                      String USER_DATA_KEY) {
-        Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
-                .firstElement()
-                .subscribe(data -> {
-                    Gson gson = new Gson();
-                    UsersGetInformationResponse.UserData userData = gson.fromJson(data, UsersGetInformationResponse.UserData.class);
-                    String formattedAddress = userData.getAddress().getCity() + ", " + userData.getAddress().getProvince();
-                    navHeaderName.setText(userData.getFullname());
-                    navHeaderLocation.setText(formattedAddress);
-                    String profileUrl = userData.getProfileImage().getImg_url();
-                    Glide.with(context)
-                            .load(profileUrl)
-                            .circleCrop()
-                            .placeholder(R.drawable.ic_user)
-                            .into(navHeaderImage);
-                });
-        compositeDisposable.add(disposable);
+                                      UsersGetInformationResponse.UserData userData) {
+
+        String formattedAddress = userData.getAddress().getCity() + ", " + userData.getAddress().getProvince();
+        navHeaderName.setText(userData.getFullname());
+        navHeaderLocation.setText(formattedAddress);
+        String profileUrl = userData.getProfileImage().getImg_url();
+        Glide.with(context)
+                .load(profileUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_user)
+                .into(navHeaderImage);
+
     }
 
+    public void navigateToLogin() {
+        //navigate to login activity
+        Intent intent = new Intent(context, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
+        activity.finish();
+    }
 
 }

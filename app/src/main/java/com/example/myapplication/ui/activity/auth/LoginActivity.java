@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.RequiresApi;
 
+import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.BaseActivity;
@@ -34,6 +35,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 public class LoginActivity extends BaseActivity {
     private EditText email, password;
@@ -47,7 +49,7 @@ public class LoginActivity extends BaseActivity {
 
     private DataStorageManager dataStoreManager;
     private DataFieldsValidation dataValidation;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     private LoginActivityUtility loginActivityUtility;
 
 
@@ -213,14 +215,14 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        compositeDisposable.dispose();
+
 
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        compositeDisposable.dispose();
+
     }
 
 }

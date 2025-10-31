@@ -4,6 +4,7 @@ package com.example.myapplication.ui.activity.auth;
 import android.app.Activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 
 import android.os.Bundle;
@@ -26,10 +27,12 @@ import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestH
 import com.example.myapplication.security.DataStorageManager;
 
 import com.example.myapplication.ui.activity.BaseActivity;
+import com.example.myapplication.ui.activity.HomeActivity;
 import com.example.myapplication.utils.GlobalUtility;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -49,6 +52,7 @@ public class UploadProfileActivity extends BaseActivity {
     private AuthenticationAPIRequestHandler authenticationAPI;
     private DataStorageManager dataStoreManager;
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+    private final String TAG = "UPLOAD_PHOTO";
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 
@@ -73,13 +77,12 @@ public class UploadProfileActivity extends BaseActivity {
                 new ActivityResultContracts.PickVisualMedia(),
                 uri -> {
                     if (uri != null) {
-                        Log.i("PhotoPicker", "Selected URI: " + uri);
-                        // ✅ Show image preview
+                        // Show image preview
                         ivProfilePreview.setImageURI(uri);
                         this.uri = uri;
                         Toast.makeText(activity, "File path" + this.uri, Toast.LENGTH_SHORT).show();
                     } else {
-                        Log.i("PhotoPicker", "No media selected");
+                        Log.i(TAG, "No media selected");
                     }
                 });
         btnSelectPhoto.setOnClickListener(v -> {
@@ -98,30 +101,32 @@ public class UploadProfileActivity extends BaseActivity {
                     //to get the access token in data store
                     String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
                     Disposable token = dataStoreManager.getString(accessTokenKey)
+                            .firstElement()
                             .subscribe(access_token -> { //
-                        authenticationAPI.uploadProfilePhoto(imagePart, "Bearer " + access_token, new ResponseCallback<UploadPhotoResponse>() {
-                            @Override
-                            public void onSuccess(UploadPhotoResponse response) {
-                                Toast.makeText(activity, "message" + response.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                            @Override
-                            public void onError(Throwable t) {
-                                Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    });
+                                authenticationAPI.uploadProfilePhoto(imagePart, "Bearer " + access_token, new ResponseCallback<UploadPhotoResponse>() {
+                                    @Override
+                                    public void onSuccess(UploadPhotoResponse response) {
+                                        Toast.makeText(activity, "message" + response.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable t) {
+                                        Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                        Log.e(TAG, Objects.requireNonNull(t.getMessage()));
+                                    }
+                                });
+                            });
                     compositeDisposable.add(token);
 
-                } else {
-                    Toast.makeText(activity, "No selected photo", Toast.LENGTH_SHORT).show();
                 }
 
-//                Intent intent = new Intent(UploadProfileActivity.this, HomeActivity.class);
-//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                startActivity(intent);
-//                finish();
+                Intent intent = new Intent(UploadProfileActivity.this, HomeActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
             } catch (IOException e) {
                 Toast.makeText(activity, e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, Objects.requireNonNull(e.getMessage()));
             }
 
         });
