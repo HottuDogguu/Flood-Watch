@@ -38,31 +38,45 @@ public class SignupPostRequest {
     }
 
     public static class User {
-        String email;
-        String status;
+        String email, fcm_token, status, password, fullname;
         List<String> sign_in_type;
 
-        public User(String email, String fullname,String status, List<String> sign_in_type) {
+
+        //For google signup or user signup as google
+        public User(String email, String fullname, String status, List<String> sign_in_type, String fcm_token) {
             this.email = email;
+            this.fcm_token = fcm_token;
             this.status = status;
             this.fullname = fullname;
-            this.sign_in_type =sign_in_type;
-
+            this.sign_in_type = sign_in_type;
 
         }
-        public User(String email, String password, String fullname) {
+
+
+        //For manual signup or sign up as password
+        public User(String email, String password, String fullname, String fcm_token) {
             this.email = email;
             this.password = password;
-
+            this.fcm_token = fcm_token;
             this.fullname = fullname;
-
-            if (this.status == null) {
-                this.status = "pending";
-            }
         }
 
-        String password;
-        String fullname;
+        public String getFcm_token() {
+            return fcm_token;
+        }
+
+        public void setFcm_token(String fcm_token) {
+            this.fcm_token = fcm_token;
+        }
+
+        public List<String> getSign_in_type() {
+            return sign_in_type;
+        }
+
+        public void setSign_in_type(List<String> sign_in_type) {
+            this.sign_in_type = sign_in_type;
+        }
+
 
         public String getEmail() {
             return email;
@@ -106,6 +120,7 @@ public class SignupPostRequest {
             this.city = city;
             this.province = province;
         }
+
         public Address(String street, String barangay, String city) {
             this.street = street;
             this.barangay = barangay;

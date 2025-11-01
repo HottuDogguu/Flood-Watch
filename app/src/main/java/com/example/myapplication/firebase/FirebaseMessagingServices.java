@@ -33,7 +33,7 @@ public class FirebaseMessagingServices extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(@NonNull String token) {
-        Log.i("DEBUG", "Token" + token);
+        Log.i(TAG, "Token" + token);
 
     }
 

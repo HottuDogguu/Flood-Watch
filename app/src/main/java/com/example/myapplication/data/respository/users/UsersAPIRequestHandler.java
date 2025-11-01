@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.calbacks.ResponseCallback;
 
+import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.users.UserChangePasswordRequest;
 import com.example.myapplication.data.models.users.UserChangePasswordResponse;
 import com.example.myapplication.data.models.users.UserLogoutResponse;
@@ -18,6 +19,7 @@ import com.example.myapplication.data.models.users.UsersGetInformationResponse;
 import com.example.myapplication.data.models.users.UsersUpdateInformationRequest;
 import com.example.myapplication.data.models.users.UsersUpdateInformationResponse;
 import com.example.myapplication.data.network.APIBuilder;
+import com.example.myapplication.data.network.endpoints.auth.UploadProfileUser;
 import com.example.myapplication.data.network.endpoints.users.UserChangePassword;
 import com.example.myapplication.data.network.endpoints.users.UserGetInformation;
 import com.example.myapplication.data.network.endpoints.users.UserLogout;
@@ -127,7 +129,9 @@ public class UsersAPIRequestHandler {
 
             @Override
             public void onFailure(Call<UserChangePasswordResponse> call, Throwable t) {
-                callback.onError(t);
+
+                throw new RuntimeException(t.getMessage());
+
             }
         });
     }
@@ -145,6 +149,26 @@ public class UsersAPIRequestHandler {
 
             @Override
             public void onFailure(Call<UserLogoutResponse> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+
+
+    }
+    public void uploadProfilePhoto(MultipartBody.Part imageFile, String access_token, ResponseCallback<ApiSuccessfulResponse> callback) {
+
+        UploadProfileUser uploadProfileUser = api.getRetrofit().create(UploadProfileUser.class);
+        uploadProfileUser.uploadPhoto(imageFile, access_token).enqueue(new Callback<ApiSuccessfulResponse>() {
+            @Override
+            public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
+                //refresh token
+                setRefreshTokenToDataStorage(response);
+                //Handle success and error response
+                globalUtility.parseAPIResponse(response,callback);
+            }
+
+            @Override
+            public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
                 callback.onError(t);
             }
         });

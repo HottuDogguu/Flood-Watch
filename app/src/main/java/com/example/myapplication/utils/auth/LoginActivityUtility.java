@@ -2,12 +2,11 @@ package com.example.myapplication.utils.auth;
 
 import android.content.Context;
 import android.content.Intent;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.myapplication.BuildConfig;
-import com.example.myapplication.data.models.auth.ManualLoginResponse;
+import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.HomeActivity;
 import com.example.myapplication.ui.activity.auth.EmailVerificationActivity;
@@ -43,7 +42,7 @@ public class LoginActivityUtility extends BaseAuthUtility{
         this.loginPasswordTextInput = loginPasswordTextInput;
     }
 
-    public void handleOnSuccess(ManualLoginResponse response) {
+    public void handleOnSuccess(ApiSuccessfulResponse response) {
         //save token and navigate to the homepage
         saveTokenAndNavigateToHomaPage(response);
 
@@ -70,11 +69,11 @@ public class LoginActivityUtility extends BaseAuthUtility{
 
     }
 
-    private void saveTokenAndNavigateToHomaPage(ManualLoginResponse response) {
+    private void saveTokenAndNavigateToHomaPage(ApiSuccessfulResponse response) {
         //Set to data store
         String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY,context);
         dataStorageManager.putString(accessTokenKey, response.getAccess_token());
-        Toast.makeText(context, "Successfully Login.", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, response.getMessage(), Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this.context, HomeActivity.class);
         context.startActivity(intent);
     }

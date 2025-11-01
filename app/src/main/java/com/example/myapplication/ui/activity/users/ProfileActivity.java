@@ -246,16 +246,19 @@ public class ProfileActivity extends AppCompatActivity {
                     apiRequestHandler.logOutUser(accessToken, new ResponseCallback<UserLogoutResponse>() {
                         @Override
                         public void onSuccess(UserLogoutResponse response) {
+                            Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show();
                             dataStorageManager.clearAll();
                             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
-                            Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
                         public void onError(Throwable t) {
-
+                            Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
                         }
                     });
                 });

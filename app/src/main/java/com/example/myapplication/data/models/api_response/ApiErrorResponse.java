@@ -1,4 +1,4 @@
-package com.example.myapplication.data.models.errors;
+package com.example.myapplication.data.models.api_response;
 
 public class ApiErrorResponse {
         String message,status;

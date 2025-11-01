@@ -26,7 +26,7 @@ import java.util.Map;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.calbacks.ResponseCallback;
-import com.example.myapplication.data.models.errors.ApiErrorResponse;
+import com.example.myapplication.data.models.api_response.ApiErrorResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -149,8 +149,7 @@ public class GlobalUtility {
                     Log.e("API_RESPONSE", "Error body: " + errorBody);
                     Gson gson = new Gson();
                     ApiErrorResponse errorResponse = gson.fromJson(errorBody, ApiErrorResponse.class);
-                    callback.onError(new Exception("Error: " + errorResponse.getMessage() + " with Status Code of " + errorResponse.getStatus_code()));
-
+                    callback.onError(new Exception(errorResponse.getMessage()));
                 } catch (JsonSyntaxException e) {
                     // If parsing fails, fall back to raw error
                     Log.e("JSON ERROR", "Failed to parse error response", e);

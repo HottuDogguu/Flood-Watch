@@ -22,8 +22,9 @@ import androidx.annotation.Nullable;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
-import com.example.myapplication.data.models.auth.UploadPhotoResponse;
+import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
+import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
 
 import com.example.myapplication.ui.activity.BaseActivity;
@@ -49,7 +50,8 @@ public class UploadProfileActivity extends BaseActivity {
     private Activity activity;
     private Context context;
     private Uri uri;
-    private AuthenticationAPIRequestHandler authenticationAPI;
+
+    private UsersAPIRequestHandler usersAPIRequestHandler;
     private DataStorageManager dataStoreManager;
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
     private final String TAG = "UPLOAD_PHOTO";
@@ -69,7 +71,7 @@ public class UploadProfileActivity extends BaseActivity {
         dataStoreManager = DataStorageManager.getInstance(this);
 
 
-        authenticationAPI = new AuthenticationAPIRequestHandler(activity, this);
+        usersAPIRequestHandler = new UsersAPIRequestHandler(activity, this);
         globalUtility = new GlobalUtility();
 
 
@@ -80,7 +82,6 @@ public class UploadProfileActivity extends BaseActivity {
                         // Show image preview
                         ivProfilePreview.setImageURI(uri);
                         this.uri = uri;
-                        Toast.makeText(activity, "File path" + this.uri, Toast.LENGTH_SHORT).show();
                     } else {
                         Log.i(TAG, "No media selected");
                     }
@@ -103,10 +104,14 @@ public class UploadProfileActivity extends BaseActivity {
                     Disposable token = dataStoreManager.getString(accessTokenKey)
                             .firstElement()
                             .subscribe(access_token -> { //
-                                authenticationAPI.uploadProfilePhoto(imagePart, "Bearer " + access_token, new ResponseCallback<UploadPhotoResponse>() {
+                                usersAPIRequestHandler.uploadProfilePhoto(imagePart, "Bearer " + access_token, new ResponseCallback<ApiSuccessfulResponse>() {
                                     @Override
-                                    public void onSuccess(UploadPhotoResponse response) {
-                                        Toast.makeText(activity, "message" + response.getMessage(), Toast.LENGTH_SHORT).show();
+                                    public void onSuccess(ApiSuccessfulResponse response) {
+                                        Toast.makeText(activity, response.getMessage(), Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(UploadProfileActivity.this, HomeActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        startActivity(intent);
+                                        finish();
                                     }
 
                                     @Override
@@ -120,10 +125,7 @@ public class UploadProfileActivity extends BaseActivity {
 
                 }
 
-                Intent intent = new Intent(UploadProfileActivity.this, HomeActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
+
             } catch (IOException e) {
                 Toast.makeText(activity, e.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e(TAG, Objects.requireNonNull(e.getMessage()));

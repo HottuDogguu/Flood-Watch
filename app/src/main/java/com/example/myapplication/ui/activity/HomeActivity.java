@@ -87,8 +87,6 @@ public class HomeActivity extends BaseActivity
 
         // Initialize views
         initViews();
-        //set user data to the data storage
-        setDataFromDataStorage();
 
         // Setup toolbar
         setupToolbar();
@@ -304,7 +302,6 @@ public class HomeActivity extends BaseActivity
         compositeDisposable.add(flowable);
 
     }
-
 
     @Override
     protected void onResume() {

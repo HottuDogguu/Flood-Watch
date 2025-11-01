@@ -97,7 +97,6 @@ public class BaseActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<String> task) {
                             if (!task.isSuccessful()) {
                                 Log.w("FCM_NOTIF", "Fetching FCM registration token failed", task.getException());
-                                return;
                             }
                             // Get new FCM registration token
                             String token = task.getResult();

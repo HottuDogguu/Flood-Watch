@@ -1,6 +1,6 @@
 package com.example.myapplication.data.network.endpoints.auth;
 
-import com.example.myapplication.data.models.auth.ManualLoginResponse;
+import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -16,6 +16,6 @@ public interface ManualAuthenticateUser {
     })
     //This is the endpoint of the manual login
     @POST("auth/login")
-    Call<ManualLoginResponse> authenticateUser(@Field("username") String username,
-                                               @Field("password") String password);
+    Call<ApiSuccessfulResponse> authenticateUser(@Field("username") String username,
+                                                 @Field("password") String password);
 }

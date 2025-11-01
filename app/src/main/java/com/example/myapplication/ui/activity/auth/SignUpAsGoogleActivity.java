@@ -4,23 +4,26 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
-import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
-import com.example.myapplication.data.models.auth.ManualSignUpResponse;
+import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.utils.GlobalUtility;
+import com.example.myapplication.utils.auth.BaseAuthUtility;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SignUpAsGoogleActivity extends BaseActivity {
 
@@ -32,18 +35,20 @@ public class SignUpAsGoogleActivity extends BaseActivity {
     private Context context;
     private Activity activity;
     private GlobalUtility globalUtility;
+    private BaseAuthUtility baseAuthUtility;
     // Init first
     private String email;
     String fullName;
     private List<String> sign_in_type;
-    String status;
+    private String status;
+    private String fcmToken = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup_as_google);
         initViews();
-        GoogleAuthLoginResponse.UserData userData = (GoogleAuthLoginResponse.UserData) getIntent().getSerializableExtra("UserData");
+        ApiSuccessfulResponse.UserData userData = (ApiSuccessfulResponse.UserData) getIntent().getSerializableExtra("UserData");
         sign_in_type = new ArrayList<>();
         email = "";
         fullName = "";
@@ -54,9 +59,6 @@ public class SignUpAsGoogleActivity extends BaseActivity {
             email = userData.getEmail();
             fullName = userData.getFullname();
             sign_in_type = userData.getSign_in_type();
-            for (var val :sign_in_type) {
-                Toast.makeText(context, "Value"+val, Toast.LENGTH_SHORT).show();
-            }
 
             status = userData.getStatus();
             etFullName.setText(email);
@@ -65,29 +67,35 @@ public class SignUpAsGoogleActivity extends BaseActivity {
 
         btnManualSignUp.setOnClickListener(v -> {
             String contactNo = etContactNo.getText().toString();
-
-            var user = new SignupPostRequest.User(email, fullName, status, sign_in_type);
-            var address = new SignupPostRequest.Address(null, null, null, null);
-            var personalInfo = new SignupPostRequest.PersonalInformation(contactNo, null);
-            SignupPostRequest request = new SignupPostRequest(user, address, personalInfo);
-
-            authenticationAPI.googleSignUp(request, new ResponseCallback<ManualSignUpResponse>() {
-                @Override
-                public void onSuccess(ManualSignUpResponse response) {
-                    Intent intent = new Intent(SignUpAsGoogleActivity.this, UploadProfileActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-                    Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
-                    startActivity(intent);
-                    finish();
-                }
-                @Override
-                public void onError(Throwable t) {
-                    Toast.makeText(context, "An error occurred " + t.getMessage(), Toast.LENGTH_SHORT).show();
-
-                }
-            });
-
+            //get the fcm token
+            baseAuthUtility.getFCMToken().addOnSuccessListener(token -> {
+                        fcmToken = token;
+                        var user = new SignupPostRequest.User(email, fullName, status, sign_in_type, fcmToken);
+                        var address = new SignupPostRequest.Address(null, null, null, null);
+                        var personalInfo = new SignupPostRequest.PersonalInformation(contactNo, null);
+                        SignupPostRequest request = new SignupPostRequest(user, address, personalInfo);
+                        authenticationAPI.googleSignUp(request, new ResponseCallback<ApiSuccessfulResponse>() {
+                            @Override
+                            public void onSuccess(ApiSuccessfulResponse response) {
+                                String accessToken = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
+                                //store access token in data store
+                                dataStoreManager.putString(accessToken, response.getAccess_token());
+                                Intent intent = new Intent(SignUpAsGoogleActivity.this, UploadProfileActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                //Show message
+                                Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
+                                startActivity(intent);
+                                finish();
+                            }
+                            @Override
+                            public void onError(Throwable t) {
+                                Toast.makeText(context,  t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("FCM_TOKEN_ERROR", Objects.requireNonNull(e.getMessage()));
+                    });
         });
 
     }
@@ -96,10 +104,9 @@ public class SignUpAsGoogleActivity extends BaseActivity {
         this.context = this;
         this.activity = this;
 
-
-        authenticationAPI = new AuthenticationAPIRequestHandler(activity,context);
+        authenticationAPI = new AuthenticationAPIRequestHandler(activity, context);
         globalUtility = new GlobalUtility();
-
+        baseAuthUtility = new BaseAuthUtility(context);
         etFullName = (EditText) findViewById(R.id.etFullName);
         etEmailAddress = (EditText) findViewById(R.id.etEmail);
         etContactNo = (EditText) findViewById(R.id.etContactNumber);

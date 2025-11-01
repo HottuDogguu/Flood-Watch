@@ -20,6 +20,8 @@ import com.example.myapplication.utils.GlobalUtility;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -31,6 +33,7 @@ public class EmailVerificationActivity extends BaseActivity {
     private String userEmail;// pass your user's email here
     private OkHttpClient client;
     private GlobalUtility globalUtility;
+    private final String TAG = "EMAIL_VERIFICATION_ACCOUNT";
     private Context context;
     private DataStorageManager dataStorageManager;
 
@@ -110,7 +113,7 @@ public class EmailVerificationActivity extends BaseActivity {
                             client.dispatcher().executorService().shutdown();
                         }
                     } catch (JSONException e) {
-                        throw new RuntimeException(e);
+                        Log.e(TAG, Objects.requireNonNull(e.getMessage()));
                     }
 
                 });

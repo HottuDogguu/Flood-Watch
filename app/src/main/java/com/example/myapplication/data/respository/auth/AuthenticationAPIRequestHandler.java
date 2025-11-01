@@ -17,15 +17,12 @@ import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
 
-import com.example.myapplication.data.models.auth.GoogleAuthLoginResponse;
+import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;
-import com.example.myapplication.data.models.auth.ManualSignUpResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
-import com.example.myapplication.data.models.auth.UploadPhotoResponse;
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.ManualLoginRequest;
-import com.example.myapplication.data.models.auth.ManualLoginResponse;
 import com.example.myapplication.data.network.endpoints.auth.GoogleAuthenticateUser;
 import com.example.myapplication.data.network.endpoints.auth.LinkAccountToGoogleSignInMethod;
 import com.example.myapplication.data.network.endpoints.auth.ManualAuthenticateUser;
@@ -59,15 +56,15 @@ public class AuthenticationAPIRequestHandler {
     }
 
     public void manualLoginResponse(ManualLoginRequest requestPost,
-                                    ResponseCallback<ManualLoginResponse> callback) {
+                                    ResponseCallback<ApiSuccessfulResponse> callback) {
         ManualAuthenticateUser auth = api.getRetrofit().create(ManualAuthenticateUser.class);
-        auth.authenticateUser(requestPost.getEmail(), requestPost.getPassword()).enqueue(new Callback<ManualLoginResponse>() {
+        auth.authenticateUser(requestPost.getEmail(), requestPost.getPassword()).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
-            public void onResponse(@NonNull Call<ManualLoginResponse> call, @NonNull Response<ManualLoginResponse> response) {
+            public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
                 globalUtility.parseAPIResponse(response,callback);
             }
             @Override
-            public void onFailure(@NonNull Call<ManualLoginResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Throwable t) {
 
             }
         });
@@ -123,23 +120,23 @@ public class AuthenticationAPIRequestHandler {
 
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void googleLoginResponse(String webClientId,
-                                    ResponseCallback<GoogleAuthLoginResponse> callback) {
+                                    ResponseCallback<ApiSuccessfulResponse> callback) {
         this.googleGetToken(webClientId, new ResponseCallback<String>() {
 
             @Override
             public void onSuccess(String request) {
                 GoogleAuthenticateUser googleAuthenticateUser = api.getRetrofit().create(GoogleAuthenticateUser.class);
                 //Call the api
-                googleAuthenticateUser.authenticateUser(request).enqueue(new Callback<GoogleAuthLoginResponse>() {
+                googleAuthenticateUser.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
                     @Override
-                    public void onResponse(@NonNull Call<GoogleAuthLoginResponse> call, @NonNull Response<GoogleAuthLoginResponse> response) {
+                    public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
 
                         //Handle success and error response
                         globalUtility.parseAPIResponse(response,callback);
                     }
 
                     @Override
-                    public void onFailure(@NonNull Call<GoogleAuthLoginResponse> call, @NonNull Throwable t) {
+                    public void onFailure(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Throwable t) {
                         callback.onError(t);
                     }
                 });
@@ -154,73 +151,56 @@ public class AuthenticationAPIRequestHandler {
     }
 
     public void manualSignUp(SignupPostRequest request,
-                             ResponseCallback<ManualSignUpResponse> callback) {
+                             ResponseCallback<ApiSuccessfulResponse> callback) {
         SignUpUser signUpUser = api.getRetrofit().create(SignUpUser.class);
-        signUpUser.authenticateUser(request).enqueue(new Callback<ManualSignUpResponse>() {
+        signUpUser.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
-            public void onResponse(@NonNull Call<ManualSignUpResponse> call, @NonNull Response<ManualSignUpResponse> response) {
+            public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
                 //Handle success and error response
                 globalUtility.parseAPIResponse(response,callback);
             }
 
             @Override
-            public void onFailure(@NonNull Call<ManualSignUpResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Throwable t) {
                 callback.onError(t);
             }
         });
     }
 
     public void googleSignUp(SignupPostRequest request,
-                             ResponseCallback<ManualSignUpResponse> callback) {
+                             ResponseCallback<ApiSuccessfulResponse> callback) {
         SignUpUser signUpUser = api.getRetrofit().create(SignUpUser.class);
-        signUpUser.authenticateUser(request).enqueue(new Callback<ManualSignUpResponse>() {
+        signUpUser.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
-            public void onResponse(@NonNull Call<ManualSignUpResponse> call, @NonNull Response<ManualSignUpResponse> response) {
+            public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
                 //Handle success and error response
                 globalUtility.parseAPIResponse(response,callback);
             }
 
             @Override
-            public void onFailure(@NonNull Call<ManualSignUpResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Throwable t) {
                 callback.onError(t);
             }
         });
     }
 
-    public void linkUserAccountToGoogle(LinkAccountToMultipleSiginMethodsRequest request, ResponseCallback<ManualLoginResponse> callback) {
+    public void linkUserAccountToGoogle(LinkAccountToMultipleSiginMethodsRequest request, ResponseCallback<ApiSuccessfulResponse> callback) {
         LinkAccountToGoogleSignInMethod linkAccountToGoogleSignInMethod = api.getRetrofit().create(LinkAccountToGoogleSignInMethod.class);
-        linkAccountToGoogleSignInMethod.authenticateUser(request).enqueue(new Callback<ManualLoginResponse>() {
+        linkAccountToGoogleSignInMethod.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
-            public void onResponse(@NonNull Call<ManualLoginResponse> call, @NonNull Response<ManualLoginResponse> response) {
+            public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
                 //Handle success and error response
                 globalUtility.parseAPIResponse(response,callback);
             }
 
             @Override
-            public void onFailure(@NonNull Call<ManualLoginResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Throwable t) {
                 callback.onError(t);
             }
         });
 
     }
 
-    public void uploadProfilePhoto(MultipartBody.Part imageFile, String access_token, ResponseCallback<UploadPhotoResponse> callback) {
 
-        UploadProfileUser uploadProfileUser = api.getRetrofit().create(UploadProfileUser.class);
-        uploadProfileUser.uploadPhoto(imageFile, access_token).enqueue(new Callback<UploadPhotoResponse>() {
-            @Override
-            public void onResponse(Call<UploadPhotoResponse> call, Response<UploadPhotoResponse> response) {
-                //Handle success and error response
-                globalUtility.parseAPIResponse(response,callback);
-            }
-
-            @Override
-            public void onFailure(Call<UploadPhotoResponse> call, Throwable t) {
-                callback.onError(t);
-            }
-        });
-
-
-    }
 }
 
