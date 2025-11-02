@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.activity.auth;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -15,6 +16,7 @@ import androidx.annotation.RequiresApi;
 
 import com.example.myapplication.R;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
+import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.calbacks.ResponseCallback;
@@ -36,6 +38,7 @@ public class LoginActivity extends BaseActivity {
     private TextView signupButton;
     private TextInputLayout loginEmailTextInput, loginPasswordTextInput;
     private Context context;
+    private Activity activity;
     private AuthenticationAPIRequestHandler auth;
 
     private DataStorageManager dataStoreManager;
@@ -121,6 +124,8 @@ public class LoginActivity extends BaseActivity {
                         @Override
                         public void onSuccess(ApiSuccessfulResponse response) {
                             loginActivityUtility.handleOnSuccess(response);
+
+
                         }
 
                         @Override
@@ -128,7 +133,6 @@ public class LoginActivity extends BaseActivity {
                             loginActivityUtility.handleOnError(t);
                         }
                     });
-
         });
 
         //When the user click Signin as Google or continue as google
@@ -148,6 +152,7 @@ public class LoginActivity extends BaseActivity {
 
         // initialized variables
         context = this; // Set context
+        activity = this; // Set context
         auth = new AuthenticationAPIRequestHandler(this, context);
         dataStoreManager = DataStorageManager.getInstance(context);
 
@@ -163,7 +168,7 @@ public class LoginActivity extends BaseActivity {
 
         //initialized login utility
         this.loginActivityUtility = new LoginActivityUtility(
-                context, dataStoreManager, email, password,
+                context, activity, dataStoreManager, email, password,
                 loginEmailTextInput, loginPasswordTextInput);
     }
 

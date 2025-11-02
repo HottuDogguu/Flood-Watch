@@ -1,10 +1,7 @@
 package com.example.myapplication.data.models.api_response;
 
-import com.example.myapplication.data.models.users.UsersGetInformationResponse;
-
-import org.checkerframework.checker.units.qual.A;
-
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ApiSuccessfulResponse implements Serializable {
@@ -61,52 +58,42 @@ public class ApiSuccessfulResponse implements Serializable {
     }
 
     public static class UserData implements Serializable {
-        DataUser User;
         UserAddress Address;
         UserPersonalInformation PersonalInformation;
         UserProfileImage ProfileImage;
 
-
-        public DataUser getUser() {
-            return User != null ? User : new DataUser();
-        }
-
-        public void setUser(DataUser user) {
-            User = user;
-        }
-        public UserAddress getAddress() {
-            return Address != null ? Address : new UserAddress();
-        }
-        public void setAddress(UserAddress address) {
-            Address = address;
-        }
-
-        public UserPersonalInformation getPersonalInformation() {
-            return PersonalInformation != null ? PersonalInformation : new UserPersonalInformation();
-        }
-
-        public void setPersonalInformation(UserPersonalInformation personalInformation) {
-            PersonalInformation = personalInformation;
-        }
-
-        public UserProfileImage getProfileImage() {
-            return ProfileImage != null ? ProfileImage : new UserProfileImage();
-        }
-
-        public void setProfileImage(UserProfileImage profileImage) {
-            ProfileImage = profileImage;
-        }
-
-
-
-    }
-    public static  class DataUser implements Serializable{
         String id, fullname, email, status, role,fcm_token;
 
         int profile_setup_steps;
         List<String>sign_in_type;
 
-        boolean is_profile_completed, is_deleted;
+        boolean is_profile_completed, is_deleted,is_flood_alert_on,
+                is_emergency_alert_on,
+                is_weather_updates_on;
+
+        public boolean isIs_flood_alert_on() {
+            return is_flood_alert_on;
+        }
+
+        public void setIs_flood_alert_on(boolean is_flood_alert_on) {
+            this.is_flood_alert_on = is_flood_alert_on;
+        }
+
+        public boolean isIs_emergency_alert_on() {
+            return is_emergency_alert_on;
+        }
+
+        public void setIs_emergency_alert_on(boolean is_emergency_alert_on) {
+            this.is_emergency_alert_on = is_emergency_alert_on;
+        }
+
+        public boolean isIs_weather_updates_on() {
+            return is_weather_updates_on;
+        }
+
+        public void setIs_weather_updates_on(boolean is_weather_updates_on) {
+            this.is_weather_updates_on = is_weather_updates_on;
+        }
 
         public String getFcm_token() {
             return fcm_token;
@@ -117,7 +104,7 @@ public class ApiSuccessfulResponse implements Serializable {
         }
 
         public List<String> getSign_in_type() {
-            return sign_in_type;
+            return sign_in_type != null ? sign_in_type : new ArrayList<String>();
         }
 
         public void setSign_in_type(List<String> sign_in_type) {
@@ -187,8 +174,33 @@ public class ApiSuccessfulResponse implements Serializable {
         public void setIs_profile_completed(boolean is_profile_completed) {
             this.is_profile_completed = is_profile_completed;
         }
-    }
 
+        public UserAddress getAddress() {
+            return Address != null ? Address : new UserAddress();
+        }
+        public void setAddress(UserAddress address) {
+            Address = address;
+        }
+
+        public UserPersonalInformation getPersonalInformation() {
+            return PersonalInformation != null ? PersonalInformation : new UserPersonalInformation();
+        }
+
+        public void setPersonalInformation(UserPersonalInformation personalInformation) {
+            PersonalInformation = personalInformation;
+        }
+
+        public UserProfileImage getProfileImage() {
+            return ProfileImage != null ? ProfileImage : new UserProfileImage();
+        }
+
+        public void setProfileImage(UserProfileImage profileImage) {
+            ProfileImage = profileImage;
+        }
+
+
+
+    }
     public static class UserAddress implements Serializable {
         public String getCity() {
             if (this.city == null || this.city.isEmpty()) return "";

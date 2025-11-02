@@ -6,11 +6,11 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
-import retrofit2.http.POST;
+import retrofit2.http.PUT;
 
-public interface UserLogout {
+public interface UserUpdateFCMToken {
 
     @Headers({"Content-Type: application/json"})
-    @POST("user/logout")
-    Call<ApiSuccessfulResponse> logoutUser(@Body String token, @Header("Authorization") String accessToken);
+    @PUT("user/fcm-token")
+    Call<ApiSuccessfulResponse> updateFCMToken(@Body String newFcmToken, @Header("Authorization") String accessToken);
 }

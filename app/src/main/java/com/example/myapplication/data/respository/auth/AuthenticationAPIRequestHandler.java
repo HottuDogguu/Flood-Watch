@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.CancellationSignal;
+import android.util.Log;
 
 
 import androidx.annotation.NonNull;
@@ -103,7 +104,6 @@ public class AuthenticationAPIRequestHandler {
                 new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
                     @Override
                     public void onResult(@NonNull GetCredentialResponse result) {
-
                         GoogleIdTokenCredential googleIdCredential =
                                 GoogleIdTokenCredential.createFrom(result.getCredential().getData());
                         String token = googleIdCredential.getIdToken();
@@ -130,7 +130,6 @@ public class AuthenticationAPIRequestHandler {
                 googleAuthenticateUser.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
                     @Override
                     public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
-
                         //Handle success and error response
                         globalUtility.parseAPIResponse(response,callback);
                     }

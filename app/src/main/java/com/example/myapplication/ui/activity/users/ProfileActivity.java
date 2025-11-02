@@ -18,18 +18,15 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
+import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
-import com.example.myapplication.data.models.users.UserLogoutResponse;
-import com.example.myapplication.data.models.users.UsersGetInformationResponse;
+import com.example.myapplication.data.models.users.UserNotificationSettingsRequest;
 import com.example.myapplication.data.models.users.UsersUpdateInformationRequest;
-import com.example.myapplication.data.models.users.UsersUpdateInformationResponse;
 import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.auth.LoginActivity;
 import com.example.myapplication.utils.GlobalUtility;
-import com.example.myapplication.utils.home.BaseHomepageUtility;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -100,10 +97,6 @@ public class ProfileActivity extends AppCompatActivity {
         // Setup click listeners
         setupClickListeners();
 
-        // Setup switch listeners
-        setupSwitchListeners();
-
-
     }
 
     private void setupToolbar() {
@@ -115,7 +108,7 @@ public class ProfileActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
-    private void updateProfileUI(UsersGetInformationResponse.UserData userData) {
+    private void updateProfileUI(ApiSuccessfulResponse.UserData userData) {
         String formattedAddress = globalUtility.formatAddress(
                 userData.getAddress().getStreet(),
                 userData.getAddress().getBarangay(),
@@ -146,7 +139,7 @@ public class ProfileActivity extends AppCompatActivity {
                 .firstElement()
                 .subscribe(data -> {
                     Gson gson = new Gson();
-                    UsersGetInformationResponse.UserData userData = gson.fromJson(data, UsersGetInformationResponse.UserData.class);
+                    ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
                     updateProfileUI(userData); // update the data in fields
                     setProfilePictureUsingURL(userData.getProfileImage().getImg_url());
                 });
@@ -158,19 +151,23 @@ public class ProfileActivity extends AppCompatActivity {
                 .firstElement()
                 .subscribe(data -> {
                     Gson gson = new Gson();
-                    UsersGetInformationResponse.UserData userData = gson.fromJson(data, UsersGetInformationResponse.UserData.class);
+                    ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
                     updateProfileUI(userData); // update the data in fields
                 });
         compositeDisposable.add(disposable);
     }
 
     private void loadNotificationPreferences() {
-        switchFloodAlerts.setChecked(getSharedPreferences("NotificationPrefs", MODE_PRIVATE)
-                .getBoolean("flood_alerts", true));
-        switchWeatherUpdates.setChecked(getSharedPreferences("NotificationPrefs", MODE_PRIVATE)
-                .getBoolean("weather_updates", true));
-        switchEmergencyAlerts.setChecked(getSharedPreferences("NotificationPrefs", MODE_PRIVATE)
-                .getBoolean("emergency_alerts", true));
+        Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
+                .firstElement()
+                .subscribe(data -> {
+                    Gson gson = new Gson();
+                    ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
+                    switchFloodAlerts.setChecked(userData.isIs_flood_alert_on());
+                    switchWeatherUpdates.setChecked(userData.isIs_weather_updates_on());
+                    switchEmergencyAlerts.setChecked(userData.isIs_emergency_alert_on());
+                });
+        compositeDisposable.add(disposable);
     }
 
     private void setupClickListeners() {
@@ -194,36 +191,6 @@ public class ProfileActivity extends AppCompatActivity {
         btnLogout.setOnClickListener(v -> showLogoutDialog());
     }
 
-    private void setupSwitchListeners() {
-        switchFloodAlerts.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            // Save preference
-            saveNotificationPreference("flood_alerts", isChecked);
-            Toast.makeText(this,
-                    isChecked ? "Flood alerts enabled" : "Flood alerts disabled",
-                    Toast.LENGTH_SHORT).show();
-        });
-
-        switchWeatherUpdates.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            // Save preference
-            saveNotificationPreference("weather_updates", isChecked);
-            Toast.makeText(this,
-                    isChecked ? "Weather updates enabled" : "Weather updates disabled",
-                    Toast.LENGTH_SHORT).show();
-        });
-
-        switchEmergencyAlerts.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            // Save preference
-            saveNotificationPreference("emergency_alerts", isChecked);
-            Toast.makeText(this,
-                    isChecked ? "Emergency alerts enabled" : "Emergency alerts disabled",
-                    Toast.LENGTH_SHORT).show();
-        });
-    }
-
-    private void saveNotificationPreference(String key, boolean value) {
-        // will implement soon
-    }
-
     private void showLogoutDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Logout")
@@ -243,9 +210,9 @@ public class ProfileActivity extends AppCompatActivity {
         Disposable disposable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
                 .firstElement()
                 .subscribe(accessToken -> {
-                    apiRequestHandler.logOutUser(accessToken, new ResponseCallback<UserLogoutResponse>() {
+                    apiRequestHandler.logOutUser(accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
                         @Override
-                        public void onSuccess(UserLogoutResponse response) {
+                        public void onSuccess(ApiSuccessfulResponse response) {
                             Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show();
                             dataStorageManager.clearAll();
                             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
@@ -256,6 +223,7 @@ public class ProfileActivity extends AppCompatActivity {
                         @Override
                         public void onError(Throwable t) {
                             Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+                            dataStorageManager.clearAll();
                             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
@@ -268,6 +236,27 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        Disposable disposable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
+                .firstElement()
+                .subscribe(accessToken -> {
+                    boolean isFloodAlert = switchFloodAlerts.isChecked();
+                    boolean isEmergencyAlert = switchEmergencyAlerts.isChecked();
+                    boolean isWeatherAlert = switchWeatherUpdates.isChecked();
+                    UserNotificationSettingsRequest request =
+                            new UserNotificationSettingsRequest(isFloodAlert,isWeatherAlert,isEmergencyAlert);
+
+                    apiRequestHandler.updateUserNotificationSettings(request, accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
+                        @Override
+                        public void onSuccess(ApiSuccessfulResponse response) {
+                            Toast.makeText(activity, response.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(Throwable t) {
+                        onNavigateToLoginIfUnauthorize(t);
+                        }
+                    });
+                });
         finish();
     }
 
@@ -301,7 +290,7 @@ public class ProfileActivity extends AppCompatActivity {
         Disposable disposable = dataStorageManager.getUserData(USER_DATA_KEY)
                 .firstElement()
                 .subscribe(data -> {
-                    UsersGetInformationResponse.UserData userDataFromGson = gson.fromJson(data, UsersGetInformationResponse.UserData.class);
+                    ApiSuccessfulResponse.UserData userDataFromGson = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
                     etEditName.setText(userDataFromGson.getFullname());
                     etEditEmail.setText(userDataFromGson.getEmail());
                     etEditPhone.setText(userDataFromGson.getPersonalInformation().getContact_number());
@@ -352,41 +341,48 @@ public class ProfileActivity extends AppCompatActivity {
                                 personalInformation,
                                 address);
                         //Call the api
-                        apiRequestHandler.updateUserInfo(request, accessToken, new ResponseCallback<UsersUpdateInformationResponse>() {
+                        Log.i("OLDTOKENInProfileACtivityUpdate", accessToken);
+                        apiRequestHandler.updateUserInfo(request, accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
                             @Override
-                            public void onSuccess(UsersUpdateInformationResponse response) {
+                            public void onSuccess(ApiSuccessfulResponse response) {
 
-                                apiRequestHandler.getUserInformation(accessToken, new ResponseCallback<UsersGetInformationResponse>() {
-                                    @Override
-                                    public void onSuccess(UsersGetInformationResponse response1) {
-                                        //convert the object to string using gson and store it in data store
-                                        String newUserData = gson.toJson(response1.getData());
-                                        dataStorageManager.putString(USER_DATA_KEY, newUserData);
-
-                                        updateProfileUI(response1.getData());
-                                        //set the image from current URI
-                                        setProfilePictureWithUri(currentPhotoUri);
-                                    }
-
-                                    @Override
-                                    public void onError(Throwable t) {
-                                        Log.e(TAG, Objects.requireNonNull(t.getMessage()));
-                                        Toast.makeText(ProfileActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-
-
+                                setProfilePictureWithUri(currentPhotoUri);
                                 // Show success message
                                 Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
-//                                dataStorageManager.putUserData(USER_DATA_KEY, r);
+//                               dataStorageManager.putUserData(USER_DATA_KEY, response.getAccess_token());
+
+                                //get the updated token if is expired after calling the update api and retrieved the updated user data.
+                                Disposable disposable1 = dataStorageManager.getString(ACCESS_TOKEN_KEY)
+                                        .firstElement()
+                                        .subscribe(newAccessToken -> {
+                                            Log.i("newACcessTokenInProfileACtivityUpdate", newAccessToken);
+                                            //call teh get user information api
+                                            apiRequestHandler.getUserInformation(newAccessToken, new ResponseCallback<ApiSuccessfulResponse>() {
+                                                @Override
+                                                public void onSuccess(ApiSuccessfulResponse response1) {
+                                                    //convert the object to string using gson and store it in data store
+                                                    String newUserData = gson.toJson(response1.getData());
+                                                    dataStorageManager.putString(USER_DATA_KEY, newUserData);
+                                                    updateProfileUI(response1.getData());
+                                                    //set the image from current URI
+                                                    setProfilePictureWithUri(currentPhotoUri);
+                                                    // Show success message
+                                                }
+
+                                                @Override
+                                                public void onError(Throwable t) {
+                                                    onNavigateToLoginIfUnauthorize(t);
+                                                }
+                                            });
+                                        });
+                                compositeDisposable.add(disposable1);
                                 // Close dialog
                                 dialog.dismiss();
-
                             }
 
                             @Override
                             public void onError(Throwable t) {
-                                Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                onNavigateToLoginIfUnauthorize(t);
                             }
                         });
 
@@ -397,8 +393,8 @@ public class ProfileActivity extends AppCompatActivity {
             compositeDisposable.add(dispo);
 
         });
-
         dialog.show();
+
     }
 
     private void setupActivityResultLaunchers() {
@@ -513,6 +509,16 @@ public class ProfileActivity extends AppCompatActivity {
         return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
+    private void onNavigateToLoginIfUnauthorize(Throwable t){
+        if (Objects.requireNonNull(t.getMessage()).toLowerCase().contains("token")) {
+            Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        }
+        Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
+        Log.e(TAG,t.getMessage());
+    }
 
     private void initViews() {
         activity = this;
@@ -558,6 +564,7 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadUserData(); // Refresh data every time the user comes back
+        loadNotificationPreferences();// set the notification settings, if it is off or on
 
     }
 }

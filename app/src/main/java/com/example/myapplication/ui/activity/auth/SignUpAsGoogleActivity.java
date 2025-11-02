@@ -106,7 +106,7 @@ public class SignUpAsGoogleActivity extends BaseActivity {
 
         authenticationAPI = new AuthenticationAPIRequestHandler(activity, context);
         globalUtility = new GlobalUtility();
-        baseAuthUtility = new BaseAuthUtility(context);
+        baseAuthUtility = new BaseAuthUtility(context,activity);
         etFullName = (EditText) findViewById(R.id.etFullName);
         etEmailAddress = (EditText) findViewById(R.id.etEmail);
         etContactNo = (EditText) findViewById(R.id.etContactNumber);

@@ -9,13 +9,8 @@ import androidx.datastore.preferences.core.PreferencesKeys;
 import androidx.datastore.preferences.rxjava3.RxPreferenceDataStoreBuilder;
 import androidx.datastore.rxjava3.RxDataStore;
 
-import com.example.myapplication.BuildConfig;
-import com.example.myapplication.data.models.users.UsersGetInformationResponse;
-import com.example.myapplication.data.network.endpoints.users.UserGetInformation;
+import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import org.json.JSONObject;
 
 import java.util.Objects;
 
@@ -23,7 +18,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class DataStorageManager {
@@ -114,7 +108,7 @@ public class DataStorageManager {
                 .observeOn(AndroidSchedulers.mainThread()); // Observe on main thread;
     }
 
-    public void putUserData(String key, UsersGetInformationResponse.UserData userInfo){
+    public void putUserData(String key, ApiSuccessfulResponse.UserData userInfo){
         Preferences.Key<String> KEY = PreferencesKeys.stringKey(key);
         Gson gson = new Gson();
         if(userInfo != null){

@@ -76,6 +76,7 @@ public class SignupActivity extends BaseActivity {
         dataFieldsValidation = new DataFieldsValidation();
         SignUpActivityUtility signUpActivityUtility = new SignUpActivityUtility(
                 this,
+                this,
                 auth,
                 globalUtility,
                 dataStoreManager);
@@ -222,7 +223,7 @@ public class SignupActivity extends BaseActivity {
         tilSecondaryNumber = (TextInputLayout) findViewById(R.id.tilSecondaryNumber);
         tilPassword = (TextInputLayout) findViewById(R.id.tilPassword);
         tilConfirmPassword = (TextInputLayout) findViewById(R.id.tilConfirmPassword);
-        baseAuthUtility = new BaseAuthUtility(context);
+        baseAuthUtility = new BaseAuthUtility(context,activity);
     }
 
 

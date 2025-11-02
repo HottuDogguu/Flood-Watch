@@ -1,5 +1,6 @@
 package com.example.myapplication.utils.auth;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
@@ -20,10 +21,11 @@ public class SignUpActivityUtility extends BaseAuthUtility {
     private Context context;
 
     public SignUpActivityUtility(Context context,
+                                 Activity activity,
                                  AuthenticationAPIRequestHandler auth,
                                  GlobalUtility globalUtility,
                                  DataStorageManager dataStorageManager) {
-        super(context);
+        super(context,activity);
         this.auth = auth;
         this.context = context;
         this.globalUtility = globalUtility;

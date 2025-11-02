@@ -2,9 +2,7 @@ package com.example.myapplication.data.respository.users;
 
 import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -13,34 +11,28 @@ import com.example.myapplication.calbacks.ResponseCallback;
 
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.users.UserChangePasswordRequest;
-import com.example.myapplication.data.models.users.UserChangePasswordResponse;
-import com.example.myapplication.data.models.users.UserLogoutResponse;
-import com.example.myapplication.data.models.users.UsersGetInformationResponse;
+import com.example.myapplication.data.models.users.UserNotificationSettingsRequest;
 import com.example.myapplication.data.models.users.UsersUpdateInformationRequest;
-import com.example.myapplication.data.models.users.UsersUpdateInformationResponse;
+
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.data.network.endpoints.auth.UploadProfileUser;
 import com.example.myapplication.data.network.endpoints.users.UserChangePassword;
 import com.example.myapplication.data.network.endpoints.users.UserGetInformation;
 import com.example.myapplication.data.network.endpoints.users.UserLogout;
+import com.example.myapplication.data.network.endpoints.users.UserNotificationSettings;
+import com.example.myapplication.data.network.endpoints.users.UserUpdateFCMToken;
 import com.example.myapplication.data.network.endpoints.users.UserUpdateInformation;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.utils.GlobalUtility;
 
-import java.io.File;
 import java.util.Objects;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.disposables.Disposable;
 import okhttp3.Headers;
-import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.http.Header;
-import retrofit2.http.Part;
 
 public class UsersAPIRequestHandler {
 
@@ -61,7 +53,7 @@ public class UsersAPIRequestHandler {
 
     public void updateUserInfo(UsersUpdateInformationRequest request,
                                String token,
-                               ResponseCallback<UsersUpdateInformationResponse> callback) {
+                               ResponseCallback<ApiSuccessfulResponse> callback) {
         try {
 
             String tokenHeader = "Bearer " + token;
@@ -72,22 +64,15 @@ public class UsersAPIRequestHandler {
                             request.getSecondNumberBody(), request.getStreetBody(),
                             request.getBarangayBody(),
                             request.getCityBody(), tokenHeader)
-                    .enqueue(new Callback<UsersUpdateInformationResponse>() {
+                    .enqueue(new Callback<ApiSuccessfulResponse>() {
                         @Override
-                        public void onResponse(@NonNull Call<UsersUpdateInformationResponse> call, @NonNull Response<UsersUpdateInformationResponse> response) {
-                            // handle new access token
-                            String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
-                            Headers header = response.headers();
-                            String headerName = "X-New-Access-Token";
-                            if (header.get(headerName) != null) {
-                                String newToken = header.get(headerName);
-                                dataStorageManager.putString(accessTokenKey, newToken);
-                            }
+                        public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
+                            setRefreshTokenToDataStorage(response);
                             globalUtility.parseAPIResponse(response, callback);
                         }
 
                         @Override
-                        public void onFailure(@NonNull Call<UsersUpdateInformationResponse> call, Throwable t) {
+                        public void onFailure(@NonNull Call<ApiSuccessfulResponse> call, Throwable t) {
                             callback.onError(t);
                         }
                     });
@@ -97,38 +82,38 @@ public class UsersAPIRequestHandler {
 
     }
 
-    public void getUserInformation(String token, ResponseCallback<UsersGetInformationResponse> callback) {
+    public void getUserInformation(String token, ResponseCallback<ApiSuccessfulResponse> callback) {
         UserGetInformation userGetInformation = api.getRetrofit().create(UserGetInformation.class);
         token = "Bearer " + token;
-        userGetInformation.getUser(token).enqueue(new Callback<UsersGetInformationResponse>() {
+        userGetInformation.getUser(token).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
-            public void onResponse(Call<UsersGetInformationResponse> call, Response<UsersGetInformationResponse> response) {
+            public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
                 // handle new access token
                 setRefreshTokenToDataStorage(response);
                 globalUtility.parseAPIResponse(response, callback);
             }
 
             @Override
-            public void onFailure(Call<UsersGetInformationResponse> call, Throwable t) {
+            public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
                 callback.onError(t);
             }
         });
     }
 
     public void changeUserPassword(String token, UserChangePasswordRequest request,
-                                   ResponseCallback<UserChangePasswordResponse> callback) {
+                                   ResponseCallback<ApiSuccessfulResponse> callback) {
         token = "Bearer " + token;
         UserChangePassword userChangePassword = api.getRetrofit().create(UserChangePassword.class);
-        userChangePassword.changePassword(request, token).enqueue(new Callback<UserChangePasswordResponse>() {
+        userChangePassword.changePassword(request, token).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
-            public void onResponse(Call<UserChangePasswordResponse> call, Response<UserChangePasswordResponse> response) {
+            public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
                 // handle new access token
                 setRefreshTokenToDataStorage(response);
                 globalUtility.parseAPIResponse(response, callback);
             }
 
             @Override
-            public void onFailure(Call<UserChangePasswordResponse> call, Throwable t) {
+            public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
 
                 throw new RuntimeException(t.getMessage());
 
@@ -136,19 +121,18 @@ public class UsersAPIRequestHandler {
         });
     }
 
-    public void logOutUser(String token, ResponseCallback<UserLogoutResponse> callback) {
+    public void logOutUser(String token, ResponseCallback<ApiSuccessfulResponse> callback) {
         UserLogout logout = api.getRetrofit().create(UserLogout.class);
         String accessToken = "Bearer " + token;
-        logout.logoutUser(token, accessToken).enqueue(new Callback<UserLogoutResponse>() {
+        logout.logoutUser(token, accessToken).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
-            public void onResponse(Call<UserLogoutResponse> call, Response<UserLogoutResponse> response) {
+            public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
                 setRefreshTokenToDataStorage(response);
                 globalUtility.parseAPIResponse(response, callback);
-
             }
 
             @Override
-            public void onFailure(Call<UserLogoutResponse> call, Throwable t) {
+            public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
                 callback.onError(t);
             }
         });
@@ -176,12 +160,48 @@ public class UsersAPIRequestHandler {
 
     }
 
+    public void UpdateFCMToken(String newFCMToken,String  accessToken, ResponseCallback<ApiSuccessfulResponse> callback){
+        UserUpdateFCMToken userUpdateFCMToken = api.getRetrofit().create(UserUpdateFCMToken.class);
+        userUpdateFCMToken.updateFCMToken(newFCMToken, "Bearer "+accessToken).enqueue(new Callback<ApiSuccessfulResponse>() {
+            @Override
+            public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
+                //check for refresh access token first
+                setRefreshTokenToDataStorage(response);
+
+                //then handle response
+                globalUtility.parseAPIResponse(response,callback);
+            }
+
+            @Override
+            public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+    public  void updateUserNotificationSettings(UserNotificationSettingsRequest request, String accessToken, ResponseCallback<ApiSuccessfulResponse> callback){
+        UserNotificationSettings updateSettings = api.getRetrofit().create(UserNotificationSettings.class);
+        updateSettings.updateNotificationSettings(request,"Bearer "+accessToken).enqueue(new Callback<ApiSuccessfulResponse>() {
+            @Override
+            public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
+                //get updated access token
+                setRefreshTokenToDataStorage(response);
+                //then handle the api response
+                globalUtility.parseAPIResponse(response, callback);
+            }
+            @Override
+            public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
+
+            }
+        });
+
+    }
 
     private <T> void setRefreshTokenToDataStorage(Response<T> response) {
         // handle new access token
         String ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
-
         Headers header = response.headers();
+        Log.i("Headers",header.toString());
         String headerName = "X-New-Access-Token".toLowerCase();
         if (header.get(headerName) != null && !Objects.requireNonNull(header.get(headerName)).isEmpty()) {
             String newToken = header.get(headerName);

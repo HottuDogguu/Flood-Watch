@@ -3,11 +3,7 @@ package com.example.myapplication.ui.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -18,25 +14,18 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
-import com.example.myapplication.data.models.users.UsersGetInformationResponse;
+import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
-import com.example.myapplication.ui.activity.auth.EmailVerificationActivity;
 import com.example.myapplication.ui.activity.users.MDRRMOContactsActivity;
 import com.example.myapplication.ui.activity.users.ProfileActivity;
 import com.example.myapplication.utils.GlobalUtility;
@@ -275,9 +264,9 @@ public class HomeActivity extends BaseActivity
                 .firstElement()
                 .subscribe(token -> {
                     //Function to get the user information
-                    apiRequesthandler.getUserInformation(token, new ResponseCallback<UsersGetInformationResponse>() {
+                    apiRequesthandler.getUserInformation(token, new ResponseCallback<ApiSuccessfulResponse>() {
                         @Override
-                        public void onSuccess(UsersGetInformationResponse response) {
+                        public void onSuccess(ApiSuccessfulResponse response) {
                             // Save new user data
                             Gson gson = new Gson();
                             String jsonData = gson.toJson(response.getData());
