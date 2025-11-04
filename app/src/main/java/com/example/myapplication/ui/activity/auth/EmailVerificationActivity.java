@@ -13,7 +13,8 @@ import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.BaseActivity;
-import com.example.myapplication.ui.activity.HomeActivity;
+//import com.example.myapplication.ui.activity.HomeActivity1;
+import com.example.myapplication.ui.activity.home.HomeActivity;
 import com.example.myapplication.utils.GlobalUtility;
 
 

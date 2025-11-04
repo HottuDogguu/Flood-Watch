@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.activity.users;
+package com.example.myapplication.ui.activity.home;
 
 import android.app.Activity;
 import android.content.Context;
@@ -63,7 +63,6 @@ public class ProfileActivity extends AppCompatActivity {
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private ActivityResultLauncher<Intent> pickImageLauncher;
     private ActivityResultLauncher<Uri> takePictureLauncher;
-    private ActivityResultLauncher<Uri> getPictureFromURI;
     private Activity activity;
     private Context context;
     private UsersAPIRequestHandler apiRequestHandler;
@@ -143,6 +142,7 @@ public class ProfileActivity extends AppCompatActivity {
                     updateProfileUI(userData); // update the data in fields
                     setProfilePictureUsingURL(userData.getProfileImage().getImg_url());
                 });
+
         compositeDisposable.add(disposable);
     }
 
@@ -235,29 +235,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        Disposable disposable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
-                .firstElement()
-                .subscribe(accessToken -> {
-                    boolean isFloodAlert = switchFloodAlerts.isChecked();
-                    boolean isEmergencyAlert = switchEmergencyAlerts.isChecked();
-                    boolean isWeatherAlert = switchWeatherUpdates.isChecked();
-                    UserNotificationSettingsRequest request =
-                            new UserNotificationSettingsRequest(isFloodAlert,isWeatherAlert,isEmergencyAlert);
+        updateUserNotificationSetting();
 
-                    apiRequestHandler.updateUserNotificationSettings(request, accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
-                        @Override
-                        public void onSuccess(ApiSuccessfulResponse response) {
-                            Toast.makeText(activity, response.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onError(Throwable t) {
-                        onNavigateToLoginIfUnauthorize(t);
-                        }
-                    });
-                });
-        finish();
     }
 
     private void showEditProfileDialog() {
@@ -298,7 +277,7 @@ public class ProfileActivity extends AppCompatActivity {
                     etStreetLoc.setText(userDataFromGson.getAddress().getStreet());
                     etBarnagayLoc.setText(userDataFromGson.getAddress().getBarangay());
                     etCityLoc.setText(userDataFromGson.getAddress().getCity());
-                    ivProfilePictureEdit.setImageTintMode(null);
+
                     ivProfilePictureEdit.setImageDrawable(ivProfilePicture.getDrawable());
                 });
         compositeDisposable.add(disposable);
@@ -341,21 +320,19 @@ public class ProfileActivity extends AppCompatActivity {
                                 personalInformation,
                                 address);
                         //Call the api
-                        Log.i("OLDTOKENInProfileACtivityUpdate", accessToken);
                         apiRequestHandler.updateUserInfo(request, accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
                             @Override
                             public void onSuccess(ApiSuccessfulResponse response) {
 
                                 setProfilePictureWithUri(currentPhotoUri);
                                 // Show success message
-                                Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
 //                               dataStorageManager.putUserData(USER_DATA_KEY, response.getAccess_token());
 
                                 //get the updated token if is expired after calling the update api and retrieved the updated user data.
                                 Disposable disposable1 = dataStorageManager.getString(ACCESS_TOKEN_KEY)
                                         .firstElement()
                                         .subscribe(newAccessToken -> {
-                                            Log.i("newACcessTokenInProfileACtivityUpdate", newAccessToken);
                                             //call teh get user information api
                                             apiRequestHandler.getUserInformation(newAccessToken, new ResponseCallback<ApiSuccessfulResponse>() {
                                                 @Override
@@ -366,7 +343,9 @@ public class ProfileActivity extends AppCompatActivity {
                                                     updateProfileUI(response1.getData());
                                                     //set the image from current URI
                                                     setProfilePictureWithUri(currentPhotoUri);
-                                                    // Show success message
+
+                                                    // Close dialog
+                                                    dialog.dismiss();
                                                 }
 
                                                 @Override
@@ -376,8 +355,7 @@ public class ProfileActivity extends AppCompatActivity {
                                             });
                                         });
                                 compositeDisposable.add(disposable1);
-                                // Close dialog
-                                dialog.dismiss();
+
                             }
 
                             @Override
@@ -509,7 +487,7 @@ public class ProfileActivity extends AppCompatActivity {
         return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
-    private void onNavigateToLoginIfUnauthorize(Throwable t){
+    private void onNavigateToLoginIfUnauthorize(Throwable t) {
         if (Objects.requireNonNull(t.getMessage()).toLowerCase().contains("token")) {
             Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
@@ -517,7 +495,7 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
         }
         Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
-        Log.e(TAG,t.getMessage());
+        Log.e(TAG, t.getMessage());
     }
 
     private void initViews() {
@@ -554,17 +532,44 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
+    private void updateUserNotificationSetting() {
+        Disposable disposable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
+                .firstElement()
+                .subscribe(accessToken -> {
+
+                    boolean isFloodAlert = switchFloodAlerts.isChecked();
+                    boolean isEmergencyAlert = switchEmergencyAlerts.isChecked();
+                    boolean isWeatherAlert = switchWeatherUpdates.isChecked();
+                    UserNotificationSettingsRequest request =
+                            new UserNotificationSettingsRequest(isFloodAlert, isWeatherAlert, isEmergencyAlert);
+                    apiRequestHandler.updateUserNotificationSettings(request, accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
+                        @Override
+                        public void onSuccess(ApiSuccessfulResponse response) {
+                            Toast.makeText(activity, response.getMessage(), Toast.LENGTH_SHORT).show();
+                            ProfileActivity.this.finish();
+                        }
+
+                        @Override
+                        public void onError(Throwable t) {
+                            //navigate to login activity
+                            onNavigateToLoginIfUnauthorize(t);
+                            ProfileActivity.this.finish();
+                        }
+                    });
+                });
+        compositeDisposable.add(disposable);
+    }
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
     }
 
     @Override
     protected void onResume() {
-        super.onResume();
         loadUserData(); // Refresh data every time the user comes back
         loadNotificationPreferences();// set the notification settings, if it is off or on
-
+        super.onResume();
     }
 }

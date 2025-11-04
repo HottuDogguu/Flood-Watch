@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.activity.users;
+package com.example.myapplication.ui.activity.home;
 
 import android.content.Intent;
 import android.net.Uri;

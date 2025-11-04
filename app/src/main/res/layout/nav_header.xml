@@ -32,8 +32,7 @@
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:src="@drawable/ic_user"
-                    android:contentDescription="@string/profile"
-                    app:tint="@color/blue_600"/>
+                    android:contentDescription="@string/profile"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

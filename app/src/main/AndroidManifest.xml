@@ -95,13 +95,13 @@
             android:name=".ui.activity.auth.LinkGoogleAccountActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.HomeActivity"
+            android:name=".ui.activity.home.HomeActivity"
             android:exported="false" />
 
         <activity
-            android:name=".ui.activity.AnnouncementActivity"
+            android:name=".ui.activity.home.AnnouncementActivity"
             android:exported="false"
-            android:parentActivityName=".ui.activity.HomeActivity" />
+            android:parentActivityName=".ui.activity.home.HomeActivity" />
         <activity
             android:name=".ui.activity.auth.EmailVerificationActivity"
             android:exported="false" />
@@ -109,29 +109,43 @@
         <activity
             android:name=".AnnouncementActivity"
             android:exported="false"
-            android:parentActivityName=".ui.activity.HomeActivity" />
+            android:parentActivityName=".ui.activity.home.HomeActivity" />
 
         <!-- Profile Activity -->
         <activity
-            android:name=".ui.activity.users.ProfileActivity"
+            android:name=".ui.activity.home.ProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
             android:screenOrientation="fullSensor"
-            android:parentActivityName=".ui.activity.HomeActivity"
+            android:parentActivityName=".ui.activity.home.HomeActivity"
             tools:ignore="DiscouragedApi">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.activity.HomeActivity" />
+                android:value=".ui.activity.home.HomeActivity" />
         </activity>
 
         <!-- MDRRMO Contacts Activity -->
         <activity
-            android:name=".ui.activity.users.MDRRMOContactsActivity"
+            android:name=".ui.activity.home.MDRRMOContactsActivity"
             android:exported="false"
             android:label="MDRRMO Contacts"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:parentActivityName=".ui.activity.users.ProfileActivity" />
+            android:parentActivityName=".ui.activity.home.ProfileActivity" />
 
+        <!--News ACtivity-->
+         <activity
+            android:name=".ui.activity.home.NewsActivity"
+            android:exported="false"
+            android:label="MDRRMO Contacts"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:parentActivityName=".ui.activity.home.ProfileActivity" />
+        <!--News ACtivity-->
+        <activity
+            android:name=".ui.activity.home.FloodHistoryActivity"
+            android:exported="false"
+            android:label="MDRRMO Contacts"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:parentActivityName=".ui.activity.home.ProfileActivity" />
 
         <!-- FileProvider for camera -->
         <provider

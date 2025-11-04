@@ -1,6 +1,7 @@
-package com.example.myapplication.ui.activity.users;
+package com.example.myapplication.ui.activity.home;
 
-import android.content.SharedPreferences;
+import android.app.Activity;
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
@@ -16,11 +17,24 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
+import com.example.myapplication.calbacks.ResponseCallback;
+import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
+import com.example.myapplication.data.models.users.UserChangePasswordRequest;
+import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
+import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.utils.GlobalUtility;
+import com.example.myapplication.utils.home.BaseHomepageUtility;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.Objects;
+
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
 
 public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
 
@@ -28,9 +42,18 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
     private TextInputEditText etCurrentPassword, etNewPassword, etConfirmPassword;
     private MaterialButton btnCancel, btnSavePassword;
     private ImageView btnClose;
+    private Activity activity;
+    private Context context;
+    private UsersAPIRequestHandler usersAPIRequestHandler;
+    private GlobalUtility globalUtility;
+    private DataStorageManager dataStorageManager;
     private LinearLayout passwordStrengthContainer;
     private View strengthBar1, strengthBar2, strengthBar3, strengthBar4;
     private TextView tvStrengthText;
+    private String ACCESS_TOKEN;
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+    private BaseHomepageUtility baseHomepageUtility;
 
     @Nullable
     @Override
@@ -44,24 +67,34 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void initViews(View view) {
-        tilCurrentPassword = view.findViewById(R.id.til_current_password);
-        tilNewPassword = view.findViewById(R.id.til_new_password);
-        tilConfirmPassword = view.findViewById(R.id.til_confirm_password);
+        activity = getActivity();
+        context = getContext();
+        tilCurrentPassword = view.<TextInputLayout>findViewById(R.id.til_current_password);
+        tilNewPassword = view.<TextInputLayout>findViewById(R.id.til_new_password);
+        tilConfirmPassword = view.<TextInputLayout>findViewById(R.id.til_confirm_password);
 
-        etCurrentPassword = view.findViewById(R.id.et_current_password);
-        etNewPassword = view.findViewById(R.id.et_new_password);
-        etConfirmPassword = view.findViewById(R.id.et_confirm_password);
+        etCurrentPassword = view.<TextInputEditText>findViewById(R.id.et_current_password);
+        etNewPassword = view.<TextInputEditText>findViewById(R.id.et_new_password);
+        etConfirmPassword = view.<TextInputEditText>findViewById(R.id.et_confirm_password);
 
-        btnCancel = view.findViewById(R.id.btn_cancel_password);
-        btnSavePassword = view.findViewById(R.id.btn_save_password);
-        btnClose = view.findViewById(R.id.btn_close);
+        btnCancel = view.<MaterialButton>findViewById(R.id.btn_cancel_password);
+        btnSavePassword = view.<MaterialButton>findViewById(R.id.btn_save_password);
+        btnClose = view.<ImageView>findViewById(R.id.btn_close);
 
-        passwordStrengthContainer = view.findViewById(R.id.password_strength_container);
-        strengthBar1 = view.findViewById(R.id.strength_bar_1);
-        strengthBar2 = view.findViewById(R.id.strength_bar_2);
-        strengthBar3 = view.findViewById(R.id.strength_bar_3);
-        strengthBar4 = view.findViewById(R.id.strength_bar_4);
-        tvStrengthText = view.findViewById(R.id.tv_strength_text);
+        passwordStrengthContainer = view.<LinearLayout>findViewById(R.id.password_strength_container);
+        strengthBar1 = view.<View>findViewById(R.id.strength_bar_1);
+        strengthBar2 = view.<View>findViewById(R.id.strength_bar_2);
+        strengthBar3 = view.<View>findViewById(R.id.strength_bar_3);
+        strengthBar4 = view.<View>findViewById(R.id.strength_bar_4);
+        tvStrengthText = view.<TextView>findViewById(R.id.tv_strength_text);
+
+        globalUtility = new GlobalUtility();
+        dataStorageManager = DataStorageManager.getInstance(context);
+        baseHomepageUtility = new BaseHomepageUtility(context, activity);
+
+        usersAPIRequestHandler = new UsersAPIRequestHandler(activity, context);
+        //ACCEss token key from yaml
+        ACCESS_TOKEN = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
     }
 
     private void setupListeners() {
@@ -92,15 +125,40 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
 
             @Override
             public void afterTextChanged(Editable s) {
+
             }
         });
     }
 
     private void changePassword() {
+        String oldPassword = etCurrentPassword.getText().toString();
+        String newPassword = etNewPassword.getText().toString();
+        UserChangePasswordRequest request = new UserChangePasswordRequest(oldPassword,newPassword);
+        Disposable disposable = dataStorageManager.getString(ACCESS_TOKEN)
+                .firstElement()
+                .subscribe(accessToken -> {
+                    usersAPIRequestHandler.changeUserPassword(accessToken, request, new ResponseCallback<ApiSuccessfulResponse>() {
+                        @Override
+                        public void onSuccess(ApiSuccessfulResponse response) {
+                            Toast.makeText(context, "Password changed successfully!", Toast.LENGTH_SHORT).show();
+                            dismiss();
+                        }
+
+                        @Override
+                        public void onError(Throwable t) {
+                            Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+
+                            if(Objects.requireNonNull(t.getMessage()).toLowerCase().contains("invalid token")){
+                                Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                baseHomepageUtility.navigateToLogin();
+                            }
+                        }
+                    });
+
+                });
+        compositeDisposable.add(disposable);
 
 
-        Toast.makeText(getActivity(), "Password changed successfully!", Toast.LENGTH_SHORT).show();
-        dismiss();
     }
 
     private boolean isPasswordValid(String password) {

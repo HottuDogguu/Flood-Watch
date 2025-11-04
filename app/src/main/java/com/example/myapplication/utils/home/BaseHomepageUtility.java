@@ -48,8 +48,8 @@ public class BaseHomepageUtility {
                 .load(profileUrl)
                 .circleCrop()
                 .placeholder(R.drawable.ic_user)
+                .error(R.drawable.ic_user)
                 .into(navHeaderImage);
-
     }
 
     public void navigateToLogin() {

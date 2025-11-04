@@ -23,12 +23,11 @@ import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
-import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
 import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
 
 import com.example.myapplication.ui.activity.BaseActivity;
-import com.example.myapplication.ui.activity.HomeActivity;
+import com.example.myapplication.ui.activity.home.HomeActivity;
 import com.example.myapplication.utils.GlobalUtility;
 
 import java.io.File;

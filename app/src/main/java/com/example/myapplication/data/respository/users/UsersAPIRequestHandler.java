@@ -179,7 +179,7 @@ public class UsersAPIRequestHandler {
         });
     }
 
-    public  void updateUserNotificationSettings(UserNotificationSettingsRequest request, String accessToken, ResponseCallback<ApiSuccessfulResponse> callback){
+    public void updateUserNotificationSettings(UserNotificationSettingsRequest request, String accessToken, ResponseCallback<ApiSuccessfulResponse> callback){
         UserNotificationSettings updateSettings = api.getRetrofit().create(UserNotificationSettings.class);
         updateSettings.updateNotificationSettings(request,"Bearer "+accessToken).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
@@ -206,6 +206,7 @@ public class UsersAPIRequestHandler {
         if (header.get(headerName) != null && !Objects.requireNonNull(header.get(headerName)).isEmpty()) {
             String newToken = header.get(headerName);
             dataStorageManager.putString(ACCESS_TOKEN_KEY, newToken);
+
         }
     }
 
