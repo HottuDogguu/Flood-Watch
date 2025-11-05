@@ -30,7 +30,6 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 
 public class EmailVerificationActivity extends BaseActivity {
-    private WebSocket webSocket;
     private String userEmail;// pass your user's email here
     private OkHttpClient client;
     private GlobalUtility globalUtility;

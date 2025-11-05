@@ -17,21 +17,32 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
+import com.example.myapplication.calbacks.WebsocketCallback;
+import com.example.myapplication.Constants;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
+import com.example.myapplication.data.models.api_response.WebsocketResponseData;
+import com.example.myapplication.data.network.websockets.WebsocketManager;
 import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.ui.activity.notification.LocalNotificationManager;
 import com.example.myapplication.utils.GlobalUtility;
 import com.example.myapplication.utils.home.BaseHomepageUtility;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 
+
 public class HomeActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigation;
+    private LocalNotificationManager localNotificationManager;
     private FloatingActionButton fabEmergency;
     private TextView tvWaterLevel;
     private TextView tvStatus;
@@ -53,6 +64,8 @@ public class HomeActivity extends AppCompatActivity {
     private String USER_DATA_KEY;
     private String ACCESS_TOKEN_KEY;
     private BaseHomepageUtility baseHomepageUtility;
+    private ExecutorService executor = Executors.newFixedThreadPool(3);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +89,10 @@ public class HomeActivity extends AppCompatActivity {
 
         // Update UI with initial data
         updateUI();
+        //connect to websocket on create of the app
+        connectToWebSocket();
+
+        LocalNotificationManager.createChannels(context);
 
     }
 
@@ -92,13 +109,13 @@ public class HomeActivity extends AppCompatActivity {
         btnNotifications = findViewById(R.id.btn_notifications);
 
         dataStorageManager = DataStorageManager.getInstance(context);
-        apiRequesthandler = new UsersAPIRequestHandler(activity, context);        globalUtility = new GlobalUtility();
+        apiRequesthandler = new UsersAPIRequestHandler(activity, context);
+        globalUtility = new GlobalUtility();
         //init homepage utility
         baseHomepageUtility = new BaseHomepageUtility(
                 context,
                 activity);
         compositeDisposable = new CompositeDisposable();
-
         //KEYS
         USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
         ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
@@ -227,15 +244,6 @@ public class HomeActivity extends AppCompatActivity {
         compositeDisposable.add(flowable);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //get the updated data
-        setDataFromDataStorage();
-        // Set Home as selected when returning to this activity
-        bottomNavigation.setSelectedItemId(R.id.nav_home);
-
-    }
 
     @Override
     public void onBackPressed() {
@@ -258,5 +266,81 @@ public class HomeActivity extends AppCompatActivity {
     public void updateAlerts(int newAlerts) {
         activeAlerts = newAlerts;
         updateUI();
+    }
+
+    private boolean isConnected = false;
+
+    WebsocketManager manager = new WebsocketManager(new WebsocketCallback() {
+        @Override
+        public void onMessageReceived(String message) {
+            Gson gson = new Gson();
+            WebsocketResponseData data = gson.fromJson(message, WebsocketResponseData.class);
+            Log.i("Websocket", "Websocket received message");
+            //set the new value for water level
+            if (data.getData().getTopic().equals(Constants.FLOOD_ALERT)) {
+                runOnUiThread(() -> tvWaterLevel.setText(data.getData().getValue()));
+                //check if the notification settings is on
+
+            }
+
+
+            if (data.getData().getTopic().equals(Constants.EMERGENCY_ALERT)) {
+                //TODO malalaman pa
+            }
+
+
+            if (data.getData().getTopic().equals(Constants.WEATHER_ALERT)) {
+                //TODO
+            }
+
+
+        }
+
+        @Override
+        public void onConnected() {
+            Log.i("Websocket", "Websocket is connected");
+            isConnected = true;
+
+        }
+
+        @Override
+        public void onDisconnected() {
+            //try to reconnect in 5 seconds if connection loss.
+            isConnected = false;
+            manager.reconnect(isConnected);
+        }
+
+        @Override
+        public void onFailureToConnect() {
+
+        }
+    });
+
+
+    private void connectToWebSocket() {
+
+        //connect to websocket
+        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(fcmToken -> {
+            String WebsocketBase = globalUtility.getValueInYAML(BuildConfig.API_WEBSOCKET_BASE_URL, this);
+            String WebsocketUrl = WebsocketBase + "home/user?fcm_token=" + fcmToken;
+            manager.connect(WebsocketUrl);
+        });
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //get the updated data
+        setDataFromDataStorage();
+        // Set Home as selected when returning to this activity
+        bottomNavigation.setSelectedItemId(R.id.nav_home);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+
     }
 }
