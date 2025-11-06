@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.work.WorkManager;
 
 import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.ui.activity.notification.LocalNotificationManager;
 import com.google.firebase.FirebaseApp;
 
 
@@ -20,6 +21,7 @@ public class App extends Application {
         super.onCreate();
         // Initialize DataStoreManager
         DataStorageManager.getInstance(this);
+        LocalNotificationManager.createChannels(this);
         // Initialize Firebase when app starts
         try {
             FirebaseApp.initializeApp(this);

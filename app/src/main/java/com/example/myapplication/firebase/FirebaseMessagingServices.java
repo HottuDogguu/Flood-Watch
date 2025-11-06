@@ -21,27 +21,29 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.myapplication.R;
+import com.example.myapplication.data.models.api_response.WebsocketResponseData;
 import com.example.myapplication.ui.activity.auth.LoginActivity;
+import com.example.myapplication.ui.activity.home.HomeActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 
 import java.util.Map;
 
 public class FirebaseMessagingServices extends FirebaseMessagingService {
 
-    private static final String TAG = "MyFirebaseMsgService";
+    private static final String TAG = "MyFirebaseMessageService";
 
     @Override
     public void onNewToken(@NonNull String token) {
-        Log.i(TAG, "Token" + token);
-
+        Log.i(TAG, "Token initialized.");
     }
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage message) {
         // Check if message contains a notification payload
         if (message.getNotification() != null) {
-            Log.d(TAG, "Message Notification Body: " + message.getNotification().getBody());
+            Gson gson = new Gson();
             showNotification(
                     message.getNotification().getTitle(),
                     message.getNotification().getBody()
@@ -50,7 +52,7 @@ public class FirebaseMessagingServices extends FirebaseMessagingService {
     }
 
     public void showNotification(String title, String message) {
-        Intent intent = new Intent(this, LoginActivity.class); // Open Home when clicked
+        Intent intent = new Intent(this, HomeActivity.class); // Open Home when clicked
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
@@ -58,7 +60,7 @@ public class FirebaseMessagingServices extends FirebaseMessagingService {
         String channelId = "high_importance_channel";
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
-                        .setSmallIcon(android.R.drawable.ic_dialog_info) // Use your app icon
+                        .setSmallIcon(R.drawable.icon) // Use your app icon
                         .setContentTitle(title)
                         .setContentText(message)
                         .setAutoCancel(true)

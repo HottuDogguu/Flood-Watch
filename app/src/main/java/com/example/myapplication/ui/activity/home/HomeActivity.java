@@ -1,8 +1,11 @@
 package com.example.myapplication.ui.activity.home;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -13,6 +16,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
@@ -91,8 +96,7 @@ public class HomeActivity extends AppCompatActivity {
         updateUI();
         //connect to websocket on create of the app
         connectToWebSocket();
-
-        LocalNotificationManager.createChannels(context);
+        requestNotificationPermission();
 
     }
 
@@ -279,7 +283,9 @@ public class HomeActivity extends AppCompatActivity {
             //set the new value for water level
             if (data.getData().getTopic().equals(Constants.FLOOD_ALERT)) {
                 runOnUiThread(() -> tvWaterLevel.setText(data.getData().getValue()));
-                //check if the notification settings is on
+
+                LocalNotificationManager.showNotification(context,data.getData().getTitle(),
+                        data.getData().getNotification_text(),data.getData().getTopic());
 
             }
 
@@ -342,5 +348,27 @@ public class HomeActivity extends AppCompatActivity {
         super.onDestroy();
 
 
+    }
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        100
+                );
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 100) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            }
+        }
     }
 }
