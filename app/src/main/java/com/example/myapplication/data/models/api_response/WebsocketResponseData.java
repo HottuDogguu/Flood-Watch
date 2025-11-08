@@ -1,11 +1,19 @@
 package com.example.myapplication.data.models.api_response;
 
 public class WebsocketResponseData {
-    boolean is_flood_alert_on,is_weather_updates_on,is_emergency_alert_on;
+    boolean is_flood_alert_on,is_weather_updates_on,is_emergency_alert_on, is_online_users_will_notify;
     Data data;
 
     public boolean isIs_flood_alert_on() {
         return is_flood_alert_on;
+    }
+
+    public boolean isIs_online_users_will_notify() {
+        return is_online_users_will_notify;
+    }
+
+    public void setIs_online_users_will_notify(boolean is_online_users_will_notify) {
+        this.is_online_users_will_notify = is_online_users_will_notify;
     }
 
     public void setIs_flood_alert_on(boolean is_flood_alert_on) {
@@ -37,7 +45,15 @@ public class WebsocketResponseData {
     }
 
     public static class Data{
-        String topic, title, notification_text,value;
+        String topic, title, notification_text,value,severity;
+
+        public String getSeverity() {
+            return severity;
+        }
+
+        public void setSeverity(String severity) {
+            this.severity = severity;
+        }
 
         public String getValue() {
             return value != null ? value : "";

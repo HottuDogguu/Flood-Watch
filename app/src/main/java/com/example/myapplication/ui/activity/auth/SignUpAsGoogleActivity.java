@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -27,9 +28,9 @@ import java.util.Objects;
 
 public class SignUpAsGoogleActivity extends BaseActivity {
 
-    private EditText etFullName;
-    private EditText etEmailAddress;
-    private EditText etContactNo;
+
+    private EditText etEmailAddress,etContactNo,etFullName;
+    private TextView tvSignIn;
     private Button btnManualSignUp;
     private AuthenticationAPIRequestHandler authenticationAPI;
     private Context context;
@@ -53,6 +54,8 @@ public class SignUpAsGoogleActivity extends BaseActivity {
         email = "";
         fullName = "";
         status = "";
+
+
 
 
         if (userData != null) {
@@ -98,18 +101,28 @@ public class SignUpAsGoogleActivity extends BaseActivity {
                     });
         });
 
+        tvSignIn.setOnClickListener(v ->{
+            Intent intent = new Intent(SignUpAsGoogleActivity.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+
     }
+
 
     private void initViews() {
         this.context = this;
         this.activity = this;
 
-        authenticationAPI = new AuthenticationAPIRequestHandler(activity, context);
-        globalUtility = new GlobalUtility();
-        baseAuthUtility = new BaseAuthUtility(context,activity);
         etFullName = (EditText) findViewById(R.id.etFullName);
         etEmailAddress = (EditText) findViewById(R.id.etEmail);
         etContactNo = (EditText) findViewById(R.id.etContactNumber);
         btnManualSignUp = (Button) findViewById(R.id.btnManualSignUp);
+        tvSignIn = (TextView) findViewById(R.id.sGtvSignIn);
+
+                authenticationAPI = new AuthenticationAPIRequestHandler(activity, context);
+        globalUtility = new GlobalUtility();
+        baseAuthUtility = new BaseAuthUtility(context,activity);
     }
 }

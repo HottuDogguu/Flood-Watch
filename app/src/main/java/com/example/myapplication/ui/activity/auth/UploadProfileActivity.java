@@ -44,6 +44,7 @@ public class UploadProfileActivity extends BaseActivity {
     private ImageView ivProfilePreview;
     private Button btnSelectPhoto;
     private Button saveAndContinue;
+    private Button skipForNow;
     private GlobalUtility globalUtility;
 
     private Activity activity;
@@ -92,6 +93,7 @@ public class UploadProfileActivity extends BaseActivity {
         });
 
         saveAndContinue.setOnClickListener(v -> {
+
             try {
                 if (this.uri != null) {
                     File imageFile = globalUtility.uriToFile(this.uri, activity);
@@ -111,6 +113,7 @@ public class UploadProfileActivity extends BaseActivity {
                                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                         startActivity(intent);
                                         finish();
+
                                     }
 
                                     @Override
@@ -123,14 +126,12 @@ public class UploadProfileActivity extends BaseActivity {
                     compositeDisposable.add(token);
 
                 }
-
-
             } catch (IOException e) {
                 Toast.makeText(activity, e.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e(TAG, Objects.requireNonNull(e.getMessage()));
             }
-
         });
     }
+
 
 }

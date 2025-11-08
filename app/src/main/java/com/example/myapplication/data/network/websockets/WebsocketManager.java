@@ -16,7 +16,6 @@ public class WebsocketManager {
     private OkHttpClient client;
     private WebSocket webSocket;
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private final int RECONNECT_DELAY = 5000;
     private WebsocketCallback callback;
     private WebsocketConnection listener;
     private String WEBSOCKET_URL;
@@ -56,6 +55,7 @@ public class WebsocketManager {
     }
     public void reconnect(boolean isConnected){
         if (!isConnected) {
+            int RECONNECT_DELAY = 5000;
             executor.schedule(() -> {
                 System.out.println("Reconnecting WebSocket...");
                 connect(this.getWEBSOCKET_URL());

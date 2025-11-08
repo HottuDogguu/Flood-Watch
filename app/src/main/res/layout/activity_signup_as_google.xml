@@ -354,7 +354,7 @@
                 android:layout_marginBottom="24dp"/>
 
             <TextView
-                android:id="@+id/tvSignIn"
+                android:id="@+id/sGtvSignIn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=" Sign in"

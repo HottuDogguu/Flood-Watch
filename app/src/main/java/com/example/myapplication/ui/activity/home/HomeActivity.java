@@ -280,13 +280,21 @@ public class HomeActivity extends AppCompatActivity {
             Gson gson = new Gson();
             WebsocketResponseData data = gson.fromJson(message, WebsocketResponseData.class);
             Log.i("Websocket", "Websocket received message");
-            //set the new value for water level
+            //set the new value for water level if the topic is flood alers
             if (data.getData().getTopic().equals(Constants.FLOOD_ALERT)) {
                 runOnUiThread(() -> tvWaterLevel.setText(data.getData().getValue()));
-
-                LocalNotificationManager.showNotification(context,data.getData().getTitle(),
-                        data.getData().getNotification_text(),data.getData().getTopic());
-
+                //Then show notif
+                //check if will notify the users
+                if (data.isIs_online_users_will_notify())
+                    LocalNotificationManager.showNotification(context, data.getData().getTitle(),
+                            data.getData().getNotification_text(), data.getData().getTopic(), data.getData().getSeverity());
+            }
+            if (data.getData().getTopic().equals(Constants.WEATHER_ALERT)) {
+                runOnUiThread(() -> tvRainfall.setText(data.getData().getValue()));
+                //check if will notify the users
+                if (data.isIs_online_users_will_notify())
+                    LocalNotificationManager.showNotification(context, data.getData().getTitle(),
+                            data.getData().getNotification_text(), data.getData().getTopic(), data.getData().getSeverity());
             }
 
 
@@ -310,15 +318,14 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onDisconnected() {
+        public void onDisconnected(boolean isConnected) {
             //try to reconnect in 5 seconds if connection loss.
-            isConnected = false;
             manager.reconnect(isConnected);
         }
 
         @Override
-        public void onFailureToConnect() {
-
+        public void onFailureToConnect(boolean isConnected) {
+            manager.reconnect(isConnected);
         }
     });
 
@@ -349,6 +356,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
     }
+
     private void requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)

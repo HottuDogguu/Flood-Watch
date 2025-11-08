@@ -26,7 +26,7 @@ public class WebsocketConnection extends WebSocketListener {
     public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
         super.onClosed(webSocket, code, reason);
 
-        if (callback != null) callback.onDisconnected();
+        if (callback != null) callback.onDisconnected(false);
 
     }
 
@@ -49,7 +49,7 @@ public class WebsocketConnection extends WebSocketListener {
     @Override
     public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, @Nullable Response response) {
         super.onFailure(webSocket, t, response);
-        if(callback != null) callback.onFailureToConnect();
+        if(callback != null) callback.onFailureToConnect(false);
     }
 
     @Override

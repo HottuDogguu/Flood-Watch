@@ -36,7 +36,8 @@ public class LocalNotificationManager {
     public static void showNotification(Context context,
                                         String title,
                                         String message,
-                                        String CHANNEL_ID) {
+                                        String CHANNEL_ID,
+                                        String severity) {
         // Check if we HAVE permission (not if we don't have it)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
@@ -62,12 +63,28 @@ public class LocalNotificationManager {
                     .setNumber(notificationCount)
                     .setContentIntent(pendingIntent) // This makes it open your app when clicked
                     .setAutoCancel(true) // This makes the notification disappear when clicked
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
+                    .setPriority(setPriority(severity));
 
             NotificationManagerCompat manager = NotificationManagerCompat.from(context);
             manager.notify((int) System.currentTimeMillis(), builder.build());
         } else {
             Log.e("Notification", "No notification permission granted");
+        }
+    }
+    private static int setPriority(String severity){
+
+        switch (severity){
+            case Constants.WARNING:
+                return NotificationCompat.PRIORITY_DEFAULT;
+
+            case Constants.CRITICAL:
+                return NotificationCompat.PRIORITY_HIGH;
+
+            case Constants.SEVERE:
+                 return NotificationCompat.PRIORITY_MAX;
+
+            default:
+                return NotificationCompat.PRIORITY_LOW;
         }
     }
 
