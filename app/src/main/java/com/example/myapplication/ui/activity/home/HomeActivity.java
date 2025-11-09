@@ -1,21 +1,29 @@
 package com.example.myapplication.ui.activity.home;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -25,8 +33,10 @@ import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.calbacks.WebsocketCallback;
 import com.example.myapplication.Constants;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
+import com.example.myapplication.data.models.api_response.ListOfNotificationResponse;
 import com.example.myapplication.data.models.api_response.WebsocketResponseData;
 import com.example.myapplication.data.network.websockets.WebsocketManager;
+import com.example.myapplication.data.respository.alerts.FloodDataAPIHandler;
 import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.notification.LocalNotificationManager;
@@ -37,6 +47,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -65,11 +79,13 @@ public class HomeActivity extends AppCompatActivity {
     private Context context;
     private DataStorageManager dataStorageManager;
     private UsersAPIRequestHandler apiRequesthandler;
+    private FloodDataAPIHandler floodDataAPIHandler;
     private CompositeDisposable compositeDisposable;
     private String USER_DATA_KEY;
     private String ACCESS_TOKEN_KEY;
     private BaseHomepageUtility baseHomepageUtility;
     private ExecutorService executor = Executors.newFixedThreadPool(3);
+    private List<ListOfNotificationResponse.NotificationData> alertListData;
 
 
     @Override
@@ -98,19 +114,22 @@ public class HomeActivity extends AppCompatActivity {
         connectToWebSocket();
         requestNotificationPermission();
 
+        //update three recent notification
+
     }
 
     private void initViews() {
         activity = this;
         context = this;
-        bottomNavigation = findViewById(R.id.bottom_navigation);
-        fabEmergency = findViewById(R.id.fab_emergency);
-        tvWaterLevel = findViewById(R.id.tv_water_level);
-        tvStatus = findViewById(R.id.tv_status);
-        tvRainfall = findViewById(R.id.tv_rainfall);
-        tvAlerts = findViewById(R.id.tv_alerts);
-        tvStation = findViewById(R.id.tv_station);
-        btnNotifications = findViewById(R.id.btn_notifications);
+
+        bottomNavigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        fabEmergency = (FloatingActionButton) findViewById(R.id.fab_emergency);
+        tvWaterLevel = (TextView) findViewById(R.id.tv_water_level);
+        tvStatus = (TextView) findViewById(R.id.tv_status);
+        tvRainfall = (TextView) findViewById(R.id.tv_rainfall);
+        tvAlerts = (TextView) findViewById(R.id.tv_alerts);
+        tvStation = (TextView) findViewById(R.id.tv_station);
+        btnNotifications = (ImageView) findViewById(R.id.btn_notifications);
 
         dataStorageManager = DataStorageManager.getInstance(context);
         apiRequesthandler = new UsersAPIRequestHandler(activity, context);
@@ -120,13 +139,14 @@ public class HomeActivity extends AppCompatActivity {
                 context,
                 activity);
         compositeDisposable = new CompositeDisposable();
+        floodDataAPIHandler = new FloodDataAPIHandler(activity, context);
         //KEYS
         USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
         ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -278,25 +298,46 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onMessageReceived(String message) {
             Gson gson = new Gson();
-            WebsocketResponseData data = gson.fromJson(message, WebsocketResponseData.class);
+            WebsocketResponseData data = gson.<WebsocketResponseData>fromJson(message, WebsocketResponseData.class);
             Log.i("Websocket", "Websocket received message");
             //set the new value for water level if the topic is flood alers
-            if (data.getData().getTopic().equals(Constants.FLOOD_ALERT)) {
-                runOnUiThread(() -> tvWaterLevel.setText(data.getData().getValue()));
+            if (data.getData().getTopic().equalsIgnoreCase(Constants.FLOOD_ALERT)) {
+                runOnUiThread(() -> updateCurrentWaterLevelData(data.getData().getValue(), data.getData().getSeverity()));
                 //Then show notif
                 //check if will notify the users
-                if (data.isIs_online_users_will_notify())
-                    LocalNotificationManager.showNotification(context, data.getData().getTitle(),
-                            data.getData().getNotification_text(), data.getData().getTopic(), data.getData().getSeverity());
+                if (data.isIs_online_users_will_notify()) {
+                    String content = data.getData().getNotification_text();
+                    String title = data.getData().getTitle();
+                    String topic = data.getData().getTopic();
+                    String severity = data.getData().getSeverity();
+                    String createdAt = data.getData().getNotification_created_at();
+                    LocalNotificationManager.showNotification(context, title, content, topic, severity);
+                    ListOfNotificationResponse.NotificationData new_data = new ListOfNotificationResponse.NotificationData(
+                            severity,
+                            topic,
+                            title,
+                            content,
+                            createdAt);
+
+                    if (alertListData.size() == 3) {
+                        alertListData.remove(-1);
+                    }
+                    alertListData.add(new_data);// after create, then update the recent notif
+                    runOnUiThread(() -> {
+                        updateCurrentWaterLevelData(data.getData().getValue(), severity);
+                        //update the three recent notification
+                        getThreeRecentNotification();
+                    });
+
+                }
             }
             if (data.getData().getTopic().equals(Constants.WEATHER_ALERT)) {
-                runOnUiThread(() -> tvRainfall.setText(data.getData().getValue()));
-                //check if will notify the users
-                if (data.isIs_online_users_will_notify())
-                    LocalNotificationManager.showNotification(context, data.getData().getTitle(),
-                            data.getData().getNotification_text(), data.getData().getTopic(), data.getData().getSeverity());
-            }
+                runOnUiThread(() -> {
+                    tvRainfall.setText(data.getData().getValue());
 
+                });
+
+            }
 
             if (data.getData().getTopic().equals(Constants.EMERGENCY_ALERT)) {
                 //TODO malalaman pa
@@ -314,6 +355,25 @@ public class HomeActivity extends AppCompatActivity {
         public void onConnected() {
             Log.i("Websocket", "Websocket is connected");
             isConnected = true;
+            //retrieve the current data of Flood data
+            floodDataAPIHandler.getCurrentFloodData(new ResponseCallback<ApiSuccessfulResponse>() {
+                @SuppressLint({"SetTextI18n", "ResourceType"})
+                @Override
+                public void onSuccess(ApiSuccessfulResponse response) {
+                    Toast.makeText(activity, response.getMessage(), Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> {
+                        updateCurrentWaterLevelData(String.valueOf(response.getData().getWater_level()),
+                                response.getData().getAlert_level());
+                        //get the three recent notification
+                        getThreeRecentNotification();
+                    });
+                }
+
+                @Override
+                public void onError(Throwable t) {
+
+                }
+            });
 
         }
 
@@ -329,6 +389,76 @@ public class HomeActivity extends AppCompatActivity {
         }
     });
 
+
+    private int getSeverityColor(String alertLevel) {
+        switch (alertLevel) {
+            case "Warning":
+                return R.drawable.bg_status_warning;
+            case "Critical":
+                return R.drawable.bg_status_critical;
+
+            case "Severe":
+                return R.drawable.bg_alert_severe;
+            default:
+                return R.drawable.bg_status_normal;
+        }
+    }
+
+    private void getThreeRecentNotification() {
+        floodDataAPIHandler.getThreeRecentNotifications(new ResponseCallback<ListOfNotificationResponse>() {
+            @Override
+            public void onSuccess(ListOfNotificationResponse response) {
+                alertListData = response.getData();
+                updateRecentNotification(alertListData);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+        });
+    }
+
+
+    public void updateCurrentWaterLevelData(String waterLevel, String alertLevelStatus) {
+        // set the initial data for homepage
+        tvWaterLevel.setText(waterLevel + "m");
+        int color = getSeverityColor(alertLevelStatus);
+        tvStatus.setText(alertLevelStatus);
+        tvStatus.setBackgroundResource(color);
+    }
+
+
+    private void updateRecentNotification(List<ListOfNotificationResponse.NotificationData> alertsList) {
+        LinearLayout alertsContainer = findViewById(R.id.alertsContainer);
+        CardView cardRecentAlerts = findViewById(R.id.cardRecentAlerts);
+        if (!alertsList.isEmpty()) {
+            cardRecentAlerts.setVisibility(View.VISIBLE);
+            alertsContainer.removeAllViews();
+            LayoutInflater inflater = LayoutInflater.from(context);
+            for (ListOfNotificationResponse.NotificationData alert : alertsList) {
+                View alertView = inflater.inflate(R.layout.recent_alerts_item, alertsContainer, false);
+                TextView tvTitle = alertView.findViewById(R.id.tvAlertTitle);
+                TextView tvDesc = alertView.findViewById(R.id.tvAlertDescription);
+                TextView tvTime = alertView.findViewById(R.id.tvAlertTime);
+                ImageView imgAlertIcon = alertView.findViewById(R.id.imgAlertIcon);
+
+                //get the past time
+                String timeAgo = globalUtility.getTimeAgo(alert.getCreated_at());
+                tvTitle.setText(alert.getTitle());
+                tvDesc.setText(alert.getNotification_text());
+                tvTime.setText(timeAgo);
+
+                // Optionally set background based on severity
+                int color = getSeverityColor(alert.getSeverity());
+                alertView.setBackgroundResource(color);
+
+                imgAlertIcon.setColorFilter(color);
+                //added the notif in the per card
+                alertsContainer.addView(alertView);
+            }
+        }
+    }
 
     private void connectToWebSocket() {
 
@@ -348,6 +478,8 @@ public class HomeActivity extends AppCompatActivity {
         setDataFromDataStorage();
         // Set Home as selected when returning to this activity
         bottomNavigation.setSelectedItemId(R.id.nav_home);
+        //get the three recent notification
+        getThreeRecentNotification();
     }
 
     @Override
@@ -379,4 +511,5 @@ public class HomeActivity extends AppCompatActivity {
             }
         }
     }
+
 }

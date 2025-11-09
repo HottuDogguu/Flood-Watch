@@ -45,7 +45,15 @@ public class WebsocketResponseData {
     }
 
     public static class Data{
-        String topic, title, notification_text,value,severity;
+        String topic, title, notification_text,value,severity,notification_created_at;
+
+        public String getNotification_created_at() {
+            return notification_created_at;
+        }
+
+        public void setNotification_created_at(String notification_created_at) {
+            this.notification_created_at = notification_created_at;
+        }
 
         public String getSeverity() {
             return severity;

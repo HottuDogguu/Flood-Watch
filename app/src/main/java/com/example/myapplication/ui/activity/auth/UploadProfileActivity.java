@@ -93,7 +93,6 @@ public class UploadProfileActivity extends BaseActivity {
         });
 
         saveAndContinue.setOnClickListener(v -> {
-
             try {
                 if (this.uri != null) {
                     File imageFile = globalUtility.uriToFile(this.uri, activity);
@@ -125,6 +124,11 @@ public class UploadProfileActivity extends BaseActivity {
                             });
                     compositeDisposable.add(token);
 
+                }else{
+                    Intent intent = new Intent(UploadProfileActivity.this, HomeActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
                 }
             } catch (IOException e) {
                 Toast.makeText(activity, e.getMessage(), Toast.LENGTH_SHORT).show();

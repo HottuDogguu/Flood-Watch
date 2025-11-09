@@ -20,6 +20,12 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.channels.FileChannel;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -64,6 +70,51 @@ public class GlobalUtility {
             e.printStackTrace();
         }
         return "127.0.0.1";
+    }
+    public String getTimeAgo(String timestamp) {
+        try {
+            // Some timestamps might not have 'Z' (UTC indicator), so normalize it.
+            if (!timestamp.endsWith("Z")) {
+                timestamp = timestamp + "Z";
+            }
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
+                    .withZone(ZoneId.of("UTC"));
+
+            Instant instant = formatter.parse(timestamp, Instant::from);
+            ZonedDateTime zonedDateTime = instant.atZone(ZoneId.of("Asia/Manila"));
+            ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Manila"));
+
+
+            // Calculate difference
+            long seconds = ChronoUnit.SECONDS.between(zonedDateTime, now);
+            long minutes = ChronoUnit.MINUTES.between(zonedDateTime, now);
+            long hours = ChronoUnit.HOURS.between(zonedDateTime, now);
+            long days = ChronoUnit.DAYS.between(zonedDateTime, now);
+
+            // Convert to human-readable format
+            if (seconds < 60) {
+                return "Just now";
+            } else if (minutes < 60) {
+                return minutes + " minute" + (minutes == 1 ? "" : "s") + " ago";
+            } else if (hours < 24) {
+                return hours + " hour" + (hours == 1 ? "" : "s") + " ago";
+            } else if (days < 7) {
+                return days + " day" + (days == 1 ? "" : "s") + " ago";
+            } else if (days < 30) {
+                long weeks = days / 7;
+                return weeks + " week" + (weeks == 1 ? "" : "s") + " ago";
+            } else if (days < 365) {
+                long months = days / 30;
+                return months + " month" + (months == 1 ? "" : "s") + " ago";
+            } else {
+                long years = days / 365;
+                return years + " year" + (years == 1 ? "" : "s") + " ago";
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Unknown";
+        }
     }
 
     public void showExitDialog(Context context) {
