@@ -9,6 +9,7 @@ import com.example.myapplication.data.models.api_response.ListOfNotificationResp
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.data.network.endpoints.alerts.FloodData;
 import com.example.myapplication.data.network.endpoints.alerts.Notifications;
+import com.example.myapplication.data.network.endpoints.alerts.WeatherForecastFiveHours;
 import com.example.myapplication.utils.GlobalUtility;
 
 import retrofit2.Call;
@@ -55,6 +56,20 @@ public class FloodDataAPIHandler {
 
             @Override
             public void onFailure(Call<ListOfNotificationResponse> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+    public void getFiveHoursWeatherForecast(ResponseCallback<ApiSuccessfulResponse> callback){
+        WeatherForecastFiveHours weatherForecastFiveHours = api.getRetrofit().create(WeatherForecastFiveHours.class);
+        weatherForecastFiveHours.getFiveHoursWeatherForecast().enqueue(new Callback<ApiSuccessfulResponse>() {
+            @Override
+            public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
+                globalUtility.parseAPIResponse(response,callback);
+
+            }
+            @Override
+            public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
                 callback.onError(t);
             }
         });

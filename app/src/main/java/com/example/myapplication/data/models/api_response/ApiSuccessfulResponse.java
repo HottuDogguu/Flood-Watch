@@ -60,6 +60,7 @@ public class ApiSuccessfulResponse implements Serializable {
     public static class UserData implements Serializable {
         UserAddress Address;
         double water_level;
+        int precipitation_probability;
         UserPersonalInformation PersonalInformation;
         UserProfileImage ProfileImage;
 
@@ -67,6 +68,14 @@ public class ApiSuccessfulResponse implements Serializable {
 
         int profile_setup_steps;
         List<String>sign_in_type;
+
+        public int getPrecipitation_probability() {
+            return precipitation_probability;
+        }
+
+        public void setPrecipitation_probability(int precipitation_probability) {
+            this.precipitation_probability = precipitation_probability;
+        }
 
         boolean is_profile_completed, is_deleted,is_flood_alert_on,
                 is_emergency_alert_on,

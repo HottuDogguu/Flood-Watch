@@ -300,17 +300,20 @@ public class HomeActivity extends AppCompatActivity {
             Gson gson = new Gson();
             WebsocketResponseData data = gson.<WebsocketResponseData>fromJson(message, WebsocketResponseData.class);
             Log.i("Websocket", "Websocket received message");
+            String content = data.getData().getNotification_text();
+            String title = data.getData().getTitle();
+            String topic = data.getData().getTopic();
+            String severity = data.getData().getSeverity();
             //set the new value for water level if the topic is flood alers
+
             if (data.getData().getTopic().equalsIgnoreCase(Constants.FLOOD_ALERT)) {
                 runOnUiThread(() -> updateCurrentWaterLevelData(data.getData().getValue(), data.getData().getSeverity()));
                 //Then show notif
                 //check if will notify the users
+
+                String createdAt = data.getData().getNotification_created_at();
                 if (data.isIs_online_users_will_notify()) {
-                    String content = data.getData().getNotification_text();
-                    String title = data.getData().getTitle();
-                    String topic = data.getData().getTopic();
-                    String severity = data.getData().getSeverity();
-                    String createdAt = data.getData().getNotification_created_at();
+
                     LocalNotificationManager.showNotification(context, title, content, topic, severity);
                     ListOfNotificationResponse.NotificationData new_data = new ListOfNotificationResponse.NotificationData(
                             severity,
@@ -326,15 +329,16 @@ public class HomeActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         updateCurrentWaterLevelData(data.getData().getValue(), severity);
                         //update the three recent notification
-                        getThreeRecentNotification();
+
+
                     });
 
                 }
             }
             if (data.getData().getTopic().equals(Constants.WEATHER_ALERT)) {
                 runOnUiThread(() -> {
-                    tvRainfall.setText(data.getData().getValue());
-
+                    tvRainfall.setText(data.getData().getValue() + "%");
+                    LocalNotificationManager.showNotification(context, title, content, topic, severity);
                 });
 
             }
@@ -347,7 +351,7 @@ public class HomeActivity extends AppCompatActivity {
             if (data.getData().getTopic().equals(Constants.WEATHER_ALERT)) {
                 //TODO
             }
-
+            getThreeRecentNotification();
 
         }
 
@@ -366,6 +370,8 @@ public class HomeActivity extends AppCompatActivity {
                                 response.getData().getAlert_level());
                         //get the three recent notification
                         getThreeRecentNotification();
+                        //update the rainfall percent
+                        updateWaterRainfall();
                     });
                 }
 
@@ -389,6 +395,23 @@ public class HomeActivity extends AppCompatActivity {
         }
     });
 
+
+    private void updateWaterRainfall(){
+        floodDataAPIHandler.getFiveHoursWeatherForecast(new ResponseCallback<ApiSuccessfulResponse>() {
+            @Override
+            public void onSuccess(ApiSuccessfulResponse response) {
+                @SuppressLint("DefaultLocale") String waterRainfallValue = String.valueOf(response.getData().getPrecipitation_probability() +"%");
+                tvRainfall.setText(waterRainfallValue);
+
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                Log.e("WATERRAINFALL",t.getMessage());
+
+            }
+        });
+    }
 
     private int getSeverityColor(String alertLevel) {
         switch (alertLevel) {
