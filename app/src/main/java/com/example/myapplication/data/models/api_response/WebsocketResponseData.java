@@ -1,5 +1,7 @@
 package com.example.myapplication.data.models.api_response;
 
+import androidx.annotation.NonNull;
+
 public class WebsocketResponseData {
     boolean is_flood_alert_on,is_weather_updates_on,is_emergency_alert_on, is_online_users_will_notify;
     Data data;
@@ -45,6 +47,19 @@ public class WebsocketResponseData {
     }
 
     public static class Data{
+        @NonNull
+        @Override
+        public String toString() {
+            return "Data{" +
+                    "topic='" + topic + '\'' +
+                    ", title='" + title + '\'' +
+                    ", notification_text='" + notification_text + '\'' +
+                    ", value='" + value + '\'' +
+                    ", severity='" + severity + '\'' +
+                    ", notification_created_at='" + notification_created_at + '\'' +
+                    '}';
+        }
+
         String topic, title, notification_text,value,severity,notification_created_at;
 
         public String getNotification_created_at() {
@@ -94,5 +109,17 @@ public class WebsocketResponseData {
         public void setNotification_text(String notification_text) {
             this.notification_text = notification_text;
         }
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "WebsocketResponseData{" +
+                "is_flood_alert_on=" + is_flood_alert_on +
+                ", is_weather_updates_on=" + is_weather_updates_on +
+                ", is_emergency_alert_on=" + is_emergency_alert_on +
+                ", is_online_users_will_notify=" + is_online_users_will_notify +
+                ", data=" + data +
+                '}';
     }
 }

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ApiSuccessfulResponse implements Serializable {
-    String message, status_message, access_token, action;
+    String message, status_message, access_token, action,id;
     int status_code;
     UserData data;
 
@@ -19,6 +19,14 @@ public class ApiSuccessfulResponse implements Serializable {
 
     public String getStatus_message() {
         return (status_message == null || status_message.isEmpty()) ? "" : status_message;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public void setStatus_message(String status_message) {

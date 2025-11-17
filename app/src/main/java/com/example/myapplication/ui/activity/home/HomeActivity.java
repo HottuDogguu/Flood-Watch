@@ -54,6 +54,7 @@ import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 
@@ -108,10 +109,6 @@ public class HomeActivity extends AppCompatActivity {
         // Setup listeners
         setupListeners();
 
-        // Update UI with initial data
-        updateUI();
-        //connect to websocket on create of the app
-        connectToWebSocket();
         requestNotificationPermission();
 
         //update three recent notification
@@ -218,6 +215,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint({"SetTextI18n", "DefaultLocale"})
     private void updateUI() {
         // Update water level
         tvWaterLevel.setText(String.format("%.1fm", currentWaterLevel));
@@ -268,68 +266,30 @@ public class HomeActivity extends AppCompatActivity {
         compositeDisposable.add(flowable);
     }
 
-
-    @Override
-    public void onBackPressed() {
-
-    }
-
-    // Method to simulate water level updates (you can call this from your data source)
-    public void updateWaterLevel(double newLevel) {
-        currentWaterLevel = newLevel;
-        updateUI();
-    }
-
-    // Method to update rainfall data
-    public void updateRainfall(int newRainfall) {
-        rainfall = newRainfall;
-        updateUI();
-    }
-
-    // Method to update alerts count
-    public void updateAlerts(int newAlerts) {
-        activeAlerts = newAlerts;
-        updateUI();
-    }
-
-    private boolean isConnected = false;
-
     WebsocketManager manager = new WebsocketManager(new WebsocketCallback() {
+        @SuppressLint("SetTextI18n")
         @Override
         public void onMessageReceived(String message) {
+            Log.i("Websocket", "Websocket received message");
             Gson gson = new Gson();
             WebsocketResponseData data = gson.<WebsocketResponseData>fromJson(message, WebsocketResponseData.class);
-            Log.i("Websocket", "Websocket received message");
             String content = data.getData().getNotification_text();
             String title = data.getData().getTitle();
             String topic = data.getData().getTopic();
             String severity = data.getData().getSeverity();
-            //set the new value for water level if the topic is flood alers
 
             if (data.getData().getTopic().equalsIgnoreCase(Constants.FLOOD_ALERT)) {
                 runOnUiThread(() -> updateCurrentWaterLevelData(data.getData().getValue(), data.getData().getSeverity()));
                 //Then show notif
                 //check if will notify the users
 
-                String createdAt = data.getData().getNotification_created_at();
                 if (data.isIs_online_users_will_notify()) {
 
                     LocalNotificationManager.showNotification(context, title, content, topic, severity);
-                    ListOfNotificationResponse.NotificationData new_data = new ListOfNotificationResponse.NotificationData(
-                            severity,
-                            topic,
-                            title,
-                            content,
-                            createdAt);
 
-                    if (alertListData.size() == 3) {
-                        alertListData.remove(-1);
-                    }
-                    alertListData.add(new_data);// after create, then update the recent notif
                     runOnUiThread(() -> {
                         updateCurrentWaterLevelData(data.getData().getValue(), severity);
                         //update the three recent notification
-
 
                     });
 
@@ -338,18 +298,14 @@ public class HomeActivity extends AppCompatActivity {
             if (data.getData().getTopic().equals(Constants.WEATHER_ALERT)) {
                 runOnUiThread(() -> {
                     tvRainfall.setText(data.getData().getValue() + "%");
-                    LocalNotificationManager.showNotification(context, title, content, topic, severity);
                 });
-
+                if(data.isIs_weather_updates_on()){
+                    LocalNotificationManager.showNotification(context, title, content, topic, severity);
+                }
             }
 
             if (data.getData().getTopic().equals(Constants.EMERGENCY_ALERT)) {
                 //TODO malalaman pa
-            }
-
-
-            if (data.getData().getTopic().equals(Constants.WEATHER_ALERT)) {
-                //TODO
             }
             getThreeRecentNotification();
 
@@ -358,7 +314,6 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onConnected() {
             Log.i("Websocket", "Websocket is connected");
-            isConnected = true;
             //retrieve the current data of Flood data
             floodDataAPIHandler.getCurrentFloodData(new ResponseCallback<ApiSuccessfulResponse>() {
                 @SuppressLint({"SetTextI18n", "ResourceType"})
@@ -396,19 +351,15 @@ public class HomeActivity extends AppCompatActivity {
     });
 
 
-    private void updateWaterRainfall(){
+    private void updateWaterRainfall() {
         floodDataAPIHandler.getFiveHoursWeatherForecast(new ResponseCallback<ApiSuccessfulResponse>() {
             @Override
             public void onSuccess(ApiSuccessfulResponse response) {
-                @SuppressLint("DefaultLocale") String waterRainfallValue = String.valueOf(response.getData().getPrecipitation_probability() +"%");
+                @SuppressLint("DefaultLocale") String waterRainfallValue = String.valueOf(response.getData().getPrecipitation_probability() + "%");
                 tvRainfall.setText(waterRainfallValue);
-
             }
-
             @Override
             public void onError(Throwable t) {
-                Log.e("WATERRAINFALL",t.getMessage());
-
             }
         });
     }
@@ -431,6 +382,7 @@ public class HomeActivity extends AppCompatActivity {
         floodDataAPIHandler.getThreeRecentNotifications(new ResponseCallback<ListOfNotificationResponse>() {
             @Override
             public void onSuccess(ListOfNotificationResponse response) {
+                alertListData = new ArrayList<>();
                 alertListData = response.getData();
                 updateRecentNotification(alertListData);
             }
@@ -443,6 +395,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    @SuppressLint("SetTextI18n")
     public void updateCurrentWaterLevelData(String waterLevel, String alertLevelStatus) {
         // set the initial data for homepage
         tvWaterLevel.setText(waterLevel + "m");
@@ -480,17 +433,24 @@ public class HomeActivity extends AppCompatActivity {
                 //added the notif in the per card
                 alertsContainer.addView(alertView);
             }
+        }else{
+            alertsContainer.removeAllViews();
         }
     }
 
     private void connectToWebSocket() {
-
         //connect to websocket
-        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(fcmToken -> {
-            String WebsocketBase = globalUtility.getValueInYAML(BuildConfig.API_WEBSOCKET_BASE_URL, this);
-            String WebsocketUrl = WebsocketBase + "home/user?fcm_token=" + fcmToken;
-            manager.connect(WebsocketUrl);
-        });
+        Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
+                .firstElement()
+                .subscribe( data ->{
+                    Gson gson = new Gson();
+                    ApiSuccessfulResponse userData = gson.fromJson(data, ApiSuccessfulResponse.class);
+                    String WebsocketBase = globalUtility.getValueInYAML(BuildConfig.API_WEBSOCKET_BASE_URL, this);
+                    String WebsocketUrl = WebsocketBase + "home/user?user_id=" + userData.getId();
+                    manager.connect(WebsocketUrl);
+                });
+          compositeDisposable.add(disposable);
+
     }
 
 
@@ -501,6 +461,7 @@ public class HomeActivity extends AppCompatActivity {
         setDataFromDataStorage();
         // Set Home as selected when returning to this activity
         bottomNavigation.setSelectedItemId(R.id.nav_home);
+        connectToWebSocket();
         //get the three recent notification
         getThreeRecentNotification();
     }
