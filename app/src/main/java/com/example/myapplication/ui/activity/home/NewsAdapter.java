@@ -17,9 +17,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
 
     private List<NewsItem> newsItems;
 
-    public NewsAdapter(List<NewsItem> newsItems) {
-        this.newsItems = newsItems;
-    }
 
     @NonNull
     @Override
@@ -65,10 +62,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
         return newsItems.size();
     }
 
-    public void updateNews(List<NewsItem> newItems) {
-        this.newsItems = newItems;
-        notifyDataSetChanged();
-    }
 
     public static class NewsViewHolder extends RecyclerView.ViewHolder {
         ImageView sourceIcon;

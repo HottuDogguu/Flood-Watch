@@ -1,10 +1,9 @@
-package com.example.myapplication.data.respository.auth;
+package com.example.myapplication.data.respository;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.CancellationSignal;
-import android.util.Log;
 
 
 import androidx.annotation.NonNull;
@@ -29,14 +28,12 @@ import com.example.myapplication.data.network.endpoints.auth.LinkAccountToGoogle
 import com.example.myapplication.data.network.endpoints.auth.ManualAuthenticateUser;
 
 import com.example.myapplication.data.network.endpoints.auth.SignUpUser;
-import com.example.myapplication.data.network.endpoints.auth.UploadProfileUser;
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 
 import java.util.concurrent.Executor;
 
-import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

@@ -84,8 +84,7 @@
                                 android:layout_width="100dp"
                                 android:layout_height="100dp"
                                 android:src="@drawable/ic_user"
-                                android:contentDescription="Profile Picture"
-                                app:tint="#2563EB"/>
+                                android:contentDescription="Profile Picture" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 

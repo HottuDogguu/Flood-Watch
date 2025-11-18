@@ -1,4 +1,4 @@
-package com.example.myapplication.data.respository.alerts;
+package com.example.myapplication.data.respository;
 
 import android.app.Activity;
 import android.content.Context;

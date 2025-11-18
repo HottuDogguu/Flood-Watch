@@ -22,7 +22,7 @@ import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.models.users.UserNotificationSettingsRequest;
 import com.example.myapplication.data.models.users.UsersUpdateInformationRequest;
-import com.example.myapplication.data.respository.users.UsersAPIRequestHandler;
+import com.example.myapplication.data.respository.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.auth.LoginActivity;
 import com.example.myapplication.utils.GlobalUtility;
@@ -298,7 +298,7 @@ public class ProfileActivity extends AppCompatActivity {
             Disposable dispo = dataStorageManager.getString(ACCESS_TOKEN_KEY)
                     .firstOrError()
                     .subscribe(accessToken -> {
-                        //User Perosonal information
+                        //User Personal information
                         SignupPostRequest.PersonalInformation personalInformation = new SignupPostRequest.PersonalInformation(
                                 Objects.requireNonNull(etEditPhone.getText()).toString(),
                                 Objects.requireNonNull(etEditSecondPhone.getText()).toString()
@@ -325,53 +325,42 @@ public class ProfileActivity extends AppCompatActivity {
                             public void onSuccess(ApiSuccessfulResponse response) {
 
                                 setProfilePictureWithUri(currentPhotoUri);
+                                String newUserData = gson.toJson(response.getData());
+                                dataStorageManager.putString(USER_DATA_KEY, newUserData);
+                                updateProfileUI(response.getData());
+                                //set the image from current URI
+                                setProfilePictureWithUri(currentPhotoUri);
+
+                                if (dialog.isShowing()) {
+                                    dialog.dismiss();
+                                }
                                 // Show success message
                                 Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
-//                               dataStorageManager.putUserData(USER_DATA_KEY, response.getAccess_token());
-
-                                //get the updated token if is expired after calling the update api and retrieved the updated user data.
-                                Disposable disposable1 = dataStorageManager.getString(ACCESS_TOKEN_KEY)
-                                        .firstElement()
-                                        .subscribe(newAccessToken -> {
-                                            //call teh get user information api
-                                            apiRequestHandler.getUserInformation(newAccessToken, new ResponseCallback<ApiSuccessfulResponse>() {
-                                                @Override
-                                                public void onSuccess(ApiSuccessfulResponse response1) {
-                                                    //convert the object to string using gson and store it in data store
-                                                    String newUserData = gson.toJson(response1.getData());
-                                                    dataStorageManager.putString(USER_DATA_KEY, newUserData);
-                                                    updateProfileUI(response1.getData());
-                                                    //set the image from current URI
-                                                    setProfilePictureWithUri(currentPhotoUri);
-
-                                                    // Close dialog
-                                                    dialog.dismiss();
-                                                }
-
-                                                @Override
-                                                public void onError(Throwable t) {
-                                                    onNavigateToLoginIfUnauthorize(t);
-                                                }
-                                            });
-                                        });
-                                compositeDisposable.add(disposable1);
-
                             }
 
                             @Override
                             public void onError(Throwable t) {
                                 onNavigateToLoginIfUnauthorize(t);
+                                if (dialog.isShowing()) {
+                                    dialog.dismiss();
+                                }
                             }
                         });
 
                     }, error -> {
                         Log.i("Update Profile", Objects.requireNonNull(error.getMessage()));
+                        if (dialog.isShowing()) {
+                            dialog.dismiss();
+                        }
                     });
 
             compositeDisposable.add(dispo);
 
         });
-        dialog.show();
+        // Fix 2: Safely show
+        if (!isFinishing() && !isDestroyed()) {
+            dialog.show();
+        }
 
     }
 

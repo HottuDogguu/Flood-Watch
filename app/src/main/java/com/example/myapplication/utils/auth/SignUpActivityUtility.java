@@ -11,7 +11,7 @@ import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.auth.EmailVerificationActivity;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
-import com.example.myapplication.data.respository.auth.AuthenticationAPIRequestHandler;
+import com.example.myapplication.data.respository.AuthenticationAPIRequestHandler;
 import com.example.myapplication.utils.GlobalUtility;
 
 public class SignUpActivityUtility extends BaseAuthUtility {

@@ -1,4 +1,4 @@
-package com.example.myapplication.data.respository.users;
+package com.example.myapplication.data.respository;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,6 +10,7 @@ import com.example.myapplication.BuildConfig;
 import com.example.myapplication.calbacks.ResponseCallback;
 
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
+import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 import com.example.myapplication.data.models.users.UserChangePasswordRequest;
 import com.example.myapplication.data.models.users.UserNotificationSettingsRequest;
 import com.example.myapplication.data.models.users.UsersUpdateInformationRequest;
@@ -18,6 +19,7 @@ import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.data.network.endpoints.auth.UploadProfileUser;
 import com.example.myapplication.data.network.endpoints.users.UserChangePassword;
 import com.example.myapplication.data.network.endpoints.users.UserGetInformation;
+import com.example.myapplication.data.network.endpoints.users.UserGetTenNews;
 import com.example.myapplication.data.network.endpoints.users.UserLogout;
 import com.example.myapplication.data.network.endpoints.users.UserNotificationSettings;
 import com.example.myapplication.data.network.endpoints.users.UserUpdateFCMToken;
@@ -191,6 +193,22 @@ public class UsersAPIRequestHandler {
             }
             @Override
             public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    public void getTenNews(ResponseCallback<NewsAPIResponse> callback){
+        UserGetTenNews userGetTenNews = api.getRetrofit().create(UserGetTenNews.class);
+        userGetTenNews.getTenNewsResponse().enqueue(new Callback<NewsAPIResponse>() {
+            @Override
+            public void onResponse(Call<NewsAPIResponse> call, Response<NewsAPIResponse> response) {
+                globalUtility.parseAPIResponse(response, callback);
+            }
+
+            @Override
+            public void onFailure(Call<NewsAPIResponse> call, Throwable t) {
 
             }
         });
