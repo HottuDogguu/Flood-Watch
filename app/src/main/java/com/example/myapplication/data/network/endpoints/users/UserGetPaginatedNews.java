@@ -10,5 +10,5 @@ import retrofit2.http.Query;
 public interface UserGetPaginatedNews {
     @Headers({"Content-Type: application/json"})
     @GET("news")
-    Call<NewsAPIResponse> getPaginatedNews(@Query());
+    Call<NewsAPIResponse> getPaginatedNews();
 }
