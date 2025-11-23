@@ -47,20 +47,8 @@ public class WebsocketResponseData {
     }
 
     public static class Data{
-        @NonNull
-        @Override
-        public String toString() {
-            return "Data{" +
-                    "topic='" + topic + '\'' +
-                    ", title='" + title + '\'' +
-                    ", notification_text='" + notification_text + '\'' +
-                    ", value='" + value + '\'' +
-                    ", severity='" + severity + '\'' +
-                    ", notification_created_at='" + notification_created_at + '\'' +
-                    '}';
-        }
-
         String topic, title, notification_text,value,severity,notification_created_at;
+
 
         public String getNotification_created_at() {
             return notification_created_at;

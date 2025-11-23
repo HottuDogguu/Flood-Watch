@@ -105,9 +105,15 @@
         <activity
             android:name=".ui.activity.auth.EmailVerificationActivity"
             android:exported="false" />
-        <!-- Announcement Activity (Latest News) -->
+        <!-- Announcement Activity -->
         <activity
             android:name=".AnnouncementActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.activity.home.HomeActivity" />
+
+        <!-- Weather Activity -->
+        <activity
+            android:name=".ui.activity.home.WeatherMonitorActivity"
             android:exported="false"
             android:parentActivityName=".ui.activity.home.HomeActivity" />
 

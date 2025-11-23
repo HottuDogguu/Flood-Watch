@@ -16,9 +16,9 @@
         android:enabled="true" />
 
     <item
-        android:id="@+id/nav_history"
-        android:icon="@drawable/ic_history"
-        android:title="Flood History" />
+        android:id="@+id/nav_weather"
+        android:icon="@drawable/ic_droplet"
+        android:title="Weather" />
 
     <item
         android:id="@+id/nav_profile"

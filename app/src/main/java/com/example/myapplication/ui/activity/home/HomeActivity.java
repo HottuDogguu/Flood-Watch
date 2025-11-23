@@ -23,6 +23,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
@@ -30,6 +32,7 @@ import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.calbacks.WebsocketCallback;
 import com.example.myapplication.Constants;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
+import com.example.myapplication.data.models.api_response.FiveWeatherForecast;
 import com.example.myapplication.data.models.api_response.ListOfNotificationResponse;
 import com.example.myapplication.data.models.api_response.WebsocketResponseData;
 import com.example.myapplication.data.network.websockets.WebsocketManager;
@@ -37,6 +40,8 @@ import com.example.myapplication.data.respository.FloodDataAPIHandler;
 import com.example.myapplication.data.respository.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.notification.LocalNotificationManager;
+import com.example.myapplication.ui.adapter.HourlyForecastAdapter;
+import com.example.myapplication.ui.adapter.WeatherHourTimelineAdapter;
 import com.example.myapplication.utils.GlobalUtility;
 import com.example.myapplication.utils.home.BaseHomepageUtility;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -45,6 +50,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -63,11 +69,11 @@ public class HomeActivity extends AppCompatActivity {
     private TextView tvAlerts;
     private TextView tvStation;
     private ImageView btnNotifications;
+    private HourlyForecastAdapter adapter;
+    private RecyclerView rvHourlyForecast;
 
     // Sample data
-    private double currentWaterLevel = 2.3;
-    private int rainfall = 68;
-    private int activeAlerts = 2;
+
     private GlobalUtility globalUtility;
     private Activity activity;
     private Context context;
@@ -80,6 +86,9 @@ public class HomeActivity extends AppCompatActivity {
     private BaseHomepageUtility baseHomepageUtility;
     private ExecutorService executor = Executors.newFixedThreadPool(3);
     private List<ListOfNotificationResponse.NotificationData> alertListData;
+    private List<FiveWeatherForecast.HourlyWeatherForecast> hourlyData;
+    // Weather Timeline Views - NEW
+    private TextView tvViewFullWeather;
 
 
     @Override
@@ -99,13 +108,8 @@ public class HomeActivity extends AppCompatActivity {
         // Setup FAB (Emergency button)
         setupEmergencyFab();
 
-        // Setup listeners
-        setupListeners();
 
         requestNotificationPermission();
-
-        //update three recent notification
-
     }
 
     private void initViews() {
@@ -117,7 +121,6 @@ public class HomeActivity extends AppCompatActivity {
         tvWaterLevel = (TextView) findViewById(R.id.tv_water_level);
         tvStatus = (TextView) findViewById(R.id.tv_status);
         tvRainfall = (TextView) findViewById(R.id.tv_rainfall);
-        tvAlerts = (TextView) findViewById(R.id.tv_alerts);
         tvStation = (TextView) findViewById(R.id.tv_station);
         btnNotifications = (ImageView) findViewById(R.id.btn_notifications);
 
@@ -129,6 +132,7 @@ public class HomeActivity extends AppCompatActivity {
                 context,
                 activity);
         compositeDisposable = new CompositeDisposable();
+        rvHourlyForecast = findViewById(R.id.rv_weather_timeline);
         floodDataAPIHandler = new FloodDataAPIHandler(activity, context);
         //KEYS
         USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
@@ -167,9 +171,9 @@ public class HomeActivity extends AppCompatActivity {
                     startActivity(intent);
                     overridePendingTransition(0, 0);
                     return true;
-                } else if (id == R.id.nav_history) {
-                    // Navigate to Flood History Activity
-                    Intent intent = new Intent(HomeActivity.this, FloodHistoryActivity.class);
+                } else if (id == R.id.nav_weather) {
+                    // Navigate to Weather Monitor Activity
+                    Intent intent = new Intent(HomeActivity.this, WeatherMonitorActivity.class);
                     startActivity(intent);
                     overridePendingTransition(0, 0);
                     return true;
@@ -195,44 +199,9 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void setupListeners() {
-        btnNotifications.setOnClickListener(v -> {
-            Toast.makeText(this, "Opening Notifications...", Toast.LENGTH_SHORT).show();
-            // TODO: Navigate to Notifications Activity
-        });
+    private void setupWeatherTimeline() {
 
-        // View Map button
-        findViewById(R.id.btn_view_map).setOnClickListener(v -> {
-            Toast.makeText(this, "Opening Map...", Toast.LENGTH_SHORT).show();
-            // TODO: Navigate to Map Activity
-        });
     }
-
-    @SuppressLint({"SetTextI18n", "DefaultLocale"})
-    private void updateUI() {
-        // Update water level
-        tvWaterLevel.setText(String.format("%.1fm", currentWaterLevel));
-
-        // Update status based on water level
-        String status;
-        if (currentWaterLevel >= 4) {
-            status = "CRITICAL";
-            tvStatus.setBackgroundResource(R.drawable.bg_status_critical);
-        } else if (currentWaterLevel >= 3) {
-            status = "WARNING";
-            tvStatus.setBackgroundResource(R.drawable.bg_status_warning);
-        } else {
-            status = "NORMAL";
-            tvStatus.setBackgroundResource(R.drawable.bg_status_normal);
-        }
-        tvStatus.setText(status);
-
-        // Update other stats
-        tvRainfall.setText(rainfall + "%");
-        tvAlerts.setText(String.valueOf(activeAlerts));
-        tvStation.setText("Calauan River Station");
-    }
-
 
     public void setDataFromDataStorage() {
         Disposable flowable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
@@ -247,7 +216,6 @@ public class HomeActivity extends AppCompatActivity {
                             String jsonData = gson.toJson(response.getData());
                             dataStorageManager.putString(USER_DATA_KEY, jsonData);
                         }
-
                         @Override
                         public void onError(Throwable t) {
                             Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -292,7 +260,7 @@ public class HomeActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     tvRainfall.setText(data.getData().getValue() + "%");
                 });
-                if(data.isIs_weather_updates_on()){
+                if (data.isIs_weather_updates_on()) {
                     LocalNotificationManager.showNotification(context, title, content, topic, severity);
                 }
             }
@@ -318,8 +286,6 @@ public class HomeActivity extends AppCompatActivity {
                                 response.getData().getAlert_level());
                         //get the three recent notification
                         getThreeRecentNotification();
-                        //update the rainfall percent
-                        updateWaterRainfall();
                     });
                 }
 
@@ -343,19 +309,6 @@ public class HomeActivity extends AppCompatActivity {
         }
     });
 
-
-    private void updateWaterRainfall() {
-        floodDataAPIHandler.getFiveHoursWeatherForecast(new ResponseCallback<ApiSuccessfulResponse>() {
-            @Override
-            public void onSuccess(ApiSuccessfulResponse response) {
-                @SuppressLint("DefaultLocale") String waterRainfallValue = String.valueOf(response.getData().getPrecipitation_probability() + "%");
-                tvRainfall.setText(waterRainfallValue);
-            }
-            @Override
-            public void onError(Throwable t) {
-            }
-        });
-    }
 
     private int getSeverityColor(String alertLevel) {
         switch (alertLevel) {
@@ -387,7 +340,6 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-
     @SuppressLint("SetTextI18n")
     public void updateCurrentWaterLevelData(String waterLevel, String alertLevelStatus) {
         // set the initial data for homepage
@@ -395,6 +347,32 @@ public class HomeActivity extends AppCompatActivity {
         int color = getSeverityColor(alertLevelStatus);
         tvStatus.setText(alertLevelStatus);
         tvStatus.setBackgroundResource(color);
+    }
+
+
+    private void initializeWeatherForecastDate() {
+        floodDataAPIHandler.getFiveHoursWeatherForecast(new ResponseCallback<FiveWeatherForecast>() {
+            @Override
+            public void onSuccess(FiveWeatherForecast response) {
+                //then set data to a list
+                hourlyData = response.getData();
+                //then set up the recycle view
+                setupRecyclerView();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("WEATHER_FORECAST_DASHBOARD", Objects.requireNonNull(t.getMessage()));
+            }
+        });
+    }
+
+    private void setupRecyclerView() {
+        //initialized adapter
+        adapter = new HourlyForecastAdapter(hourlyData);
+        rvHourlyForecast.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        rvHourlyForecast.setAdapter(adapter);
     }
 
 
@@ -426,7 +404,7 @@ public class HomeActivity extends AppCompatActivity {
                 //added the notif in the per card
                 alertsContainer.addView(alertView);
             }
-        }else{
+        } else {
             alertsContainer.removeAllViews();
         }
     }
@@ -435,14 +413,14 @@ public class HomeActivity extends AppCompatActivity {
         //connect to websocket
         Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
                 .firstElement()
-                .subscribe( data ->{
+                .subscribe(data -> {
                     Gson gson = new Gson();
                     ApiSuccessfulResponse userData = gson.fromJson(data, ApiSuccessfulResponse.class);
                     String WebsocketBase = globalUtility.getValueInYAML(BuildConfig.API_WEBSOCKET_BASE_URL, this);
                     String WebsocketUrl = WebsocketBase + "home/user?user_id=" + userData.getId();
                     manager.connect(WebsocketUrl);
                 });
-          compositeDisposable.add(disposable);
+        compositeDisposable.add(disposable);
 
     }
 
@@ -457,6 +435,9 @@ public class HomeActivity extends AppCompatActivity {
         connectToWebSocket();
         //get the three recent notification
         getThreeRecentNotification();
+
+        //initialized the data for weather forecast
+        initializeWeatherForecastDate();
     }
 
     @Override

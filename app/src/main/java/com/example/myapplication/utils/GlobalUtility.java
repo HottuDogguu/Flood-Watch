@@ -71,6 +71,7 @@ public class GlobalUtility {
         }
         return "127.0.0.1";
     }
+
     public String getTimeAgo(String timestamp) {
         try {
             // Some timestamps might not have 'Z' (UTC indicator), so normalize it.
@@ -233,5 +234,21 @@ public class GlobalUtility {
 
         }
         return null;
+    }
+
+    public String formatDateIntoHourOnly(String date) {
+        if (date != null) {
+            // Parse string into LocalDateTime
+            LocalDateTime localDateTime = LocalDateTime.parse(date);
+
+            // Convert to Philippine timezone
+            ZonedDateTime phTime = localDateTime.atZone(ZoneId.of("UTC"))
+                    .withZoneSameInstant(ZoneId.of("Asia/Manila"));
+
+            // Format hour only (24-hour format)
+            return phTime.format(DateTimeFormatter.ofPattern("HH:mm"));
+        }
+
+        return "";
     }
 }

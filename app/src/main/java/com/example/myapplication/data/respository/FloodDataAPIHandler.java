@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
+import com.example.myapplication.data.models.api_response.FiveWeatherForecast;
 import com.example.myapplication.data.models.api_response.ListOfNotificationResponse;
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.data.network.endpoints.alerts.FloodData;
@@ -60,16 +61,16 @@ public class FloodDataAPIHandler {
             }
         });
     }
-    public void getFiveHoursWeatherForecast(ResponseCallback<ApiSuccessfulResponse> callback){
+    public void getFiveHoursWeatherForecast(ResponseCallback<FiveWeatherForecast> callback){
         WeatherForecastFiveHours weatherForecastFiveHours = api.getRetrofit().create(WeatherForecastFiveHours.class);
-        weatherForecastFiveHours.getFiveHoursWeatherForecast().enqueue(new Callback<ApiSuccessfulResponse>() {
+        weatherForecastFiveHours.getFiveHoursWeatherForecast().enqueue(new Callback<FiveWeatherForecast>() {
             @Override
-            public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
+            public void onResponse(Call<FiveWeatherForecast> call, Response<FiveWeatherForecast> response) {
                 globalUtility.parseAPIResponse(response,callback);
 
             }
             @Override
-            public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
+            public void onFailure(Call<FiveWeatherForecast> call, Throwable t) {
                 callback.onError(t);
             }
         });

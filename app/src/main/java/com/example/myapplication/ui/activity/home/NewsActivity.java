@@ -132,11 +132,11 @@ public class NewsActivity extends AppCompatActivity {
                     startActivity(intent);
                     overridePendingTransition(0, 0);
                     return true;
-                } else if (id == R.id.nav_history) {
-                    Intent intent = new Intent(NewsActivity.this, FloodHistoryActivity.class);
+                } else if (id == R.id.nav_weather) {
+                    // Navigate to Weather Monitor Activity
+                    Intent intent = new Intent(NewsActivity.this, WeatherMonitorActivity.class);
                     startActivity(intent);
                     overridePendingTransition(0, 0);
-                    finish();
                     return true;
                 } else if (id == R.id.nav_profile) {
                     Intent intent = new Intent(NewsActivity.this, ProfileActivity.class);

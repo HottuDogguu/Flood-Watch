@@ -47,7 +47,7 @@ public class ListOfNotificationResponse {
          String _id,severity,topic,title,notification_text,created_at;
 
          public String getSeverity() {
-             return severity != null? severity : "";
+             return severity != null ? severity : "";
          }
 
          public void setSeverity(String severity) {
