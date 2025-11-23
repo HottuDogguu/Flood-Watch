@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.adapter;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -100,5 +101,15 @@ public class HourlyForecastAdapter extends RecyclerView.Adapter<HourlyForecastAd
             tvCondition = itemView.findViewById(R.id.tv_condition);
             ivWeatherIcon = itemView.findViewById(R.id.iv_weather_icon);
         }
+    }
+    // BEST METHOD – Call this when you have new data (from WebSocket or API)
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateData(List<FiveWeatherForecast.HourlyWeatherForecast> newData) {
+        hourlyData.clear();
+        hourlyData.addAll(newData);
+        notifyDataSetChanged(); // Simple & works perfectly for small lists (<100 items)
+
+        // Optional: Log for debug
+        Log.d("ADAPTER", "Updated with " + newData.size() + " items");
     }
 }

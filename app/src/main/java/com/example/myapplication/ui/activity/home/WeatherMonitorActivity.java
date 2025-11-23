@@ -45,10 +45,6 @@ public class WeatherMonitorActivity extends AppCompatActivity {
     private List<FiveWeatherForecast.HourlyWeatherForecast> hourlyData = new ArrayList<>();
     private Handler handler = new Handler();
 
-    private double currentTemp = 28.0;
-    private double currentHumidity = 68.0;
-    private double currentRainfall = 2.3;
-    private double currentWind = 12.0;
     private GlobalUtility globalUtility;
 
     @Override
@@ -83,8 +79,22 @@ public class WeatherMonitorActivity extends AppCompatActivity {
             public void onSuccess(FiveWeatherForecast response) {
                 hourlyData.clear(); //clear first then add the new one
                 hourlyData = response.getData();
-                setupRecyclerView();
-                updateUI();
+
+                if(!hourlyData.isEmpty()){
+
+                    runOnUiThread(() -> {
+                        if(adapter == null){
+                            setupRecyclerView();
+
+                        }else{
+                            adapter.updateData(hourlyData);
+
+                        }
+                        updateUI();
+                    });
+
+
+                }
             }
 
             @Override
@@ -105,73 +115,70 @@ public class WeatherMonitorActivity extends AppCompatActivity {
 
     private void updateUI() {
 
-        //get the list of data
-        FiveWeatherForecast.HourlyWeatherForecast weather = hourlyData.get(0) != null ? hourlyData.get(0) : new FiveWeatherForecast.HourlyWeatherForecast();
 
-        //Initial data
-        double temperature = weather.getTemperature();
-        double precipitation = weather.getPrecipitation();
-        int humidity = weather.getHumidity();
-        double windSpeed = weather.getWind_speed();
+            //get the list of data
+            FiveWeatherForecast.HourlyWeatherForecast weather = hourlyData.get(0);
 
-        // Update temperature
-        String condition = getWeatherCondition(precipitation);
-        tvTemperature.setText(String.format(Locale.getDefault(), "%.0f°", temperature));
-        tvCondition.setText(condition);
+            //Initial data
+            double temperature = weather.getTemperature();
+            double precipitation = weather.getPrecipitation();
+            int humidity = weather.getHumidity();
+            double windSpeed = weather.getWind_speed();
 
-        // Update date
+            // Update temperature
+            String condition = getRainStatus(precipitation);
+            tvTemperature.setText(String.format(Locale.getDefault(), "%.0f°", temperature));
+            tvCondition.setText(condition);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM dd", Locale.getDefault());
-        tvDate.setText(dateFormat.format(new Date()));
+            // Update date
 
-        // Update stats
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM dd", Locale.getDefault());
+            tvDate.setText(dateFormat.format(new Date()));
 
-        tvHumidity.setText(String.format(Locale.getDefault(), "%d%%", humidity));
-        tvWind.setText(String.format(Locale.getDefault(), "%.0fkm/hr", windSpeed));
-        tvRainfall.setText(String.format(Locale.getDefault(), "%.1fmm", precipitation));
+            // Update stats
 
-        // Update alert banner
-        if (currentRainfall > 2.0) {
-            alertBanner.setVisibility(View.VISIBLE);
-        } else {
-            alertBanner.setVisibility(View.GONE);
+            tvHumidity.setText(String.format(Locale.getDefault(), "%d%%", humidity));
+            tvWind.setText(String.format(Locale.getDefault(), "%.0fkm/hr", windSpeed));
+            tvRainfall.setText(String.format(Locale.getDefault(), "%.1fmm", precipitation));
+
+            // Update alert banner
+            if (precipitation > 2.0) {
+                alertBanner.setVisibility(View.VISIBLE);
+            } else {
+                alertBanner.setVisibility(View.GONE);
+            }
+
+
+//             Update chart - FIXED HERE
+        if (rainfallChart != null) {
+            float[] rainfallValues = new float[hourlyData.size()];
+            for (int i = 0; i < hourlyData.size(); i++) {
+                rainfallValues[i] = (float) hourlyData.get(i).getPrecipitation();
+            }
+            rainfallChart.setData(rainfallValues);
         }
 
-
-        // Update chart - FIXED HERE
-//        if (rainfallChart != null) {
-//            float[] rainfallValues = new float[hourlyData.size()];
-//            for (int i = 0; i < hourlyData.size(); i++) {
-//                rainfallValues[i] = (float) hourlyData.get(i).getRainfall();
-//            }
-//            rainfallChart.setData(rainfallValues);
-//        }
-
-        // Update total rainfall
-//        double totalRain = 0;
-//        for (HourlyWeather weather : hourlyData) {
-//            totalRain += weather.getRainfall();
-//        }
-//        tvTotalRainfall.setText(String.format(Locale.getDefault(),
-//                "Total: %.1fmm over 5 hours", totalRain));
-
-        // Update flood status
-        String status = getRainStatus(currentRainfall);
-        tvFloodStatus.setText(status);
-
-        if (currentRainfall > 2.0) {
-            tvFloodStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-        } else if (currentRainfall > 1.0) {
-            tvFloodStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
-        } else {
-            tvFloodStatus.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
+//             Update total rainfall
+        double totalRain = 0;
+        for (FiveWeatherForecast.HourlyWeatherForecast hourlyWeather : hourlyData) {
+            totalRain += weather.getPrecipitation();
         }
-    }
+        tvTotalRainfall.setText(String.format(Locale.getDefault(),
+                "Total: %.1fmm over 5 hours", totalRain));
 
-    private String getWeatherCondition(double rainfall) {
-        if (rainfall > 2.0) return "Heavy Rain";
-        if (rainfall > 1.0) return "Light Rain";
-        return "Partly Cloudy";
+            // Update flood status
+            String status = getRainStatus(precipitation);
+            tvFloodStatus.setText(status);
+
+            if (precipitation > 2.0) {
+                tvFloodStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            } else if (precipitation > 1.0) {
+                tvFloodStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+            } else {
+                tvFloodStatus.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
+            }
+
+
     }
 
     private String getRainStatus(double rainfall) {

@@ -2,6 +2,8 @@ package com.example.myapplication.data.models.api_response;
 
 import androidx.annotation.NonNull;
 
+import java.util.List;
+
 public class WebsocketResponseData {
     boolean is_flood_alert_on,is_weather_updates_on,is_emergency_alert_on, is_online_users_will_notify;
     Data data;
@@ -48,7 +50,60 @@ public class WebsocketResponseData {
 
     public static class Data{
         String topic, title, notification_text,value,severity,notification_created_at;
+        List<Integer> precipitation_probability;
+        List<String> forecast_time;
+        List<Double> temperature;
+        List<Double> precipitation;
+        List<Double> wind_speed;
+        List<Integer> humidity;
 
+        public List<Integer> getHumidity() {
+            return humidity;
+        }
+
+        public void setHumidity(List<Integer> humidity) {
+            this.humidity = humidity;
+        }
+
+        public List<Integer> getPrecipitation_probability() {
+            return precipitation_probability;
+        }
+
+        public void setPrecipitation_probability(List<Integer> precipitation_probability) {
+            this.precipitation_probability = precipitation_probability;
+        }
+
+        public List<String> getHourly_time() {
+            return forecast_time;
+        }
+
+        public void setHourly_time(List<String> forecast_time) {
+            this.forecast_time = forecast_time;
+        }
+
+        public List<Double> getTemperatures() {
+            return temperature;
+        }
+
+        public void setTemperatures(List<Double> temperature) {
+            this.temperature = temperature;
+        }
+
+        public List<Double> getPrecipitation() {
+            return precipitation;
+        }
+
+        public void setPrecipitation(List<Double> precipitation) {
+            this.precipitation = precipitation;
+        }
+
+        public List<Double> getWind_speed() {
+            return wind_speed;
+        }
+
+        public void setWind_speed(List<Double> wind_speed) {
+            this.wind_speed = wind_speed;
+        }
 
         public String getNotification_created_at() {
             return notification_created_at;

@@ -57,6 +57,15 @@ public class FiveWeatherForecast {
 
         }
 
+        public HourlyWeatherForecast(int precipitation_probability, int humidity, double temperature, double wind_speed, double precipitation,String forecast_time) {
+            this.precipitation_probability = precipitation_probability;
+            this.humidity = humidity;
+            this.forecast_time = forecast_time;
+            this.temperature = temperature;
+            this.wind_speed = wind_speed;
+            this.precipitation = precipitation;
+        }
+
         String _id, created_ad,forecast_time;
         int precipitation_probability,humidity;
         double temperature,wind_speed,precipitation;

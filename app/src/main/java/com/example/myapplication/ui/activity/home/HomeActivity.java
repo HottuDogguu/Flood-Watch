@@ -216,6 +216,7 @@ public class HomeActivity extends AppCompatActivity {
                             String jsonData = gson.toJson(response.getData());
                             dataStorageManager.putString(USER_DATA_KEY, jsonData);
                         }
+
                         @Override
                         public void onError(Throwable t) {
                             Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -226,6 +227,7 @@ public class HomeActivity extends AppCompatActivity {
                 });
         compositeDisposable.add(flowable);
     }
+    List<FiveWeatherForecast.HourlyWeatherForecast> newData = new ArrayList<>();
 
     WebsocketManager manager = new WebsocketManager(new WebsocketCallback() {
         @SuppressLint("SetTextI18n")
@@ -239,6 +241,7 @@ public class HomeActivity extends AppCompatActivity {
             String topic = data.getData().getTopic();
             String severity = data.getData().getSeverity();
 
+
             if (data.getData().getTopic().equalsIgnoreCase(Constants.FLOOD_ALERT)) {
                 runOnUiThread(() -> updateCurrentWaterLevelData(data.getData().getValue(), data.getData().getSeverity()));
                 //Then show notif
@@ -247,6 +250,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (data.isIs_online_users_will_notify()) {
 
                     LocalNotificationManager.showNotification(context, title, content, topic, severity);
+                    getThreeRecentNotification();
 
                     runOnUiThread(() -> {
                         updateCurrentWaterLevelData(data.getData().getValue(), severity);
@@ -257,18 +261,35 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
             if (data.getData().getTopic().equals(Constants.WEATHER_ALERT)) {
-                runOnUiThread(() -> {
-                    tvRainfall.setText(data.getData().getValue() + "%");
+
+                runOnUiThread( () ->{
+                    List<Integer> precipitation_probability = data.getData().getPrecipitation_probability();
+                    List<String> hourly_time = data.getData().getHourly_time();
+                    List<Double> temperatures = data.getData().getTemperatures();
+                    List<Double> precipitation = data.getData().getPrecipitation();
+                    List<Double> wind_speed = data.getData().getWind_speed();
+                    List<Integer> humidity = data.getData().getHumidity();
+                    newData.clear();
+                    for (int i = 0; i < precipitation.size(); i++) {
+                        newData.add(new FiveWeatherForecast.HourlyWeatherForecast(
+                                precipitation_probability.get(i),
+                                humidity.get(i),
+                                temperatures.get(i),
+                                wind_speed.get(i),
+                                precipitation.get(i),
+                                hourly_time.get(i)));
+                    }
+                    //then set up the recycle view
+                    adapter.updateData(newData);
                 });
+
+
                 if (data.isIs_weather_updates_on()) {
                     LocalNotificationManager.showNotification(context, title, content, topic, severity);
+                    getThreeRecentNotification();
                 }
             }
 
-            if (data.getData().getTopic().equals(Constants.EMERGENCY_ALERT)) {
-                //TODO malalaman pa
-            }
-            getThreeRecentNotification();
 
         }
 
