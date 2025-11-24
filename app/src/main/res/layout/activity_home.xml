@@ -24,7 +24,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="#2563EB"
+                android:background="@color/white"
                 app:titleTextColor="@android:color/white">
 
                 <LinearLayout
@@ -46,7 +46,7 @@
                         android:layout_weight="1"
                         android:text="Flood Watch"
                         android:textSize="20sp"
-                        android:textColor="@android:color/white"
+                        android:textColor="@android:color/black"
                         android:textStyle="bold"
                         android:layout_marginStart="8dp"/>
 
@@ -57,7 +57,7 @@
                         android:src="@drawable/ic_bell"
                         android:contentDescription="Notifications"
                         android:layout_marginEnd="16dp"
-                        app:tint="@color/blue_600"/>
+                        app:tint="@color/blue_500"/>
                 </LinearLayout>
             </androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.AppBarLayout>
@@ -174,6 +174,133 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
+                <!-- NEWS CAROUSEL SECTION - NEW! -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_news_carousel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="16dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_newspaper"
+                                android:contentDescription="News"
+                                app:tint="#2563EB"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="News and Articles"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#1F2937"
+                                android:layout_marginStart="8dp"/>
+
+                            <TextView
+                                android:id="@+id/tv_see_all_news"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="See All"
+                                android:textSize="13sp"
+                                android:textColor="#2563EB"
+                                android:textStyle="bold"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:paddingTop="4dp"
+                                android:paddingBottom="4dp"/>
+                        </LinearLayout>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rv_news_carousel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:scrollbars="none"
+                            android:clipToPadding="false"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+
+                <!-- Five Hour CAROUSEL SECTION -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_weather_timeline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="16dp">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_clock"
+                                android:contentDescription="Timeline"
+                                app:tint="#2563EB"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="5-Hour Timeline"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#1F2937"
+                                android:layout_marginStart="8dp"/>
+
+                            <TextView
+                                android:id="@+id/tv_view_full_weather"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="View Full"
+                                android:textSize="13sp"
+                                android:textColor="#2563EB"
+                                android:textStyle="bold"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:paddingTop="4dp"
+                                android:paddingBottom="4dp"/>
+                        </LinearLayout>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rv_weather_timeline"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:scrollbars="none"
+                            android:clipToPadding="false"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
                 <!-- Recent Alerts -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardRecentAlerts"
@@ -209,77 +336,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Weather Forecast Timeline -->
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_weather_timeline"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="4dp"
-                    app:cardBackgroundColor="@android:color/white">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <!-- Header: Title + View Full -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp"
-                            android:paddingTop="20dp">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_clock"
-                                app:tint="#2563EB" />
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginStart="8dp"
-                                android:text="5-Hour Timeline"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:textColor="#1F2937" />
-
-                            <TextView
-                                android:id="@+id/tv_view_full_weather"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="View Full"
-                                android:textSize="13sp"
-                                android:textColor="#2563EB"
-                                android:textStyle="bold"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:padding="8dp"
-                                android:clickable="true"
-                                android:focusable="true" />
-
-                        </LinearLayout>
-
-                        <!-- Horizontal RecyclerView  -->
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/rv_weather_timeline"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:clipToPadding="false"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="4dp"
-                            android:paddingBottom="20dp"
-                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
 
 
             </LinearLayout>

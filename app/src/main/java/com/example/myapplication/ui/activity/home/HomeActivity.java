@@ -34,6 +34,7 @@ import com.example.myapplication.Constants;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.FiveWeatherForecast;
 import com.example.myapplication.data.models.api_response.ListOfNotificationResponse;
+import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 import com.example.myapplication.data.models.api_response.WebsocketResponseData;
 import com.example.myapplication.data.network.websockets.WebsocketManager;
 import com.example.myapplication.data.respository.FloodDataAPIHandler;
@@ -41,7 +42,7 @@ import com.example.myapplication.data.respository.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.notification.LocalNotificationManager;
 import com.example.myapplication.ui.adapter.HourlyForecastAdapter;
-import com.example.myapplication.ui.adapter.WeatherHourTimelineAdapter;
+import com.example.myapplication.ui.adapter.NewsCarouselAdapter;
 import com.example.myapplication.utils.GlobalUtility;
 import com.example.myapplication.utils.home.BaseHomepageUtility;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -54,6 +55,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 
@@ -69,7 +71,7 @@ public class HomeActivity extends AppCompatActivity {
     private TextView tvAlerts;
     private TextView tvStation;
     private ImageView btnNotifications;
-    private HourlyForecastAdapter adapter;
+    private HourlyForecastAdapter fiveHourAdapter;
     private RecyclerView rvHourlyForecast;
 
     // Sample data
@@ -82,11 +84,17 @@ public class HomeActivity extends AppCompatActivity {
     private FloodDataAPIHandler floodDataAPIHandler;
     private CompositeDisposable compositeDisposable;
     private String USER_DATA_KEY;
+    // News Carousel Views
+    private CardView cardNewsCarousel;
+    private RecyclerView rvNewsCarousel;
+    private NewsCarouselAdapter newsCarouselAdapter;
+    private TextView tvSeeAllNews;
     private String ACCESS_TOKEN_KEY;
     private BaseHomepageUtility baseHomepageUtility;
     private ExecutorService executor = Executors.newFixedThreadPool(3);
     private List<ListOfNotificationResponse.NotificationData> alertListData;
     private List<FiveWeatherForecast.HourlyWeatherForecast> hourlyData;
+    private List<NewsAPIResponse.NewsData> newsDataList;
     // Weather Timeline Views - NEW
     private TextView tvViewFullWeather;
 
@@ -110,6 +118,11 @@ public class HomeActivity extends AppCompatActivity {
 
 
         requestNotificationPermission();
+        btnNotifications.setOnClickListener(v -> {
+            // Navigate to News Activity
+            Intent intent = new Intent(HomeActivity.this, NotificationHistoryActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void initViews() {
@@ -124,6 +137,15 @@ public class HomeActivity extends AppCompatActivity {
         tvStation = (TextView) findViewById(R.id.tv_station);
         btnNotifications = (ImageView) findViewById(R.id.btn_notifications);
 
+
+        // Initialize News Carousel Views
+        cardNewsCarousel = findViewById(R.id.card_news_carousel);
+        rvNewsCarousel = findViewById(R.id.rv_news_carousel);
+        tvSeeAllNews = findViewById(R.id.tv_see_all_news);
+
+        //Init Five Forecast Carousel
+        rvHourlyForecast = findViewById(R.id.rv_weather_timeline);
+
         dataStorageManager = DataStorageManager.getInstance(context);
         apiRequesthandler = new UsersAPIRequestHandler(activity, context);
         globalUtility = new GlobalUtility();
@@ -132,7 +154,8 @@ public class HomeActivity extends AppCompatActivity {
                 context,
                 activity);
         compositeDisposable = new CompositeDisposable();
-        rvHourlyForecast = findViewById(R.id.rv_weather_timeline);
+
+
         floodDataAPIHandler = new FloodDataAPIHandler(activity, context);
         //KEYS
         USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
@@ -206,6 +229,7 @@ public class HomeActivity extends AppCompatActivity {
     public void setDataFromDataStorage() {
         Disposable flowable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
                 .firstElement()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(token -> {
                     //Function to get the user information
                     apiRequesthandler.getUserInformation(token, new ResponseCallback<ApiSuccessfulResponse>() {
@@ -215,6 +239,17 @@ public class HomeActivity extends AppCompatActivity {
                             Gson gson = new Gson();
                             String jsonData = gson.toJson(response.getData());
                             dataStorageManager.putString(USER_DATA_KEY, jsonData);
+
+                            //connect to websocket
+                            connectToWebSocket(response.getData().getId());
+                            //get the three recent notification
+                            getThreeRecentNotification();
+
+                            //get ten data for news
+                            initializedNewsData();
+
+                            //initialized the data for weather forecast
+                            initializeWeatherForecastData();
                         }
 
                         @Override
@@ -226,7 +261,9 @@ public class HomeActivity extends AppCompatActivity {
                     });
                 });
         compositeDisposable.add(flowable);
+
     }
+
     List<FiveWeatherForecast.HourlyWeatherForecast> newData = new ArrayList<>();
 
     WebsocketManager manager = new WebsocketManager(new WebsocketCallback() {
@@ -250,7 +287,6 @@ public class HomeActivity extends AppCompatActivity {
                 if (data.isIs_online_users_will_notify()) {
 
                     LocalNotificationManager.showNotification(context, title, content, topic, severity);
-                    getThreeRecentNotification();
 
                     runOnUiThread(() -> {
                         updateCurrentWaterLevelData(data.getData().getValue(), severity);
@@ -262,7 +298,7 @@ public class HomeActivity extends AppCompatActivity {
             }
             if (data.getData().getTopic().equals(Constants.WEATHER_ALERT)) {
 
-                runOnUiThread( () ->{
+                runOnUiThread(() -> {
                     List<Integer> precipitation_probability = data.getData().getPrecipitation_probability();
                     List<String> hourly_time = data.getData().getHourly_time();
                     List<Double> temperatures = data.getData().getTemperatures();
@@ -280,16 +316,15 @@ public class HomeActivity extends AppCompatActivity {
                                 hourly_time.get(i)));
                     }
                     //then set up the recycle view
-                    adapter.updateData(newData);
+                    fiveHourAdapter.updateData(newData);
                 });
-
 
                 if (data.isIs_weather_updates_on()) {
                     LocalNotificationManager.showNotification(context, title, content, topic, severity);
-                    getThreeRecentNotification();
                 }
             }
-
+            //get the three latest notif everytime it receive a message
+            getThreeRecentNotification();
 
         }
 
@@ -346,7 +381,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void getThreeRecentNotification() {
-        floodDataAPIHandler.getThreeRecentNotifications(new ResponseCallback<ListOfNotificationResponse>() {
+        floodDataAPIHandler.getPaginatedNotifications(1, 10, new ResponseCallback<ListOfNotificationResponse>() {
             @Override
             public void onSuccess(ListOfNotificationResponse response) {
                 alertListData = new ArrayList<>();
@@ -370,15 +405,41 @@ public class HomeActivity extends AppCompatActivity {
         tvStatus.setBackgroundResource(color);
     }
 
+    private void initializedNewsData() {
+        floodDataAPIHandler.getNewsPaginated(1, 10, new ResponseCallback<NewsAPIResponse>() {
+            @Override
+            public void onSuccess(NewsAPIResponse response) {
+                //then set data to a list
+                newsDataList = response.getData();
+                //then set up the recycle view
+                setUpNewsRecycleView();
 
-    private void initializeWeatherForecastDate() {
+                //For logging only
+                Log.i("NEWS_PAGINATED", response.getMessage());
+
+                //For logging and it will delete when in production
+                Gson gson = new Gson();
+                String loggingData = gson.toJson(response.getData());
+                Log.i("NEWS_PAGINATED", loggingData);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("NEWS_PAGINATED", Objects.requireNonNull(t.getMessage()));
+            }
+        });
+    }
+
+
+    private void initializeWeatherForecastData() {
         floodDataAPIHandler.getFiveHoursWeatherForecast(new ResponseCallback<FiveWeatherForecast>() {
             @Override
             public void onSuccess(FiveWeatherForecast response) {
                 //then set data to a list
                 hourlyData = response.getData();
                 //then set up the recycle view
-                setupRecyclerView();
+                setupFiveWeatherRecyclerView();
             }
 
             @Override
@@ -389,11 +450,18 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void setupRecyclerView() {
+    private void setupFiveWeatherRecyclerView() {
         //initialized adapter
-        adapter = new HourlyForecastAdapter(hourlyData);
+        fiveHourAdapter = new HourlyForecastAdapter(hourlyData);
         rvHourlyForecast.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        rvHourlyForecast.setAdapter(adapter);
+        rvHourlyForecast.setAdapter(fiveHourAdapter);
+    }
+
+    private void setUpNewsRecycleView() {
+        //initialized adapter for news
+        newsCarouselAdapter = new NewsCarouselAdapter(newsDataList, context);
+        rvNewsCarousel.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        rvNewsCarousel.setAdapter(newsCarouselAdapter);
     }
 
 
@@ -404,6 +472,7 @@ public class HomeActivity extends AppCompatActivity {
             cardRecentAlerts.setVisibility(View.VISIBLE);
             alertsContainer.removeAllViews();
             LayoutInflater inflater = LayoutInflater.from(context);
+            int counter = 0;
             for (ListOfNotificationResponse.NotificationData alert : alertsList) {
                 View alertView = inflater.inflate(R.layout.recent_alerts_item, alertsContainer, false);
                 TextView tvTitle = alertView.findViewById(R.id.tvAlertTitle);
@@ -424,25 +493,22 @@ public class HomeActivity extends AppCompatActivity {
                 imgAlertIcon.setColorFilter(color);
                 //added the notif in the per card
                 alertsContainer.addView(alertView);
+
+                if (counter > 3) {
+                    break;
+                }
+
+                counter++;
             }
         } else {
             alertsContainer.removeAllViews();
         }
     }
 
-    private void connectToWebSocket() {
-        //connect to websocket
-        Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
-                .firstElement()
-                .subscribe(data -> {
-                    Gson gson = new Gson();
-                    ApiSuccessfulResponse userData = gson.fromJson(data, ApiSuccessfulResponse.class);
-                    String WebsocketBase = globalUtility.getValueInYAML(BuildConfig.API_WEBSOCKET_BASE_URL, this);
-                    String WebsocketUrl = WebsocketBase + "home/user?user_id=" + userData.getId();
-                    manager.connect(WebsocketUrl);
-                });
-        compositeDisposable.add(disposable);
-
+    private void connectToWebSocket(String userId) {
+        String WebsocketBase = globalUtility.getValueInYAML(BuildConfig.API_WEBSOCKET_BASE_URL, this);
+        String WebsocketUrl = WebsocketBase + "home/user?user_id=" + userId;
+        manager.connect(WebsocketUrl);
     }
 
 
@@ -453,19 +519,12 @@ public class HomeActivity extends AppCompatActivity {
         setDataFromDataStorage();
         // Set Home as selected when returning to this activity
         bottomNavigation.setSelectedItemId(R.id.nav_home);
-        connectToWebSocket();
-        //get the three recent notification
-        getThreeRecentNotification();
 
-        //initialized the data for weather forecast
-        initializeWeatherForecastDate();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-
     }
 
     private void requestNotificationPermission() {

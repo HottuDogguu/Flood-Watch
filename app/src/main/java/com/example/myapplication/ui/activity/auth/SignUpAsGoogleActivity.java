@@ -19,6 +19,7 @@ import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.respository.AuthenticationAPIRequestHandler;
 import com.example.myapplication.ui.activity.BaseActivity;
+import com.example.myapplication.ui.activity.home.HomeActivity;
 import com.example.myapplication.utils.GlobalUtility;
 import com.example.myapplication.utils.auth.BaseAuthUtility;
 
@@ -83,7 +84,7 @@ public class SignUpAsGoogleActivity extends BaseActivity {
                                 String accessToken = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
                                 //store access token in data store
                                 dataStoreManager.putString(accessToken, response.getAccess_token());
-                                Intent intent = new Intent(SignUpAsGoogleActivity.this, UploadProfileActivity.class);
+                                Intent intent = new Intent(SignUpAsGoogleActivity.this, HomeActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 //Show message
                                 Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();

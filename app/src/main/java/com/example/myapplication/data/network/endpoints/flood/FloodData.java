@@ -1,4 +1,4 @@
-package com.example.myapplication.data.network.endpoints.alerts;
+package com.example.myapplication.data.network.endpoints.flood;
 
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 

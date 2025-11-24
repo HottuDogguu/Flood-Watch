@@ -33,6 +33,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 
@@ -136,6 +137,7 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         UserChangePasswordRequest request = new UserChangePasswordRequest(oldPassword,newPassword);
         Disposable disposable = dataStorageManager.getString(ACCESS_TOKEN)
                 .firstElement()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(accessToken -> {
                     usersAPIRequestHandler.changeUserPassword(accessToken, request, new ResponseCallback<ApiSuccessfulResponse>() {
                         @Override

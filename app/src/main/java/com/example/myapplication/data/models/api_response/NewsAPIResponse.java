@@ -5,7 +5,7 @@ import java.util.List;
 
 public class NewsAPIResponse {
     String status, message;
-    List<UserData> data;
+    List<NewsData> data;
 
     public String getStatus() {
         return status;
@@ -23,18 +23,35 @@ public class NewsAPIResponse {
         this.message = message;
     }
 
-    public List<UserData> getData() {
-        return data != null ? data : new ArrayList<UserData>();
+    public List<NewsData> getData() {
+        return data != null ? data : new ArrayList<NewsData>();
     }
 
-    public void setData(List<UserData> data) {
+    public void setData(List<NewsData> data) {
         this.data = data;
     }
 
-    public static  class UserData{
-        String user_id,title,content,status;
+    public static  class NewsData {
+        String user_id,title,content,status,source,created_at;
         List<NewsImage> images;
         List<String> tags;
+
+
+        public String getCreated_at() {
+            return created_at;
+        }
+
+        public void setCreated_at(String created_at) {
+            this.created_at = created_at;
+        }
+
+        public String getSource() {
+            return source != null ? source : "";
+        }
+
+        public void setSource(String source) {
+            this.source = source;
+        }
 
         public String getUser_id() {
             return user_id;
@@ -69,7 +86,7 @@ public class NewsAPIResponse {
         }
 
         public List<NewsImage> getImages() {
-            return images;
+            return images != null ? images : new ArrayList<>();
         }
 
         public void setImages(List<NewsImage> images) {
@@ -97,7 +114,7 @@ public class NewsAPIResponse {
         }
 
         public String getPublic_key() {
-            return public_key;
+            return public_key != null ? public_key : "";
         }
 
         public void setPublic_key(String public_key) {
@@ -105,7 +122,7 @@ public class NewsAPIResponse {
         }
 
         public String getImg_url() {
-            return img_url;
+            return img_url  != null ? img_url : "";
         }
 
         public void setImg_url(String img_url) {

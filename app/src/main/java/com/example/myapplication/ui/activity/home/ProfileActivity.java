@@ -48,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 
@@ -136,6 +137,7 @@ public class ProfileActivity extends AppCompatActivity {
     private void initialLoadUserData() {
         Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
                 .firstElement()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(data -> {
                     Gson gson = new Gson();
                     ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
@@ -149,6 +151,7 @@ public class ProfileActivity extends AppCompatActivity {
     private void loadUserData() {
         Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
                 .firstElement()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(data -> {
                     Gson gson = new Gson();
                     ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
@@ -160,6 +163,7 @@ public class ProfileActivity extends AppCompatActivity {
     private void loadNotificationPreferences() {
         Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
                 .firstElement()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(data -> {
                     Gson gson = new Gson();
                     ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
@@ -209,6 +213,7 @@ public class ProfileActivity extends AppCompatActivity {
         // Clear SharedPreferences or any stored session data
         Disposable disposable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
                 .firstElement()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(accessToken -> {
                     apiRequestHandler.logOutUser(accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
                         @Override
@@ -268,6 +273,7 @@ public class ProfileActivity extends AppCompatActivity {
         // Load current data into dialog fields
         Disposable disposable = dataStorageManager.getUserData(USER_DATA_KEY)
                 .firstElement()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(data -> {
                     ApiSuccessfulResponse.UserData userDataFromGson = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
                     etEditName.setText(userDataFromGson.getFullname());
@@ -297,6 +303,7 @@ public class ProfileActivity extends AppCompatActivity {
         btnSave.setOnClickListener(v -> {
             Disposable dispo = dataStorageManager.getString(ACCESS_TOKEN_KEY)
                     .firstOrError()
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(accessToken -> {
                         //User Personal information
                         SignupPostRequest.PersonalInformation personalInformation = new SignupPostRequest.PersonalInformation(
@@ -524,6 +531,7 @@ public class ProfileActivity extends AppCompatActivity {
     private void updateUserNotificationSetting() {
         Disposable disposable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
                 .firstElement()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(accessToken -> {
 
                     boolean isFloodAlert = switchFloodAlerts.isChecked();

@@ -7,10 +7,12 @@ import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.FiveWeatherForecast;
 import com.example.myapplication.data.models.api_response.ListOfNotificationResponse;
+import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 import com.example.myapplication.data.network.APIBuilder;
-import com.example.myapplication.data.network.endpoints.alerts.FloodData;
-import com.example.myapplication.data.network.endpoints.alerts.Notifications;
-import com.example.myapplication.data.network.endpoints.alerts.WeatherForecastFiveHours;
+import com.example.myapplication.data.network.endpoints.flood.FloodData;
+import com.example.myapplication.data.network.endpoints.flood.NewsPaginated;
+import com.example.myapplication.data.network.endpoints.flood.Notifications;
+import com.example.myapplication.data.network.endpoints.flood.WeatherForecastFiveHours;
 import com.example.myapplication.utils.GlobalUtility;
 
 import retrofit2.Call;
@@ -47,9 +49,9 @@ public class FloodDataAPIHandler {
             }
         });
     }
-    public void getThreeRecentNotifications(ResponseCallback<ListOfNotificationResponse> callback){
+    public void getPaginatedNotifications(int skip, int limit, ResponseCallback<ListOfNotificationResponse> callback){
         Notifications notifications = api.getRetrofit().create(Notifications.class);
-        notifications.getRecentNotification().enqueue(new Callback<ListOfNotificationResponse>() {
+        notifications.getRecentNotification(skip, limit).enqueue(new Callback<ListOfNotificationResponse>() {
             @Override
             public void onResponse(Call<ListOfNotificationResponse> call, Response<ListOfNotificationResponse> response) {
                 globalUtility.parseAPIResponse(response,callback);
@@ -76,4 +78,20 @@ public class FloodDataAPIHandler {
         });
 
     }
+    public void getNewsPaginated(int skip, int limit, ResponseCallback<NewsAPIResponse> callback){
+        NewsPaginated newsPaginated = api.getRetrofit().create(NewsPaginated.class);
+        newsPaginated.getTenNews(skip,limit).enqueue(new Callback<NewsAPIResponse>() {
+            @Override
+            public void onResponse(Call<NewsAPIResponse> call, Response<NewsAPIResponse> response) {
+                globalUtility.parseAPIResponse(response,callback);
+
+            }
+            @Override
+            public void onFailure(Call<NewsAPIResponse> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+
+    }
+
 }

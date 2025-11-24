@@ -135,8 +135,7 @@ public class DataStorageManager {
         Preferences.Key<String> KEY = PreferencesKeys.stringKey(key);
         return dataStore.data()
                 .map(preferences -> preferences.get(KEY) != null ? preferences.get(KEY) : "")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()); // Observe on main thread;
+                .subscribeOn(Schedulers.io());
     }
 
     public void putLong(Preferences.Key<Long> key, long value) {
@@ -154,8 +153,7 @@ public class DataStorageManager {
     public Flowable<Long> getLong(Preferences.Key<Long> key, long defaultValue) {
         return dataStore.data()
                 .map(preferences -> preferences.get(key) != null ? preferences.get(key) : defaultValue)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .subscribeOn(Schedulers.io());
     }
 
     public void putBoolean(Preferences.Key<Boolean> key, boolean value) {

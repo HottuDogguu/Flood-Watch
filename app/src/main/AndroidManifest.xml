@@ -102,7 +102,14 @@
             android:name=".ui.activity.home.AnnouncementActivity"
             android:exported="false"
             android:parentActivityName=".ui.activity.home.HomeActivity" />
+
         <activity
+            android:name=".ui.activity.home.NotificationHistoryActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.activity.home.HomeActivity" />
+
+        <activity
+
             android:name=".ui.activity.auth.EmailVerificationActivity"
             android:exported="false" />
         <!-- Announcement Activity -->
