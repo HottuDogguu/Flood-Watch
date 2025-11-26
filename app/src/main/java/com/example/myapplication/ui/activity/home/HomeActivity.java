@@ -43,6 +43,7 @@ import com.example.myapplication.security.DataStorageManager;
 import com.example.myapplication.ui.activity.notification.LocalNotificationManager;
 import com.example.myapplication.ui.adapter.HourlyForecastAdapter;
 import com.example.myapplication.ui.adapter.NewsCarouselAdapter;
+import com.example.myapplication.ui.adapter.WeatherHourTimelineAdapter;
 import com.example.myapplication.utils.GlobalUtility;
 import com.example.myapplication.utils.home.BaseHomepageUtility;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -71,7 +72,7 @@ public class HomeActivity extends AppCompatActivity {
     private TextView tvAlerts;
     private TextView tvStation;
     private ImageView btnNotifications;
-    private HourlyForecastAdapter fiveHourAdapter;
+    private WeatherHourTimelineAdapter fiveHourAdapter;
     private RecyclerView rvHourlyForecast;
 
     // Sample data
@@ -385,7 +386,14 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onSuccess(ListOfNotificationResponse response) {
                 alertListData = new ArrayList<>();
-                alertListData = response.getData();
+                for (ListOfNotificationResponse.NotificationData data : response.getData()) {
+                    if (alertListData.size() == 3) {
+                        break;
+                    }
+
+                    alertListData.add(data);
+
+                }
                 updateRecentNotification(alertListData);
             }
 
@@ -413,9 +421,6 @@ public class HomeActivity extends AppCompatActivity {
                 newsDataList = response.getData();
                 //then set up the recycle view
                 setUpNewsRecycleView();
-
-                //For logging only
-                Log.i("NEWS_PAGINATED", response.getMessage());
 
                 //For logging and it will delete when in production
                 Gson gson = new Gson();
@@ -452,7 +457,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setupFiveWeatherRecyclerView() {
         //initialized adapter
-        fiveHourAdapter = new HourlyForecastAdapter(hourlyData);
+        fiveHourAdapter = new WeatherHourTimelineAdapter(hourlyData);
         rvHourlyForecast.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvHourlyForecast.setAdapter(fiveHourAdapter);
     }

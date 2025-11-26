@@ -1,5 +1,4 @@
-import groovy.util.logging.Log
-import java.util.Properties
+
 
 
 plugins {
@@ -86,6 +85,7 @@ android {
         implementation("androidx.work:work-rxjava3:2.9.0")
         implementation("io.reactivex.rxjava3:rxjava:3.1.8")
         implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
+
         implementation(libs.material)
         implementation(libs.activity)
         implementation(libs.constraintlayout)
@@ -107,15 +107,12 @@ android {
         //Yaml Reader
         implementation("org.yaml:snakeyaml:2.5")
 
+        implementation(libs.core.ktx)
+        implementation(libs.googleid)
+        implementation(libs.play.services.auth)
+        implementation(libs.fragment)
+        implementation(libs.leanback)
+
     }
 }
 
-
-dependencies {
-    implementation(libs.core.ktx)
-    implementation(libs.googleid)
-    implementation(libs.play.services.auth)
-    implementation(libs.fragment)
-    implementation(libs.leanback)
-
-}

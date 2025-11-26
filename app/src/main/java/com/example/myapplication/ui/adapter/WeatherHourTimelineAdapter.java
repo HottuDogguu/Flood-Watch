@@ -1,5 +1,7 @@
 package com.example.myapplication.ui.adapter;
 
+import android.annotation.SuppressLint;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,14 +35,13 @@ public class WeatherHourTimelineAdapter extends RecyclerView.Adapter<WeatherHour
             tvRain = itemView.findViewById(R.id.tv_rain);
             tvHumidity = itemView.findViewById(R.id.tv_humidity);
             tvCondition = itemView.findViewById(R.id.tv_condition);
-            ivIcon = itemView.findViewById(R.id.iv_weather_icon);
+            ivIcon = itemView.findViewById(R.id.iv_icon);
         }
     }
 
     public WeatherHourTimelineAdapter(List<FiveWeatherForecast.HourlyWeatherForecast> hours) {
         this.hourly = hours;
         this.globalUtility = new GlobalUtility();
-
     }
 
     @NonNull
@@ -55,7 +56,6 @@ public class WeatherHourTimelineAdapter extends RecyclerView.Adapter<WeatherHour
     @Override
     public void onBindViewHolder(@NonNull VH holder, int pos) {
         FiveWeatherForecast.HourlyWeatherForecast weather = hourly.get(pos);
-
 
         String forecastHour = globalUtility.formatDateIntoHourOnly(weather.getForecast_time());
         double temperature = weather.getTemperature();
@@ -80,6 +80,15 @@ public class WeatherHourTimelineAdapter extends RecyclerView.Adapter<WeatherHour
         } else {
             holder.ivIcon.setImageResource(R.drawable.ic_cloud);
         }
+    }
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateData(List<FiveWeatherForecast.HourlyWeatherForecast> newData) {
+        hourly.clear();
+        hourly.addAll(newData);
+        notifyDataSetChanged(); // Simple & works perfectly for small lists (<100 items)
+
+        // Optional: Log for debug
+        Log.d("ADAPTER", "Updated with " + newData.size() + " items");
     }
 
     private String handleWeatherCondition(double precipitation) {
