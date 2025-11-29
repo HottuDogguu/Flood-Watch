@@ -20,6 +20,5 @@ public interface UserUpdateInformation {
                                            @Part("second_number") RequestBody second_number,
                                            @Part("street") RequestBody street,
                                            @Part("barangay") RequestBody barangay,
-                                           @Part("city") RequestBody city,
-                                           @Header("Authorization") String token);
+                                           @Part("city") RequestBody city);
 }

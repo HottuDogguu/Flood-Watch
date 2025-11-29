@@ -7,7 +7,7 @@ import android.widget.Toast;
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
-import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.security.DataSharedPreference;
 import com.example.myapplication.ui.activity.auth.EmailVerificationActivity;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.SignupPostRequest;
@@ -17,19 +17,19 @@ import com.example.myapplication.utils.GlobalUtility;
 public class SignUpActivityUtility extends BaseAuthUtility {
     private AuthenticationAPIRequestHandler auth;
     private GlobalUtility globalUtility;
-    private DataStorageManager dataStorageManager;
+    private DataSharedPreference dataSharedPreference;
     private Context context;
 
     public SignUpActivityUtility(Context context,
                                  Activity activity,
                                  AuthenticationAPIRequestHandler auth,
                                  GlobalUtility globalUtility,
-                                 DataStorageManager dataStorageManager) {
+                                 DataSharedPreference dataSharedPreference) {
         super(context,activity);
         this.auth = auth;
         this.context = context;
         this.globalUtility = globalUtility;
-        this.dataStorageManager = dataStorageManager;
+        this.dataSharedPreference = dataSharedPreference;
     }
 
     public void signUpUser(SignupPostRequest.User user,
@@ -40,7 +40,7 @@ public class SignUpActivityUtility extends BaseAuthUtility {
             @Override
             public void onSuccess(ApiSuccessfulResponse response) {
                 String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
-                dataStorageManager.putString(accessTokenKey, response.getAccess_token());
+                dataSharedPreference.saveData(accessTokenKey, response.getAccess_token());
                 Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(context, EmailVerificationActivity.class);
                 intent.putExtra("UserEmail", user.getEmail());

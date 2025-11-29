@@ -11,7 +11,7 @@ import com.example.myapplication.BuildConfig;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.respository.UsersAPIRequestHandler;
-import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.security.DataSharedPreference;
 import com.example.myapplication.ui.activity.home.HomeActivity;
 import com.example.myapplication.ui.activity.auth.EmailVerificationActivity;
 import com.example.myapplication.utils.GlobalUtility;
@@ -22,12 +22,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.Disposable;
+
 public class LoginActivityUtility extends BaseAuthUtility {
 
-    private static final Logger log = LoggerFactory.getLogger(LoginActivityUtility.class);
     private Context context;
     private Activity activity;
-    private DataStorageManager dataStorageManager;
+    private DataSharedPreference dataSharedPreference;
     private GlobalUtility globalUtility;
     private UsersAPIRequestHandler usersAPIRequestHandler;
     private EditText email, password;
@@ -37,23 +39,23 @@ public class LoginActivityUtility extends BaseAuthUtility {
 
     public LoginActivityUtility(Context context,
                                 Activity activity,
-                                DataStorageManager dataStorageManager,
+                                DataSharedPreference dataSharedPreference,
                                 EditText email,
                                 EditText password,
                                 TextInputLayout loginEmailTextInput,
                                 TextInputLayout loginPasswordTextInput
     ) {
 
-        super(context,activity);
+        super(context, activity);
         this.context = context;
         this.activity = activity;
-        this.dataStorageManager = dataStorageManager;
+        this.dataSharedPreference = dataSharedPreference;
         this.globalUtility = new GlobalUtility();
         this.email = email;
         this.password = password;
         this.loginEmailTextInput = loginEmailTextInput;
         this.loginPasswordTextInput = loginPasswordTextInput;
-        usersAPIRequestHandler = new UsersAPIRequestHandler(activity,context);
+        usersAPIRequestHandler = new UsersAPIRequestHandler(activity, context);
     }
 
     public void handleOnSuccess(ApiSuccessfulResponse response) {
@@ -87,34 +89,25 @@ public class LoginActivityUtility extends BaseAuthUtility {
     private void saveTokenAndNavigateToHomaPage(ApiSuccessfulResponse response) {
         //Set to data store
         String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
-        dataStorageManager.putString(accessTokenKey, response.getAccess_token());
+        String accessToken = response.getAccess_token();
+        dataSharedPreference.saveData(accessTokenKey, accessToken);
+                    this.getFCMToken().addOnSuccessListener(fcmToken -> {
+                        usersAPIRequestHandler.UpdateFCMToken(fcmToken, accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
+                            @Override
+                            public void onSuccess(ApiSuccessfulResponse response) {
+                                //log only the message
+                                Log.i("FCM_TOKEN", response.getMessage());
+                            }
+                            @Override
+                            public void onError(Throwable t) {
+                                Log.e("FCM_TOKEN", Objects.requireNonNull(t.getMessage()));
 
-        this.getFCMToken().addOnSuccessListener(fcmToken -> {
-            usersAPIRequestHandler.UpdateFCMToken(fcmToken, response.getAccess_token(), new ResponseCallback<ApiSuccessfulResponse>() {
-                @Override
-                public void onSuccess(ApiSuccessfulResponse response) {
-                    //log only the message
-                    Log.i("FCM_TOKEN", response.getMessage());
-                }
-
-                @Override
-                public void onError(Throwable t) {
-                    Log.e("FCM_TOKEN", Objects.requireNonNull(t.getMessage()));
-
-                }
-            });
-        });
-        Toast.makeText(context, response.getMessage(), Toast.LENGTH_LONG).show();
-        Intent intent = new Intent(this.context, HomeActivity.class);
-        context.startActivity(intent);
-        //then check if the fcm token is change
-
-
-
+                            }
+                        });
+                    });
+                    Toast.makeText(context, response.getMessage(), Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(this.context, HomeActivity.class);
+                    context.startActivity(intent);
+                    //then check if the fcm token is change
     }
-
-
-    // handling Google login
-
-
 }

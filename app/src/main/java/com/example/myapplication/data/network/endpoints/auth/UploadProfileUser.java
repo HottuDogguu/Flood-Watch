@@ -13,6 +13,5 @@ public interface UploadProfileUser {
 
     @Multipart
     @PUT("user/profile-image")
-    Call<ApiSuccessfulResponse> uploadPhoto(@Part MultipartBody.Part image,
-                                            @Header("Authorization") String token);
+    Call<ApiSuccessfulResponse> uploadPhoto(@Part MultipartBody.Part image);
 }

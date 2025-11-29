@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -14,9 +15,11 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.RequiresApi;
 
+import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
-import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.security.DataSharedPreference;
+
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.ManualLoginRequest;
@@ -40,7 +43,7 @@ public class LoginActivity extends BaseActivity {
     private Activity activity;
     private AuthenticationAPIRequestHandler auth;
 
-    private DataStorageManager dataStoreManager;
+    private DataSharedPreference dataSharedPreference;
     private DataFieldsValidation dataValidation;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     private LoginActivityUtility loginActivityUtility;
@@ -53,12 +56,18 @@ public class LoginActivity extends BaseActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
         initViews();
+        //Clear shared preference before log in
+        dataSharedPreference.clearPreference();
+        String ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY,context);
+        ACCESS_TOKEN_KEY = ACCESS_TOKEN_KEY != null ? ACCESS_TOKEN_KEY : "Hey";
+        Log.i("PREFERENCE", dataSharedPreference.getData(ACCESS_TOKEN_KEY));
 
         //OnClickListener
         //listener for email when typing
         email.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
+
             }
 
             @Override
@@ -123,8 +132,6 @@ public class LoginActivity extends BaseActivity {
                         @Override
                         public void onSuccess(ApiSuccessfulResponse response) {
                             loginActivityUtility.handleOnSuccess(response);
-
-
                         }
 
                         @Override
@@ -153,7 +160,6 @@ public class LoginActivity extends BaseActivity {
         context = this; // Set context
         activity = this; // Set context
         auth = new AuthenticationAPIRequestHandler(this, context);
-        dataStoreManager = DataStorageManager.getInstance(context);
 
         dataValidation = new DataFieldsValidation();
 
@@ -164,10 +170,10 @@ public class LoginActivity extends BaseActivity {
         signupButton = (TextView) findViewById(R.id.signupButton);
         loginEmailTextInput = (TextInputLayout) findViewById(R.id.tilLoginEmail);
         loginPasswordTextInput = (TextInputLayout) findViewById(R.id.tilLoginPassword);
-
+        dataSharedPreference = DataSharedPreference.getInstance(context);
         //initialized login utility
         this.loginActivityUtility = new LoginActivityUtility(
-                context, activity, dataStoreManager, email, password,
+                context, activity, dataSharedPreference, email, password,
                 loginEmailTextInput, loginPasswordTextInput);
     }
 

@@ -15,7 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.security.DataSharedPreference;
+
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -25,7 +26,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class BaseActivity extends AppCompatActivity {
-    protected DataStorageManager dataStoreManager;
+    protected DataSharedPreference dataSharedPreference;
     protected GlobalUtility globalUtility;
     protected Context context;
     protected Activity activity;
@@ -37,7 +38,7 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         context = this;
         activity = this;
-        dataStoreManager = DataStorageManager.getInstance(context);
+        dataSharedPreference = DataSharedPreference.getInstance(context);
         globalUtility = new GlobalUtility();
         compositeDisposable = new CompositeDisposable();
 //        initializeFirebaseAndGetToken();

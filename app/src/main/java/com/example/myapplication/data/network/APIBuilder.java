@@ -3,57 +3,58 @@ package com.example.myapplication.data.network;
 import android.content.Context;
 
 import com.example.myapplication.BuildConfig;
+import com.example.myapplication.security.DataSharedPreference;
 import com.example.myapplication.utils.GlobalUtility;
-
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import com.example.myapplication.data.network.endpoints.auth.AuthenticationEndpoint;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class APIBuilder {
-    private Retrofit retrofit;
-    private GlobalUtility utility;
-    private Context context;
+
+    private static Retrofit retrofit;
 
     public APIBuilder(Context context) {
-        this.context = context;
-        String manufacturer = android.os.Build.MANUFACTURER;
-        String model = android.os.Build.MODEL;
-        String androidVersion = android.os.Build.VERSION.RELEASE;
-        String deviceName = manufacturer + " " + model;
+        DataSharedPreference prefs = DataSharedPreference.getInstance(context);
+        GlobalUtility utility = new GlobalUtility();
 
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request original = chain.request();
-                        Request request = original.newBuilder()
-                                .header("User-Agent", deviceName + " (Android " + androidVersion + ")")
-                                .build();
-                        return chain.proceed(request);
-                    }
-                })
-                .build();
-        utility = new GlobalUtility();
-        String BASE_HTTP_URL = utility.getValueInYAML(
-                BuildConfig.API_HTTP_BASE_URL, context);
-        this.retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_HTTP_URL)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        String BASE_URL = utility.getValueInYAML(BuildConfig.API_HTTP_BASE_URL, context);
+
+        if (retrofit == null) {
+
+            // Service used for calling refresh-token inside interceptor
+            AuthenticationEndpoint authService =
+                    new Retrofit.Builder()
+                            .baseUrl(BASE_URL)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build()
+                            .create(AuthenticationEndpoint.class);
+
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .addInterceptor(userAgentInterceptor())
+                    .addInterceptor(new RefreshTokenInterceptor(context, prefs, authService))
+                    .build();
+
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .client(client)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
     }
 
-    public Retrofit getRetrofit() {
-        return retrofit;
+    private Interceptor userAgentInterceptor() {
+        return chain -> chain.proceed(
+                chain.request().newBuilder()
+                        .header("User-Agent", android.os.Build.MANUFACTURER + " " +
+                                android.os.Build.MODEL + " (Android " + android.os.Build.VERSION.RELEASE + ")")
+                        .build()
+        );
+    }
+
+    public <T> T createService(Class<T> serviceClass) {
+        return retrofit.create(serviceClass);
     }
 }

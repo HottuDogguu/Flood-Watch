@@ -45,7 +45,7 @@ public class UsersUpdateInformationRequest {
         provinceBody = RequestBody.create(MediaType.parse("text/plain"),
                 address.getProvince() != null ? address.getProvince() : "");
 
-        // ✅ Handle nullable image safely
+        // Handle nullable image safely
         if (imageFile != null) {
             requestFile = RequestBody.create(MediaType.parse("image/*"), imageFile);
             imagePart = MultipartBody.Part.createFormData("img_file", imageFile.getName(), requestFile);

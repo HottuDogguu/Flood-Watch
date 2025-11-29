@@ -14,7 +14,8 @@ import androidx.annotation.Nullable;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
-import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.security.DataSharedPreference;
+
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;
@@ -32,7 +33,7 @@ public class LinkGoogleAccountActivity extends BaseActivity {
     private Activity activity;
     private Context context;
     private final String TAG = "LINK_GOOGLE_ACCOUNT_ACTIVITY";
-    private DataStorageManager dataStoreManager;
+    private DataSharedPreference dataSharedPreference;
     private GlobalUtility globalUtility;
 
 
@@ -51,7 +52,7 @@ public class LinkGoogleAccountActivity extends BaseActivity {
                     // set access token
                     //Start the new Activity or show it
                     String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
-                    dataStoreManager.putString(accessTokenKey, response.getAccess_token());
+                    dataSharedPreference.saveData(accessTokenKey, response.getAccess_token());
                     Intent intent = new Intent(LinkGoogleAccountActivity.this, HomeActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
@@ -80,7 +81,7 @@ public class LinkGoogleAccountActivity extends BaseActivity {
         this.context = this;
         activity = new Activity();
         autApi = new AuthenticationAPIRequestHandler(activity, context);
-        dataStoreManager = DataStorageManager.getInstance(context);
+        dataSharedPreference = DataSharedPreference.getInstance(context);
         globalUtility = new GlobalUtility();
 
 

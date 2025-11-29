@@ -9,5 +9,5 @@ import retrofit2.http.Header;
 public interface UserGetInformation {
 
     @GET("user/information")
-    Call<ApiSuccessfulResponse> getUser(@Header("Authorization") String token);
+    Call<ApiSuccessfulResponse> getUser();
 }

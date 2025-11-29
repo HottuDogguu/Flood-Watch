@@ -23,7 +23,8 @@ import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.models.users.UserNotificationSettingsRequest;
 import com.example.myapplication.data.models.users.UsersUpdateInformationRequest;
 import com.example.myapplication.data.respository.UsersAPIRequestHandler;
-import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.security.DataSharedPreference;
+
 import com.example.myapplication.ui.activity.auth.LoginActivity;
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.material.button.MaterialButton;
@@ -44,17 +45,18 @@ import androidx.core.content.FileProvider;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 
+
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.disposables.Disposable;
+
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private Toolbar toolbar;
     private TextView tvUserName, tvLocation, tvEmail, tvPhone;
     private MaterialButton btnEditProfile;
     private SwitchMaterial switchFloodAlerts, switchWeatherUpdates, switchEmergencyAlerts;
@@ -67,7 +69,7 @@ public class ProfileActivity extends AppCompatActivity {
     private Activity activity;
     private Context context;
     private UsersAPIRequestHandler apiRequestHandler;
-    private DataStorageManager dataStorageManager;
+    private DataSharedPreference dataSharedPreference;
     private CompositeDisposable compositeDisposable;
     private GlobalUtility globalUtility;
     private TextView navFullname;
@@ -85,11 +87,8 @@ public class ProfileActivity extends AppCompatActivity {
         // Initialize views
         initViews();
 
-        // NEW: Setup activity result launchers
+        // Setup activity result launchers
         setupActivityResultLaunchers();
-
-        // Setup toolbar
-        setupToolbar();
 
         // Load user data
         initialLoadUserData();
@@ -99,14 +98,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
-    private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
-    }
 
     private void updateProfileUI(ApiSuccessfulResponse.UserData userData) {
         String formattedAddress = globalUtility.formatAddress(
@@ -135,43 +126,31 @@ public class ProfileActivity extends AppCompatActivity {
 
 
     private void initialLoadUserData() {
-        Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
-                .firstElement()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(data -> {
-                    Gson gson = new Gson();
-                    ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
-                    updateProfileUI(userData); // update the data in fields
-                    setProfilePictureUsingURL(userData.getProfileImage().getImg_url());
-                });
+        String data = dataSharedPreference.getData(USER_DATA_KEY);
 
-        compositeDisposable.add(disposable);
+        Gson gson = new Gson();
+        ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
+        updateProfileUI(userData); // update the data in fields
+        setProfilePictureUsingURL(userData.getProfileImage().getImg_url());
+
     }
 
     private void loadUserData() {
-        Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
-                .firstElement()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(data -> {
-                    Gson gson = new Gson();
-                    ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
-                    updateProfileUI(userData); // update the data in fields
-                });
-        compositeDisposable.add(disposable);
+        String data = dataSharedPreference.getData(USER_DATA_KEY);
+        Gson gson = new Gson();
+        ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
+        updateProfileUI(userData); // update the data in fields
+
     }
 
     private void loadNotificationPreferences() {
-        Disposable disposable = dataStorageManager.getString(USER_DATA_KEY)
-                .firstElement()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(data -> {
-                    Gson gson = new Gson();
-                    ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
-                    switchFloodAlerts.setChecked(userData.isIs_flood_alert_on());
-                    switchWeatherUpdates.setChecked(userData.isIs_weather_updates_on());
-                    switchEmergencyAlerts.setChecked(userData.isIs_emergency_alert_on());
-                });
-        compositeDisposable.add(disposable);
+        String data = dataSharedPreference.getData(USER_DATA_KEY);
+        Gson gson = new Gson();
+        ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
+        switchFloodAlerts.setChecked(userData.isIs_flood_alert_on());
+        switchWeatherUpdates.setChecked(userData.isIs_weather_updates_on());
+        switchEmergencyAlerts.setChecked(userData.isIs_emergency_alert_on());
+
     }
 
     private void setupClickListeners() {
@@ -202,44 +181,39 @@ public class ProfileActivity extends AppCompatActivity {
                 .setPositiveButton("Logout", (dialog, which) -> {
                     // Clear user session
                     clearUserSession();
-                    // Navigate to MainActivity (Login screen)
-
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
     private void clearUserSession() {
-        // Clear SharedPreferences or any stored session data
-        Disposable disposable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
-                .firstElement()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(accessToken -> {
-                    apiRequestHandler.logOutUser(accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
-                        @Override
-                        public void onSuccess(ApiSuccessfulResponse response) {
-                            Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show();
-                            dataStorageManager.clearAll();
-                            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                        }
 
-                        @Override
-                        public void onError(Throwable t) {
-                            Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
-                            dataStorageManager.clearAll();
-                            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                        }
-                    });
-                });
-        compositeDisposable.add(disposable);
+        // Clear SharedPreferences or any stored session data
+        String accessToken = dataSharedPreference.getData(ACCESS_TOKEN_KEY);
+        apiRequestHandler.logOutUser(accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
+            @Override
+            public void onSuccess(ApiSuccessfulResponse response) {
+                Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show();
+                dataSharedPreference.clearPreference();
+                Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+                dataSharedPreference.clearPreference();
+                Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         updateUserNotificationSetting();
 
     }
@@ -271,22 +245,17 @@ public class ProfileActivity extends AppCompatActivity {
         ivProfilePictureEdit = dialogView.findViewById(R.id.iv_profile_picture_edit);
 
         // Load current data into dialog fields
-        Disposable disposable = dataStorageManager.getUserData(USER_DATA_KEY)
-                .firstElement()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(data -> {
-                    ApiSuccessfulResponse.UserData userDataFromGson = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
-                    etEditName.setText(userDataFromGson.getFullname());
-                    etEditEmail.setText(userDataFromGson.getEmail());
-                    etEditPhone.setText(userDataFromGson.getPersonalInformation().getContact_number());
-                    etEditSecondPhone.setText(userDataFromGson.getPersonalInformation().getSecond_number());
-                    etStreetLoc.setText(userDataFromGson.getAddress().getStreet());
-                    etBarnagayLoc.setText(userDataFromGson.getAddress().getBarangay());
-                    etCityLoc.setText(userDataFromGson.getAddress().getCity());
+        String data = dataSharedPreference.getData(USER_DATA_KEY);
+        ApiSuccessfulResponse.UserData userDataFromGson = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
+        etEditName.setText(userDataFromGson.getFullname());
+        etEditEmail.setText(userDataFromGson.getEmail());
+        etEditPhone.setText(userDataFromGson.getPersonalInformation().getContact_number());
+        etEditSecondPhone.setText(userDataFromGson.getPersonalInformation().getSecond_number());
+        etStreetLoc.setText(userDataFromGson.getAddress().getStreet());
+        etBarnagayLoc.setText(userDataFromGson.getAddress().getBarangay());
+        etCityLoc.setText(userDataFromGson.getAddress().getCity());
 
-                    ivProfilePictureEdit.setImageDrawable(ivProfilePicture.getDrawable());
-                });
-        compositeDisposable.add(disposable);
+        ivProfilePictureEdit.setImageDrawable(ivProfilePicture.getDrawable());
 
         // NEW: Change photo click
         tvChangePhoto.setOnClickListener(v -> {
@@ -301,10 +270,8 @@ public class ProfileActivity extends AppCompatActivity {
         });
         // Save button
         btnSave.setOnClickListener(v -> {
-            Disposable dispo = dataStorageManager.getString(ACCESS_TOKEN_KEY)
-                    .firstOrError()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(accessToken -> {
+           String accessToken = dataSharedPreference.getData(ACCESS_TOKEN_KEY);
+           Log.i("ACCESS_TOKEN", accessToken);
                         //User Personal information
                         SignupPostRequest.PersonalInformation personalInformation = new SignupPostRequest.PersonalInformation(
                                 Objects.requireNonNull(etEditPhone.getText()).toString(),
@@ -318,7 +285,11 @@ public class ProfileActivity extends AppCompatActivity {
                         //convert URI to File
                         File imageFile = null;
                         if (currentPhotoUri != null) {
-                            imageFile = globalUtility.uriToFile(currentPhotoUri, activity);
+                            try {
+                                imageFile = globalUtility.uriToFile(currentPhotoUri, activity);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                         //The Request Body
                         UsersUpdateInformationRequest request = new UsersUpdateInformationRequest(imageFile,
@@ -327,13 +298,13 @@ public class ProfileActivity extends AppCompatActivity {
                                 personalInformation,
                                 address);
                         //Call the api
-                        apiRequestHandler.updateUserInfo(request, accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
+                        apiRequestHandler.updateUserInfo(request, new ResponseCallback<ApiSuccessfulResponse>() {
                             @Override
                             public void onSuccess(ApiSuccessfulResponse response) {
 
                                 setProfilePictureWithUri(currentPhotoUri);
                                 String newUserData = gson.toJson(response.getData());
-                                dataStorageManager.putString(USER_DATA_KEY, newUserData);
+                                dataSharedPreference.saveData(USER_DATA_KEY, newUserData);
                                 updateProfileUI(response.getData());
                                 //set the image from current URI
                                 setProfilePictureWithUri(currentPhotoUri);
@@ -353,16 +324,6 @@ public class ProfileActivity extends AppCompatActivity {
                                 }
                             }
                         });
-
-                    }, error -> {
-                        Log.i("Update Profile", Objects.requireNonNull(error.getMessage()));
-                        if (dialog.isShowing()) {
-                            dialog.dismiss();
-                        }
-                    });
-
-            compositeDisposable.add(dispo);
-
         });
         // Fix 2: Safely show
         if (!isFinishing() && !isDestroyed()) {
@@ -497,7 +458,7 @@ public class ProfileActivity extends AppCompatActivity {
     private void initViews() {
         activity = this;
         context = this;
-        toolbar = findViewById(R.id.toolbar);
+
         tvUserName = findViewById(R.id.tv_user_name);
         tvEmail = findViewById(R.id.tv_email);
         tvPhone = findViewById(R.id.tv_phone);
@@ -518,7 +479,7 @@ public class ProfileActivity extends AppCompatActivity {
         ivProfilePicture = findViewById(R.id.iv_profile_picture);
 
         apiRequestHandler = new UsersAPIRequestHandler(activity, context);
-        dataStorageManager = DataStorageManager.getInstance(context);
+        dataSharedPreference = DataSharedPreference.getInstance(context);
 
         compositeDisposable = new CompositeDisposable();
         globalUtility = new GlobalUtility();
@@ -527,34 +488,28 @@ public class ProfileActivity extends AppCompatActivity {
         ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
 
     }
-
     private void updateUserNotificationSetting() {
-        Disposable disposable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
-                .firstElement()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(accessToken -> {
+        String accessToken = dataSharedPreference.getData(ACCESS_TOKEN_KEY);
 
-                    boolean isFloodAlert = switchFloodAlerts.isChecked();
-                    boolean isEmergencyAlert = switchEmergencyAlerts.isChecked();
-                    boolean isWeatherAlert = switchWeatherUpdates.isChecked();
-                    UserNotificationSettingsRequest request =
-                            new UserNotificationSettingsRequest(isFloodAlert, isWeatherAlert, isEmergencyAlert);
-                    apiRequestHandler.updateUserNotificationSettings(request, accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
-                        @Override
-                        public void onSuccess(ApiSuccessfulResponse response) {
-                            Toast.makeText(activity, response.getMessage(), Toast.LENGTH_SHORT).show();
-                            ProfileActivity.this.finish();
-                        }
+        boolean isFloodAlert = switchFloodAlerts.isChecked();
+        boolean isEmergencyAlert = switchEmergencyAlerts.isChecked();
+        boolean isWeatherAlert = switchWeatherUpdates.isChecked();
+        UserNotificationSettingsRequest request =
+                new UserNotificationSettingsRequest(isFloodAlert, isWeatherAlert, isEmergencyAlert);
+        apiRequestHandler.updateUserNotificationSettings(request, new ResponseCallback<ApiSuccessfulResponse>() {
+            @Override
+            public void onSuccess(ApiSuccessfulResponse response) {
+                Toast.makeText(activity, response.getMessage(), Toast.LENGTH_SHORT).show();
+                ProfileActivity.this.finish();
+            }
 
-                        @Override
-                        public void onError(Throwable t) {
-                            //navigate to login activity
-                            onNavigateToLoginIfUnauthorize(t);
-                            ProfileActivity.this.finish();
-                        }
-                    });
-                });
-        compositeDisposable.add(disposable);
+            @Override
+            public void onError(Throwable t) {
+                //navigate to login activity
+                onNavigateToLoginIfUnauthorize(t);
+                ProfileActivity.this.finish();
+            }
+        });
     }
 
 

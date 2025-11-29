@@ -83,7 +83,7 @@ public class SignUpAsGoogleActivity extends BaseActivity {
                             public void onSuccess(ApiSuccessfulResponse response) {
                                 String accessToken = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
                                 //store access token in data store
-                                dataStoreManager.putString(accessToken, response.getAccess_token());
+                                dataSharedPreference.saveData(accessToken, response.getAccess_token());
                                 Intent intent = new Intent(SignUpAsGoogleActivity.this, HomeActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 //Show message

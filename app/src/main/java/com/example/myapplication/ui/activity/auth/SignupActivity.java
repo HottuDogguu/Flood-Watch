@@ -22,6 +22,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.data.models.auth.SignupPostRequest.*;
 import com.example.myapplication.data.respository.AuthenticationAPIRequestHandler;
 import com.example.myapplication.data.validation.DataFieldsValidation;
+import com.example.myapplication.security.DataSharedPreference;
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.utils.GlobalUtility;
 import com.example.myapplication.utils.auth.BaseAuthUtility;
@@ -42,6 +43,7 @@ public class SignupActivity extends BaseActivity {
     private ScrollView scrollView;
     private TextView tvSignIn;
     private BaseAuthUtility baseAuthUtility;
+    private DataSharedPreference dataSharedPreference;
 
     //EditText
     private TextInputEditText
@@ -79,7 +81,7 @@ public class SignupActivity extends BaseActivity {
                 this,
                 auth,
                 globalUtility,
-                dataStoreManager);
+                dataSharedPreference);
 
         //Listeners
         signupButton.setOnClickListener(v -> {
@@ -216,7 +218,7 @@ public class SignupActivity extends BaseActivity {
         scrollView = findViewById(R.id.signupScrollView);
         tvSignIn = (TextView) findViewById(R.id.tvSignIn);
         btnGoogleSignup = (Button) findViewById(R.id.btnGoogleSignUp);
-
+        dataSharedPreference = DataSharedPreference.getInstance(context);
         tilEmail = (TextInputLayout) findViewById(R.id.tilEmail);
         tilFullName = (TextInputLayout) findViewById(R.id.tilFullName);
         tilContactNumber = (TextInputLayout) findViewById(R.id.tilContactNumber);

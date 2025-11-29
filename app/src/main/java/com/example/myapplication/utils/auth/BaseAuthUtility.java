@@ -16,7 +16,8 @@ import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.respository.AuthenticationAPIRequestHandler;
 import com.example.myapplication.data.respository.UsersAPIRequestHandler;
-import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.security.DataSharedPreference;
+
 import com.example.myapplication.ui.activity.home.HomeActivity;
 import com.example.myapplication.ui.activity.auth.LinkGoogleAccountActivity;
 import com.example.myapplication.ui.activity.auth.SignUpAsGoogleActivity;
@@ -33,7 +34,7 @@ public class BaseAuthUtility {
     private Context context;
     private Activity activity;
     private GlobalUtility globalUtility;
-    private DataStorageManager dataStorageManager;
+    private DataSharedPreference dataSharedPreference;
     private UsersAPIRequestHandler usersAPIRequestHandler;
     private final String TAG = "BASE_ACTIVITY";
 
@@ -41,8 +42,8 @@ public class BaseAuthUtility {
         this.context = context;
         this.activity = activity;
         globalUtility = new GlobalUtility();
-        dataStorageManager = DataStorageManager.getInstance(context);
         usersAPIRequestHandler = new UsersAPIRequestHandler(activity,context);
+        dataSharedPreference = DataSharedPreference.getInstance(context);
 
     }
 
@@ -86,7 +87,7 @@ public class BaseAuthUtility {
                                     // if user has a google as sign in type, then auto login
                                     Intent intent = new Intent(context, HomeActivity.class);
                                     //store the access token in data storage
-                                    dataStorageManager.putString(ACCESS_TOKEN_KEY, response.getAccess_token());
+                                    dataSharedPreference.saveData(ACCESS_TOKEN_KEY, response.getAccess_token());
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     context.startActivity(intent);
                                     //log only the message

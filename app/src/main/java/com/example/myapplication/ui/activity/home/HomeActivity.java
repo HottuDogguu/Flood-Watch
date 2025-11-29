@@ -39,7 +39,8 @@ import com.example.myapplication.data.models.api_response.WebsocketResponseData;
 import com.example.myapplication.data.network.websockets.WebsocketManager;
 import com.example.myapplication.data.respository.FloodDataAPIHandler;
 import com.example.myapplication.data.respository.UsersAPIRequestHandler;
-import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.security.DataSharedPreference;
+
 import com.example.myapplication.ui.activity.notification.LocalNotificationManager;
 import com.example.myapplication.ui.adapter.HourlyForecastAdapter;
 import com.example.myapplication.ui.adapter.NewsCarouselAdapter;
@@ -80,7 +81,7 @@ public class HomeActivity extends AppCompatActivity {
     private GlobalUtility globalUtility;
     private Activity activity;
     private Context context;
-    private DataStorageManager dataStorageManager;
+    private DataSharedPreference dataSharedPreference;
     private UsersAPIRequestHandler apiRequesthandler;
     private FloodDataAPIHandler floodDataAPIHandler;
     private CompositeDisposable compositeDisposable;
@@ -117,7 +118,6 @@ public class HomeActivity extends AppCompatActivity {
         // Setup FAB (Emergency button)
         setupEmergencyFab();
 
-
         requestNotificationPermission();
         btnNotifications.setOnClickListener(v -> {
             // Navigate to News Activity
@@ -147,7 +147,7 @@ public class HomeActivity extends AppCompatActivity {
         //Init Five Forecast Carousel
         rvHourlyForecast = findViewById(R.id.rv_weather_timeline);
 
-        dataStorageManager = DataStorageManager.getInstance(context);
+        dataSharedPreference = DataSharedPreference.getInstance(context);
         apiRequesthandler = new UsersAPIRequestHandler(activity, context);
         globalUtility = new GlobalUtility();
         //init homepage utility
@@ -228,18 +228,14 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void setDataFromDataStorage() {
-        Disposable flowable = dataStorageManager.getString(ACCESS_TOKEN_KEY)
-                .firstElement()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(token -> {
                     //Function to get the user information
-                    apiRequesthandler.getUserInformation(token, new ResponseCallback<ApiSuccessfulResponse>() {
+                    apiRequesthandler.getUserInformation(new ResponseCallback<ApiSuccessfulResponse>() {
                         @Override
                         public void onSuccess(ApiSuccessfulResponse response) {
                             // Save new user data
                             Gson gson = new Gson();
                             String jsonData = gson.toJson(response.getData());
-                            dataStorageManager.putString(USER_DATA_KEY, jsonData);
+                            dataSharedPreference.saveData(USER_DATA_KEY, jsonData);
 
                             //connect to websocket
                             connectToWebSocket(response.getData().getId());
@@ -260,8 +256,6 @@ public class HomeActivity extends AppCompatActivity {
                             baseHomepageUtility.navigateToLogin();
                         }
                     });
-                });
-        compositeDisposable.add(flowable);
 
     }
 

@@ -23,7 +23,8 @@ import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.users.UserChangePasswordRequest;
 import com.example.myapplication.data.respository.UsersAPIRequestHandler;
-import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.security.DataSharedPreference;
+
 import com.example.myapplication.utils.GlobalUtility;
 import com.example.myapplication.utils.home.BaseHomepageUtility;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -47,7 +48,7 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
     private Context context;
     private UsersAPIRequestHandler usersAPIRequestHandler;
     private GlobalUtility globalUtility;
-    private DataStorageManager dataStorageManager;
+    private DataSharedPreference dataSharedPreference;
     private LinearLayout passwordStrengthContainer;
     private View strengthBar1, strengthBar2, strengthBar3, strengthBar4;
     private TextView tvStrengthText;
@@ -90,7 +91,7 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         tvStrengthText = view.<TextView>findViewById(R.id.tv_strength_text);
 
         globalUtility = new GlobalUtility();
-        dataStorageManager = DataStorageManager.getInstance(context);
+        dataSharedPreference = DataSharedPreference.getInstance(context);
         baseHomepageUtility = new BaseHomepageUtility(context, activity);
 
         usersAPIRequestHandler = new UsersAPIRequestHandler(activity, context);
@@ -134,33 +135,26 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
     private void changePassword() {
         String oldPassword = etCurrentPassword.getText().toString();
         String newPassword = etNewPassword.getText().toString();
-        UserChangePasswordRequest request = new UserChangePasswordRequest(oldPassword,newPassword);
-        Disposable disposable = dataStorageManager.getString(ACCESS_TOKEN)
-                .firstElement()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(accessToken -> {
-                    usersAPIRequestHandler.changeUserPassword(accessToken, request, new ResponseCallback<ApiSuccessfulResponse>() {
-                        @Override
-                        public void onSuccess(ApiSuccessfulResponse response) {
-                            Toast.makeText(context, "Password changed successfully!", Toast.LENGTH_SHORT).show();
-                            dismiss();
-                        }
+        UserChangePasswordRequest request = new UserChangePasswordRequest(oldPassword, newPassword);
+        String accessToken = dataSharedPreference.getData(ACCESS_TOKEN);
 
-                        @Override
-                        public void onError(Throwable t) {
-                            Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+        usersAPIRequestHandler.changeUserPassword( request, new ResponseCallback<ApiSuccessfulResponse>() {
+            @Override
+            public void onSuccess(ApiSuccessfulResponse response) {
+                Toast.makeText(context, "Password changed successfully!", Toast.LENGTH_SHORT).show();
+                dismiss();
+            }
 
-                            if(Objects.requireNonNull(t.getMessage()).toLowerCase().contains("invalid token")){
-                                Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
-                                baseHomepageUtility.navigateToLogin();
-                            }
-                        }
-                    });
+            @Override
+            public void onError(Throwable t) {
+                Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
 
-                });
-        compositeDisposable.add(disposable);
-
-
+                if (Objects.requireNonNull(t.getMessage()).toLowerCase().contains("invalid token")) {
+                    Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    baseHomepageUtility.navigateToLogin();
+                }
+            }
+        });
     }
 
     private boolean isPasswordValid(String password) {

@@ -11,7 +11,8 @@ import androidx.annotation.Nullable;
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
-import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.security.DataSharedPreference;
+
 import com.example.myapplication.ui.activity.BaseActivity;
 //import com.example.myapplication.ui.activity.HomeActivity1;
 import com.example.myapplication.ui.activity.home.HomeActivity;
@@ -35,7 +36,8 @@ public class EmailVerificationActivity extends BaseActivity {
     private GlobalUtility globalUtility;
     private final String TAG = "EMAIL_VERIFICATION_ACCOUNT";
     private Context context;
-    private DataStorageManager dataStorageManager;
+
+    private DataSharedPreference dataSharedPreference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +47,8 @@ public class EmailVerificationActivity extends BaseActivity {
         globalUtility = new GlobalUtility();
 
 
-        dataStorageManager = DataStorageManager.getInstance(this);
+
+        dataSharedPreference = DataSharedPreference.getInstance(context);
 
         String manufacturer = android.os.Build.MANUFACTURER;
         String model = android.os.Build.MODEL;
@@ -103,7 +106,7 @@ public class EmailVerificationActivity extends BaseActivity {
 
                             //set access token
                             String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
-                            dataStorageManager.putString(accessTokenKey, access_token);
+                            dataSharedPreference.saveData(accessTokenKey, access_token);
 
                             startActivity(intent);
 

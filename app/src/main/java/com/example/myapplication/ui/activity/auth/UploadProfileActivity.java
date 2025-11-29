@@ -24,7 +24,8 @@ import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.respository.UsersAPIRequestHandler;
-import com.example.myapplication.security.DataStorageManager;
+import com.example.myapplication.security.DataSharedPreference;
+
 
 import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.ui.activity.home.HomeActivity;
@@ -50,12 +51,12 @@ public class UploadProfileActivity extends BaseActivity {
     private Activity activity;
     private Context context;
     private Uri uri;
+    private DataSharedPreference dataSharedPreference;
 
     private UsersAPIRequestHandler usersAPIRequestHandler;
-    private DataStorageManager dataStoreManager;
+
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
     private final String TAG = "UPLOAD_PHOTO";
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 
     @Override
@@ -68,7 +69,7 @@ public class UploadProfileActivity extends BaseActivity {
         btnSelectPhoto = (Button) findViewById(R.id.btnUploadPhoto);
         ivProfilePreview = (ImageView) findViewById(R.id.ivProfilePreview);
         saveAndContinue = (Button) findViewById(R.id.btnContinue);
-        dataStoreManager = DataStorageManager.getInstance(this);
+        dataSharedPreference = DataSharedPreference.getInstance(context);
 
 
         usersAPIRequestHandler = new UsersAPIRequestHandler(activity, this);
@@ -101,10 +102,8 @@ public class UploadProfileActivity extends BaseActivity {
 
                     //to get the access token in data store
                     String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
-                    Disposable token = dataStoreManager.getString(accessTokenKey)
-                            .firstElement()
-                            .subscribe(access_token -> { //
-                                usersAPIRequestHandler.uploadProfilePhoto(imagePart, "Bearer " + access_token, new ResponseCallback<ApiSuccessfulResponse>() {
+                   String access_token = dataSharedPreference.getData(accessTokenKey);
+                                usersAPIRequestHandler.uploadProfilePhoto(imagePart, new ResponseCallback<ApiSuccessfulResponse>() {
                                     @Override
                                     public void onSuccess(ApiSuccessfulResponse response) {
                                         Toast.makeText(activity, response.getMessage(), Toast.LENGTH_SHORT).show();
@@ -121,8 +120,7 @@ public class UploadProfileActivity extends BaseActivity {
                                         Log.e(TAG, Objects.requireNonNull(t.getMessage()));
                                     }
                                 });
-                            });
-                    compositeDisposable.add(token);
+
 
                 }else{
                     Intent intent = new Intent(UploadProfileActivity.this, HomeActivity.class);

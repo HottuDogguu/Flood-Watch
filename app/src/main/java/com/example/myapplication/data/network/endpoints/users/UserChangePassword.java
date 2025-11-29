@@ -12,7 +12,6 @@ import retrofit2.http.PUT;
 public interface UserChangePassword {
     @Headers({"Content-Type: application/json"})
     @PUT("user/change-password")
-    Call<ApiSuccessfulResponse> changePassword(@Body UserChangePasswordRequest request,
-                                               @Header("Authorization") String token);
+    Call<ApiSuccessfulResponse> changePassword(@Body UserChangePasswordRequest request);
 
 }

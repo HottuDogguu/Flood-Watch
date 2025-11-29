@@ -15,7 +15,7 @@ public class ApiErrorResponse {
 
 
         public String getMessage() {
-            return message;
+            return message != null ? message : "Unknown Error, Please Contact Developer.";
         }
 
         public void setMessage(String message) {

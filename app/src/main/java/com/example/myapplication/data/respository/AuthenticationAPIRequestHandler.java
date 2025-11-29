@@ -55,7 +55,7 @@ public class AuthenticationAPIRequestHandler {
 
     public void manualLoginResponse(ManualLoginRequest requestPost,
                                     ResponseCallback<ApiSuccessfulResponse> callback) {
-        ManualAuthenticateUser auth = api.getRetrofit().create(ManualAuthenticateUser.class);
+        ManualAuthenticateUser auth = api.createService(ManualAuthenticateUser.class);
         auth.authenticateUser(requestPost.getEmail(), requestPost.getPassword()).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
@@ -122,7 +122,7 @@ public class AuthenticationAPIRequestHandler {
 
             @Override
             public void onSuccess(String request) {
-                GoogleAuthenticateUser googleAuthenticateUser = api.getRetrofit().create(GoogleAuthenticateUser.class);
+                GoogleAuthenticateUser googleAuthenticateUser = api.createService(GoogleAuthenticateUser.class);
                 //Call the api
                 googleAuthenticateUser.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
                     @Override
@@ -148,7 +148,7 @@ public class AuthenticationAPIRequestHandler {
 
     public void manualSignUp(SignupPostRequest request,
                              ResponseCallback<ApiSuccessfulResponse> callback) {
-        SignUpUser signUpUser = api.getRetrofit().create(SignUpUser.class);
+        SignUpUser signUpUser = api.createService(SignUpUser.class);
         signUpUser.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
@@ -165,7 +165,7 @@ public class AuthenticationAPIRequestHandler {
 
     public void googleSignUp(SignupPostRequest request,
                              ResponseCallback<ApiSuccessfulResponse> callback) {
-        SignUpUser signUpUser = api.getRetrofit().create(SignUpUser.class);
+        SignUpUser signUpUser = api.createService(SignUpUser.class);
         signUpUser.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
@@ -181,7 +181,7 @@ public class AuthenticationAPIRequestHandler {
     }
 
     public void linkUserAccountToGoogle(LinkAccountToMultipleSiginMethodsRequest request, ResponseCallback<ApiSuccessfulResponse> callback) {
-        LinkAccountToGoogleSignInMethod linkAccountToGoogleSignInMethod = api.getRetrofit().create(LinkAccountToGoogleSignInMethod.class);
+        LinkAccountToGoogleSignInMethod linkAccountToGoogleSignInMethod = api.createService(LinkAccountToGoogleSignInMethod.class);
         linkAccountToGoogleSignInMethod.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {

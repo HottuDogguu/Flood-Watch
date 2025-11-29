@@ -12,5 +12,5 @@ import retrofit2.http.PUT;
 public interface UserNotificationSettings {
     @Headers({"Content-Type: application/json"})
     @PUT("user/settings/notification")
-    Call<ApiSuccessfulResponse> updateNotificationSettings(@Body UserNotificationSettingsRequest userNotificationSettings, @Header("Authorization") String accessToken);
+    Call<ApiSuccessfulResponse> updateNotificationSettings(@Body UserNotificationSettingsRequest userNotificationSettings);
 }

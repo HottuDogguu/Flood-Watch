@@ -86,6 +86,18 @@ public class DataStorageManager {
                 });
     }
 
+    public String getStringSync(String key) {
+        Preferences.Key<String> prefKey = PreferencesKeys.stringKey(key);
+        try {
+            return dataStore.data()
+                    .map(prefs -> prefs.get(prefKey))
+                    .firstOrError()  // blocks until first emission
+                    .blockingGet();  // safe on background thread
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     // String operations
     public void putString(String key, String value) {
         Preferences.Key<String> KEY = PreferencesKeys.stringKey(key);
