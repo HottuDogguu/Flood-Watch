@@ -27,15 +27,13 @@ public class UsersUpdateInformationRequest {
             File imageFile,
             String fullname,
             String email,
-            SignupPostRequest.PersonalInformation personalInformation,
+            String contactNo,
+
             SignupPostRequest.Address address
     ) {
         fullnameBody = RequestBody.create(MediaType.parse("text/plain"), fullname != null ? fullname : "");
         emailBody = RequestBody.create(MediaType.parse("text/plain"), email != null ? email : "");
-        contactNumberBody = RequestBody.create(MediaType.parse("text/plain"),
-                personalInformation.getContact_number() != null ? personalInformation.getContact_number() : "");
-        secondNumberBody = RequestBody.create(MediaType.parse("text/plain"),
-                personalInformation.getSecond_number() != null ? personalInformation.getSecond_number() : "");
+        contactNumberBody = RequestBody.create(MediaType.parse("text/plain"),contactNo != null ? contactNo : "");
         streetBody = RequestBody.create(MediaType.parse("text/plain"),
                 address.getStreet() != null ? address.getStreet() : "");
         barangayBody = RequestBody.create(MediaType.parse("text/plain"),

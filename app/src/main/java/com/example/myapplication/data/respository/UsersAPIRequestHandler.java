@@ -55,31 +55,31 @@ public class UsersAPIRequestHandler extends BaseRepository {
                                ResponseCallback<ApiSuccessfulResponse> callback) {
 
 
+        UserUpdateInformation updateInformation = api.createService(UserUpdateInformation.class);
+        updateInformation.updateInfo(request.getFullnameBody(),
+                        request.getImagePart(),
+                        request.getEmailBody(),
+                        request.getContactNumberBody(),
+                        request.getStreetBody(),
+                        request.getBarangayBody(),
+                        request.getCityBody())
+                .enqueue(new Callback<ApiSuccessfulResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
 
-                    UserUpdateInformation updateInformation = api.createService(UserUpdateInformation.class);
-                    updateInformation.updateInfo(request.getFullnameBody(),
-                                    request.getImagePart(),
-                                    request.getEmailBody(), request.getContactNumberBody(),
-                                    request.getSecondNumberBody(), request.getStreetBody(),
-                                    request.getBarangayBody(),
-                                    request.getCityBody())
-                            .enqueue(new Callback<ApiSuccessfulResponse>() {
-                                @Override
-                                public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
+                        globalUtility.parseAPIResponse(response, callback);
 
-                                    globalUtility.parseAPIResponse(response, callback);
-//                                    setRefreshTokenToDataStorage(response);
-                                }
+                    }
 
-                                @Override
-                                public void onFailure(@NonNull Call<ApiSuccessfulResponse> call, Throwable t) {
-                                    callback.onError(t);
-                                }
-                            });
+                    @Override
+                    public void onFailure(@NonNull Call<ApiSuccessfulResponse> call, Throwable t) {
+                        callback.onError(t);
+                    }
+                });
 
     }
 
-    public void getUserInformation( ResponseCallback<ApiSuccessfulResponse> callback) {
+    public void getUserInformation(ResponseCallback<ApiSuccessfulResponse> callback) {
 
 
         UserGetInformation userGetInformation = api.createService(UserGetInformation.class);
@@ -100,7 +100,7 @@ public class UsersAPIRequestHandler extends BaseRepository {
 
     }
 
-    public void changeUserPassword( UserChangePasswordRequest request,
+    public void changeUserPassword(UserChangePasswordRequest request,
                                    ResponseCallback<ApiSuccessfulResponse> callback) {
         UserChangePassword userChangePassword = api.createService(UserChangePassword.class);
         userChangePassword.changePassword(request).enqueue(new Callback<ApiSuccessfulResponse>() {
@@ -138,7 +138,7 @@ public class UsersAPIRequestHandler extends BaseRepository {
         });
     }
 
-    public void uploadProfilePhoto(MultipartBody.Part imageFile,ResponseCallback<ApiSuccessfulResponse> callback) {
+    public void uploadProfilePhoto(MultipartBody.Part imageFile, ResponseCallback<ApiSuccessfulResponse> callback) {
 
         UploadProfileUser uploadProfileUser = api.createService(UploadProfileUser.class);
         uploadProfileUser.uploadPhoto(imageFile).enqueue(new Callback<ApiSuccessfulResponse>() {

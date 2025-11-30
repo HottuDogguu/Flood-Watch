@@ -215,7 +215,12 @@ public class GlobalUtility {
     }
 
     public String formatAddress(String street, String barangay, String city) {
-        return street + ", " + barangay + ", " + city + ", Laguna, Philippines";
+        String formattedAddress = street != null && !street.isEmpty() ? street +", " : "";
+        formattedAddress += barangay != null && !barangay.isEmpty() ? barangay +", " : "";
+        formattedAddress += city != null && !city.isEmpty() ? city + ", " : "";
+
+
+        return formattedAddress + "Laguna, Philippines";
     }
 
     public String getValueInYAML(String key, Context context) {

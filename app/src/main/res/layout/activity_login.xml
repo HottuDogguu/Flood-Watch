@@ -105,7 +105,6 @@
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxStrokeColor="@color/blue_500"
-
             app:boxCornerRadiusBottomStart="12dp"
             app:boxStrokeErrorColor="@color/red_500"
             app:boxCornerRadiusBottomEnd="12dp"

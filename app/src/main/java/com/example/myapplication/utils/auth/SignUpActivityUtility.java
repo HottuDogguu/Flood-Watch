@@ -33,9 +33,8 @@ public class SignUpActivityUtility extends BaseAuthUtility {
     }
 
     public void signUpUser(SignupPostRequest.User user,
-                           SignupPostRequest.Address address,
-                           SignupPostRequest.PersonalInformation personalInformation) {
-        SignupPostRequest postRequest = new SignupPostRequest(user, address, personalInformation);
+                           SignupPostRequest.Address address) {
+        SignupPostRequest postRequest = new SignupPostRequest(user, address);
         this.auth.manualSignUp(postRequest, new ResponseCallback<ApiSuccessfulResponse>() {
             @Override
             public void onSuccess(ApiSuccessfulResponse response) {

@@ -64,10 +64,9 @@ public class ApiSuccessfulResponse implements Serializable {
     public static class UserData implements Serializable {
         UserAddress Address;
         double water_level;
-        UserPersonalInformation PersonalInformation;
         UserProfileImage ProfileImage;
 
-        String id, fullname, email, status, role,fcm_token,alert_level;
+        String id, fullname, email, status, role,fcm_token,alert_level, contact_number;
 
         int profile_setup_steps;
         List<String>sign_in_type;
@@ -75,6 +74,14 @@ public class ApiSuccessfulResponse implements Serializable {
         boolean is_profile_completed, is_deleted,is_flood_alert_on,
                 is_emergency_alert_on,
                 is_weather_updates_on;
+
+        public String getContact_number() {
+            return contact_number;
+        }
+
+        public void setContact_number(String contact_number) {
+            this.contact_number = contact_number;
+        }
 
         public double getWater_level() {
             return water_level;
@@ -203,13 +210,9 @@ public class ApiSuccessfulResponse implements Serializable {
             Address = address;
         }
 
-        public UserPersonalInformation getPersonalInformation() {
-            return PersonalInformation != null ? PersonalInformation : new UserPersonalInformation();
-        }
 
-        public void setPersonalInformation(UserPersonalInformation personalInformation) {
-            PersonalInformation = personalInformation;
-        }
+
+
 
         public UserProfileImage getProfileImage() {
             return ProfileImage != null ? ProfileImage : new UserProfileImage();

@@ -41,6 +41,7 @@ public class SignUpAsGoogleActivity extends BaseActivity {
     // Init first
     private String email;
     String fullName;
+    String contactNo;
     private List<String> sign_in_type;
     private String status;
     private String fcmToken = null;
@@ -55,8 +56,6 @@ public class SignUpAsGoogleActivity extends BaseActivity {
         email = "";
         fullName = "";
         status = "";
-
-
 
 
         if (userData != null) {
@@ -74,10 +73,10 @@ public class SignUpAsGoogleActivity extends BaseActivity {
             //get the fcm token
             baseAuthUtility.getFCMToken().addOnSuccessListener(token -> {
                         fcmToken = token;
-                        var user = new SignupPostRequest.User(email, fullName, status, sign_in_type, fcmToken);
+                        var user = new SignupPostRequest.User(email, fullName, status, contactNo,sign_in_type, fcmToken);
                         var address = new SignupPostRequest.Address(null, null, null, null);
                         var personalInfo = new SignupPostRequest.PersonalInformation(contactNo, null);
-                        SignupPostRequest request = new SignupPostRequest(user, address, personalInfo);
+                        SignupPostRequest request = new SignupPostRequest(user, address);
                         authenticationAPI.googleSignUp(request, new ResponseCallback<ApiSuccessfulResponse>() {
                             @Override
                             public void onSuccess(ApiSuccessfulResponse response) {

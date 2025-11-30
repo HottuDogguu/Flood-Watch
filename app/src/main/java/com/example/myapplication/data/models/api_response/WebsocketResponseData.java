@@ -52,7 +52,7 @@ public class WebsocketResponseData {
         String topic, title, notification_text,value,severity,notification_created_at;
         List<Integer> precipitation_probability;
         List<String> forecast_time;
-        List<Double> temperature;
+        List<Integer> temperature;
         List<Double> precipitation;
         List<Double> wind_speed;
         List<Integer> humidity;
@@ -81,11 +81,11 @@ public class WebsocketResponseData {
             this.forecast_time = forecast_time;
         }
 
-        public List<Double> getTemperatures() {
+        public List<Integer> getTemperatures() {
             return temperature;
         }
 
-        public void setTemperatures(List<Double> temperature) {
+        public void setTemperatures(List<Integer> temperature) {
             this.temperature = temperature;
         }
 

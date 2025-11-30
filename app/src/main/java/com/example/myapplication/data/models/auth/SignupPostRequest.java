@@ -5,7 +5,6 @@ import java.util.List;
 public class SignupPostRequest {
     User user_;
     Address address_;
-    PersonalInformation personal_information_;
 
     public Address getAddress_() {
         return address_;
@@ -19,46 +18,51 @@ public class SignupPostRequest {
         this.address_ = address_;
     }
 
-    public void setPersonal_information_(PersonalInformation personal_information_) {
-        this.personal_information_ = personal_information_;
-    }
+
 
     public void setUser_(User user_) {
         this.user_ = user_;
     }
 
-    public PersonalInformation getPersonal_information_() {
-        return personal_information_;
-    }
 
-    public SignupPostRequest(User user_, Address address_, PersonalInformation personal_information_) {
+    public SignupPostRequest(User user_, Address address_) {
         this.user_ = user_;
         this.address_ = address_;
-        this.personal_information_ = personal_information_;
     }
 
     public static class User {
-        String email, fcm_token, status, password, fullname;
+        String email, fcm_token, status, password, fullname, contact_number;
         List<String> sign_in_type;
 
 
         //For google signup or user signup as google
-        public User(String email, String fullname, String status, List<String> sign_in_type, String fcm_token) {
+        public User(String email, String fullname, String status,String contact_number, List<String> sign_in_type, String fcm_token) {
             this.email = email;
             this.fcm_token = fcm_token;
             this.status = status;
             this.fullname = fullname;
+            this.contact_number = contact_number;
             this.sign_in_type = sign_in_type;
 
         }
 
 
+
         //For manual signup or sign up as password
-        public User(String email, String password, String fullname, String fcm_token) {
+        public User(String email, String password, String fullname,String contact_number, String fcm_token) {
             this.email = email;
             this.password = password;
             this.fcm_token = fcm_token;
+            this.contact_number = contact_number;
             this.fullname = fullname;
+        }
+
+        public String getContact_number() {
+            return contact_number;
+        }
+
+        public void setContact_number(String contact_number) {
+            this.contact_number = contact_number;
         }
 
         public String getFcm_token() {
@@ -177,16 +181,8 @@ public class SignupPostRequest {
             return contact_number;
         }
 
-        public String getSecond_number() {
-            return second_number;
-        }
-
         public void setContact_number(String contact_number) {
             this.contact_number = contact_number;
-        }
-
-        public void setSecond_number(String second_number) {
-            this.second_number = second_number;
         }
 
     }

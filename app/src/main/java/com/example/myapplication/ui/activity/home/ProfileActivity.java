@@ -1,9 +1,11 @@
 package com.example.myapplication.ui.activity.home;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -43,8 +45,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
-
 
 
 import java.io.File;
@@ -70,7 +72,6 @@ public class ProfileActivity extends AppCompatActivity {
     private Context context;
     private UsersAPIRequestHandler apiRequestHandler;
     private DataSharedPreference dataSharedPreference;
-    private CompositeDisposable compositeDisposable;
     private GlobalUtility globalUtility;
     private TextView navFullname;
     private String USER_DATA_KEY;
@@ -107,17 +108,17 @@ public class ProfileActivity extends AppCompatActivity {
 
         tvUserName.setText(userData.getFullname());
         tvEmail.setText(userData.getEmail());
-        tvPhone.setText(userData.getPersonalInformation().getContact_number());
+        tvPhone.setText(userData.getContact_number());
         tvLocation.setText(formattedAddress);
     }
 
-    private void setProfilePictureUsingURL(String profileUrl) {
+    private <T> void setProfilePictureUsingURL(T profileUrl, ImageView intoImage) {
         Glide.with(this)
                 .load(profileUrl)
                 .circleCrop()
                 .placeholder(R.drawable.ic_user)
                 .error(R.drawable.ic_user)
-                .into(ivProfilePicture);
+                .into(intoImage);
     }
 
     private void setProfilePictureWithUri(Uri uri) {
@@ -131,7 +132,7 @@ public class ProfileActivity extends AppCompatActivity {
         Gson gson = new Gson();
         ApiSuccessfulResponse.UserData userData = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
         updateProfileUI(userData); // update the data in fields
-        setProfilePictureUsingURL(userData.getProfileImage().getImg_url());
+        setProfilePictureUsingURL(userData.getProfileImage().getImg_url(), ivProfilePicture);
 
     }
 
@@ -186,6 +187,37 @@ public class ProfileActivity extends AppCompatActivity {
                 .show();
     }
 
+    public boolean validateFields(String name,
+                               String email,
+                               String phoneInput,
+                               TextInputEditText etEditName,
+                               TextInputLayout tilEditPhone,
+                               TextInputEditText etEditPhone,
+                               TextInputEditText etEditEmail) {
+        boolean isValid = true;
+
+        if (name.isEmpty()) {
+            etEditName.setError("Name is required");
+            etEditName.requestFocus();
+            isValid = false;
+        }
+
+        if (email.isEmpty()) {
+            etEditEmail.setError("Email is required");
+            etEditEmail.requestFocus();
+            isValid = false;
+        }
+
+        if (phoneInput.isEmpty()) {
+            tilEditPhone.setError("Phone is required");
+            tilEditPhone.requestFocus();
+            isValid = false;
+        }
+
+        return isValid;
+
+    }
+
     private void clearUserSession() {
 
         // Clear SharedPreferences or any stored session data
@@ -233,12 +265,11 @@ public class ProfileActivity extends AppCompatActivity {
         TextInputEditText etEditName = dialogView.findViewById(R.id.et_edit_name);
         TextInputEditText etEditEmail = dialogView.findViewById(R.id.et_edit_email);
         TextInputEditText etEditPhone = dialogView.findViewById(R.id.et_edit_phone);
-        TextInputEditText etEditSecondPhone = dialogView.findViewById(R.id.et_edit_second_phone);
 
         TextInputEditText etStreetLoc = dialogView.findViewById(R.id.et_edit_street_location);
         TextInputEditText etBarnagayLoc = dialogView.findViewById(R.id.et_edit_barangay_location);
         TextInputEditText etCityLoc = dialogView.findViewById(R.id.et_edit_city_location);
-//        TextInputEditText etEditAddress = dialogView.findViewById(R.id.et_edit_address);
+        @SuppressLint("CutPasteId") TextInputLayout tilEditPhone = dialogView.findViewById(R.id.til_edit_phone);
         MaterialButton btnCancel = dialogView.findViewById(R.id.btn_cancel);
         MaterialButton btnSave = dialogView.findViewById(R.id.btn_save);
         TextView tvChangePhoto = dialogView.findViewById(R.id.tv_change_photo);
@@ -249,13 +280,13 @@ public class ProfileActivity extends AppCompatActivity {
         ApiSuccessfulResponse.UserData userDataFromGson = gson.fromJson(data, ApiSuccessfulResponse.UserData.class);
         etEditName.setText(userDataFromGson.getFullname());
         etEditEmail.setText(userDataFromGson.getEmail());
-        etEditPhone.setText(userDataFromGson.getPersonalInformation().getContact_number());
-        etEditSecondPhone.setText(userDataFromGson.getPersonalInformation().getSecond_number());
+        etEditPhone.setText(userDataFromGson.getContact_number());
         etStreetLoc.setText(userDataFromGson.getAddress().getStreet());
         etBarnagayLoc.setText(userDataFromGson.getAddress().getBarangay());
         etCityLoc.setText(userDataFromGson.getAddress().getCity());
 
         ivProfilePictureEdit.setImageDrawable(ivProfilePicture.getDrawable());
+        setProfilePictureUsingURL(ivProfilePicture.getDrawable(), ivProfilePictureEdit);
 
         // NEW: Change photo click
         tvChangePhoto.setOnClickListener(v -> {
@@ -270,62 +301,61 @@ public class ProfileActivity extends AppCompatActivity {
         });
         // Save button
         btnSave.setOnClickListener(v -> {
-           String accessToken = dataSharedPreference.getData(ACCESS_TOKEN_KEY);
-           Log.i("ACCESS_TOKEN", accessToken);
-                        //User Personal information
-                        SignupPostRequest.PersonalInformation personalInformation = new SignupPostRequest.PersonalInformation(
-                                Objects.requireNonNull(etEditPhone.getText()).toString(),
-                                Objects.requireNonNull(etEditSecondPhone.getText()).toString()
-                        );
-                        //User Address
-                        SignupPostRequest.Address address = new SignupPostRequest.Address(
-                                Objects.requireNonNull(etStreetLoc.getText()).toString(),
-                                Objects.requireNonNull(etBarnagayLoc.getText()).toString(),
-                                Objects.requireNonNull(etCityLoc.getText()).toString());
-                        //convert URI to File
-                        File imageFile = null;
-                        if (currentPhotoUri != null) {
-                            try {
-                                imageFile = globalUtility.uriToFile(currentPhotoUri, activity);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        //The Request Body
-                        UsersUpdateInformationRequest request = new UsersUpdateInformationRequest(imageFile,
-                                Objects.requireNonNull(etEditName.getText()).toString(),
-                                Objects.requireNonNull(etEditEmail.getText()).toString(),
-                                personalInformation,
-                                address);
-                        //Call the api
-                        apiRequestHandler.updateUserInfo(request, new ResponseCallback<ApiSuccessfulResponse>() {
-                            @Override
-                            public void onSuccess(ApiSuccessfulResponse response) {
 
-                                setProfilePictureWithUri(currentPhotoUri);
-                                String newUserData = gson.toJson(response.getData());
-                                dataSharedPreference.saveData(USER_DATA_KEY, newUserData);
-                                updateProfileUI(response.getData());
-                                //set the image from current URI
-                                setProfilePictureWithUri(currentPhotoUri);
+            //User Address
+            SignupPostRequest.Address address = new SignupPostRequest.Address(
+                    Objects.requireNonNull(etStreetLoc.getText()).toString(),
+                    Objects.requireNonNull(etBarnagayLoc.getText()).toString(),
+                    Objects.requireNonNull(etCityLoc.getText()).toString());
+            //convert URI to File
+            File imageFile = null;
+            if (currentPhotoUri != null) {
+                try {
+                    imageFile = globalUtility.uriToFile(currentPhotoUri, activity);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            String name = etEditName.getText().toString();
+            String email = etEditEmail.getText().toString();
+            String phoneNumber = etEditPhone.getText().toString();
+            //The Request Body
+            UsersUpdateInformationRequest request = new UsersUpdateInformationRequest(imageFile,
+                    Objects.requireNonNull(name),
+                    Objects.requireNonNull(email),
+                    phoneNumber,
+                    address);
+            //validate fields first before proceeding to request api
+            boolean isValidated = validateFields(name,email,phoneNumber, etEditName,tilEditPhone,etEditPhone,etEditEmail);
+            if(!isValidated) return;
+            //Call the api
+            apiRequestHandler.updateUserInfo(request, new ResponseCallback<ApiSuccessfulResponse>() {
+                @Override
+                public void onSuccess(ApiSuccessfulResponse response) {
 
-                                if (dialog.isShowing()) {
-                                    dialog.dismiss();
-                                }
-                                // Show success message
-                                Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
+                    String newUserData = gson.toJson(response.getData());
+                    dataSharedPreference.saveData(USER_DATA_KEY, newUserData);
+                    updateProfileUI(response.getData());
+                    //set the image from current URI
+                    setProfilePictureUsingURL(currentPhotoUri, ivProfilePicture);
 
-                            @Override
-                            public void onError(Throwable t) {
-                                onNavigateToLoginIfUnauthorize(t);
-                                if (dialog.isShowing()) {
-                                    dialog.dismiss();
-                                }
-                            }
-                        });
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                    // Show success message
+                    Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    onNavigateToLoginIfUnauthorize(t);
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                }
+            });
         });
-        // Fix 2: Safely show
+        //Safely show
         if (!isFinishing() && !isDestroyed()) {
             dialog.show();
         }
@@ -353,7 +383,8 @@ public class ProfileActivity extends AppCompatActivity {
                         //set the uri of select image to the global variable currentPhotoUri
                         currentPhotoUri = result.getData().getData();
                         if (currentPhotoUri != null) {
-                            ivProfilePictureEdit.setImageURI(currentPhotoUri);
+                            setProfilePictureUsingURL(currentPhotoUri, ivProfilePictureEdit);
+
 
                         }
                     }
@@ -365,7 +396,8 @@ public class ProfileActivity extends AppCompatActivity {
                 new ActivityResultContracts.TakePicture(),
                 success -> {
                     if (success && currentPhotoUri != null) {
-                        ivProfilePictureEdit.setImageURI(currentPhotoUri);
+                        setProfilePictureUsingURL(currentPhotoUri, ivProfilePictureEdit);
+
                     }
                 }
         );
@@ -481,15 +513,14 @@ public class ProfileActivity extends AppCompatActivity {
         apiRequestHandler = new UsersAPIRequestHandler(activity, context);
         dataSharedPreference = DataSharedPreference.getInstance(context);
 
-        compositeDisposable = new CompositeDisposable();
         globalUtility = new GlobalUtility();
         //KEYS
         USER_DATA_KEY = globalUtility.getValueInYAML(BuildConfig.USER_INFORMATION_KEY, context);
         ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
 
     }
+
     private void updateUserNotificationSetting() {
-        String accessToken = dataSharedPreference.getData(ACCESS_TOKEN_KEY);
 
         boolean isFloodAlert = switchFloodAlerts.isChecked();
         boolean isEmergencyAlert = switchEmergencyAlerts.isChecked();

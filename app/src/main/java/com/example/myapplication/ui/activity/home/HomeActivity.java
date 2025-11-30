@@ -276,17 +276,15 @@ public class HomeActivity extends AppCompatActivity {
 
             if (data.getData().getTopic().equalsIgnoreCase(Constants.FLOOD_ALERT)) {
                 runOnUiThread(() -> updateCurrentWaterLevelData(data.getData().getValue(), data.getData().getSeverity()));
-                //Then show notif
+
                 //check if will notify the users
-
-                if (data.isIs_online_users_will_notify()) {
-
+                if (data.isIs_online_users_will_notify() && data.isIs_flood_alert_on()) {
+                    //Then show notif
                     LocalNotificationManager.showNotification(context, title, content, topic, severity);
 
                     runOnUiThread(() -> {
                         updateCurrentWaterLevelData(data.getData().getValue(), severity);
                         //update the three recent notification
-
                     });
 
                 }
@@ -296,7 +294,7 @@ public class HomeActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     List<Integer> precipitation_probability = data.getData().getPrecipitation_probability();
                     List<String> hourly_time = data.getData().getHourly_time();
-                    List<Double> temperatures = data.getData().getTemperatures();
+                    List<Integer> temperatures = data.getData().getTemperatures();
                     List<Double> precipitation = data.getData().getPrecipitation();
                     List<Double> wind_speed = data.getData().getWind_speed();
                     List<Integer> humidity = data.getData().getHumidity();
@@ -333,8 +331,11 @@ public class HomeActivity extends AppCompatActivity {
                 public void onSuccess(ApiSuccessfulResponse response) {
                     Toast.makeText(activity, response.getMessage(), Toast.LENGTH_SHORT).show();
                     runOnUiThread(() -> {
-                        updateCurrentWaterLevelData(String.valueOf(response.getData().getWater_level()),
-                                response.getData().getAlert_level());
+                        String waterStatus =  response.getData().getAlert_level();
+                         waterStatus =  waterStatus != null && !waterStatus.isEmpty() ? waterStatus : "No Data";
+                        String waterLevel =  String.valueOf(response.getData().getWater_level());
+                        waterLevel =  !waterLevel.isEmpty() ? waterLevel : "No Data";
+                        updateCurrentWaterLevelData(waterLevel,waterStatus);
                         //get the three recent notification
                         getThreeRecentNotification();
                     });
@@ -487,7 +488,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 // Optionally set background based on severity
                 int color = getSeverityColor(alert.getSeverity());
-                alertView.setBackgroundResource(color);
+
 
                 imgAlertIcon.setColorFilter(color);
                 //added the notif in the per card

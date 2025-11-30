@@ -17,7 +17,6 @@ public interface UserUpdateInformation {
                                            @Part MultipartBody.Part img_file,
                                            @Part("email") RequestBody email,
                                            @Part("contact_number") RequestBody contact_number,
-                                           @Part("second_number") RequestBody second_number,
                                            @Part("street") RequestBody street,
                                            @Part("barangay") RequestBody barangay,
                                            @Part("city") RequestBody city);

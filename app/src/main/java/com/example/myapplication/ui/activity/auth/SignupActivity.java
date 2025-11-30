@@ -167,8 +167,7 @@ public class SignupActivity extends BaseActivity {
                         this.buildUser().setFcm_token(token);
                         signUpActivityUtility.signUpUser(
                                 this.buildUser(),
-                                this.buildAddress(),
-                                this.buildPersonalInformation());
+                                this.buildAddress());
                         //Set the data to be inserted in database, it will validate soon.
                     })
                     .addOnFailureListener(e -> {
@@ -207,13 +206,12 @@ public class SignupActivity extends BaseActivity {
         // initialized view components
         txtBrgy = (TextInputEditText) findViewById(R.id.etBarangay);
         txtCity = (TextInputEditText) findViewById(R.id.etCity);
-        txtProvince = (TextInputEditText) findViewById(R.id.etProvince);
+//        txtProvince = (TextInputEditText) findViewById(R.id.etProvince);
         txtStreet = (TextInputEditText) findViewById(R.id.etStreet);
         txtEmail = (TextInputEditText) findViewById(R.id.etEmail);
         txtConfirmPass = (TextInputEditText) findViewById(R.id.etConfirmPassword);
         txtFullname = (TextInputEditText) findViewById(R.id.etFullName);
         txtContactNo = (TextInputEditText) findViewById(R.id.etContactNumber);
-        txtSecondContactNo = (TextInputEditText) findViewById(R.id.etSecondaryNumber);
         txtPassword = (TextInputEditText) findViewById(R.id.etPassword);
         scrollView = findViewById(R.id.signupScrollView);
         tvSignIn = (TextView) findViewById(R.id.tvSignIn);
@@ -222,7 +220,6 @@ public class SignupActivity extends BaseActivity {
         tilEmail = (TextInputLayout) findViewById(R.id.tilEmail);
         tilFullName = (TextInputLayout) findViewById(R.id.tilFullName);
         tilContactNumber = (TextInputLayout) findViewById(R.id.tilContactNumber);
-        tilSecondaryNumber = (TextInputLayout) findViewById(R.id.tilSecondaryNumber);
         tilPassword = (TextInputLayout) findViewById(R.id.tilPassword);
         tilConfirmPassword = (TextInputLayout) findViewById(R.id.tilConfirmPassword);
         baseAuthUtility = new BaseAuthUtility(context,activity);
@@ -237,7 +234,9 @@ public class SignupActivity extends BaseActivity {
         String email = Objects.requireNonNull(txtEmail.getText()).toString();
         String password = Objects.requireNonNull(txtPassword.getText()).toString();
         String fullname = Objects.requireNonNull(txtFullname.getText()).toString();
-        return new User(email, password, fullname, null);
+        String contactNo = Objects.requireNonNull(txtContactNo.getText()).toString();
+
+        return new User(email, password, fullname,contactNo, null);
     }
 
     private Address buildAddress() {
@@ -248,13 +247,6 @@ public class SignupActivity extends BaseActivity {
         String province = Objects.requireNonNull(txtProvince.getText()).toString();
 
         return new Address(street, barangay, city, province);
-    }
-
-    private PersonalInformation buildPersonalInformation() {
-        //Personal Info
-        String contactNo = Objects.requireNonNull(txtContactNo.getText()).toString();
-        String secondContactNo = Objects.requireNonNull(txtSecondContactNo.getText()).toString();
-        return new PersonalInformation(contactNo, secondContactNo);
     }
 
     private void setRequestFocusOnField(ScrollView scrollView, EditText editText, TextInputLayout inputLayout, String message, boolean isValidated) {

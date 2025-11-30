@@ -100,9 +100,6 @@ public class UploadProfileActivity extends BaseActivity {
                     RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), imageFile);
                     MultipartBody.Part imagePart = MultipartBody.Part.createFormData("image_file", imageFile.getName(), requestFile);
 
-                    //to get the access token in data store
-                    String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
-                   String access_token = dataSharedPreference.getData(accessTokenKey);
                                 usersAPIRequestHandler.uploadProfilePhoto(imagePart, new ResponseCallback<ApiSuccessfulResponse>() {
                                     @Override
                                     public void onSuccess(ApiSuccessfulResponse response) {

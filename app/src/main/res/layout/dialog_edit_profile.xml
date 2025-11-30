@@ -183,6 +183,7 @@
 
                 <!-- Phone Input -->
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_edit_phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="20dp"
@@ -213,37 +214,37 @@
                         android:padding="16dp"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Second Phone Input -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    app:boxBackgroundMode="outline"
-                    app:boxCornerRadiusTopStart="16dp"
-                    app:boxCornerRadiusTopEnd="16dp"
-                    app:boxCornerRadiusBottomStart="16dp"
-                    app:boxCornerRadiusBottomEnd="16dp"
-                    app:startIconDrawable="@drawable/ic_phone"
-                    app:startIconTint="#6B7280"
-                    app:boxStrokeColor="#2563EB"
-                    app:boxStrokeWidth="2dp"
-                    app:hintTextColor="#2563EB"
-                    app:prefixText="+63 "
-                    app:prefixTextColor="#6B7280"
-                    app:helperText="Used for emergency alerts"
-                    app:helperTextTextColor="#9CA3AF">
+<!--                &lt;!&ndash; Second Phone Input &ndash;&gt;-->
+<!--                <com.google.android.material.textfield.TextInputLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginBottom="20dp"-->
+<!--                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"-->
+<!--                    app:boxBackgroundMode="outline"-->
+<!--                    app:boxCornerRadiusTopStart="16dp"-->
+<!--                    app:boxCornerRadiusTopEnd="16dp"-->
+<!--                    app:boxCornerRadiusBottomStart="16dp"-->
+<!--                    app:boxCornerRadiusBottomEnd="16dp"-->
+<!--                    app:startIconDrawable="@drawable/ic_phone"-->
+<!--                    app:startIconTint="#6B7280"-->
+<!--                    app:boxStrokeColor="#2563EB"-->
+<!--                    app:boxStrokeWidth="2dp"-->
+<!--                    app:hintTextColor="#2563EB"-->
+<!--                    app:prefixText="+63 "-->
+<!--                    app:prefixTextColor="#6B7280"-->
+<!--                    app:helperText="Used for emergency alerts"-->
+<!--                    app:helperTextTextColor="#9CA3AF">-->
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_edit_second_phone"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Second Phone Number"
-                        android:inputType="phone"
-                        android:textSize="16sp"
-                        android:textColor="#1F2937"
-                        android:padding="16dp"/>
-                </com.google.android.material.textfield.TextInputLayout>
+<!--                    <com.google.android.material.textfield.TextInputEditText-->
+<!--                        android:id="@+id/et_edit_second_phone"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:hint="Second Phone Number"-->
+<!--                        android:inputType="phone"-->
+<!--                        android:textSize="16sp"-->
+<!--                        android:textColor="#1F2937"-->
+<!--                        android:padding="16dp"/>-->
+<!--                </com.google.android.material.textfield.TextInputLayout>-->
 
                 <!--Street Location Input -->
                 <com.google.android.material.textfield.TextInputLayout

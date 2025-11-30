@@ -383,8 +383,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checked="true"
-                            app:thumbTint="#FFFFFF"
-                            app:trackTint="#2563EB"/>
+                            app:thumbTint="@color/switch_thumb_color"
+                            app:trackTint="@color/switch_track_color"/>
                     </LinearLayout>
 
                     <View
@@ -431,8 +431,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checked="true"
-                            app:thumbTint="#FFFFFF"
-                            app:trackTint="#2563EB"/>
+                            app:thumbTint="@color/switch_thumb_color"
+                            app:trackTint="@color/switch_track_color"/>
                     </LinearLayout>
 
                     <View
@@ -479,8 +479,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checked="true"
-                            app:thumbTint="#FFFFFF"
-                            app:trackTint="#DC2626"/>
+                            app:thumbTint="@color/switch_thumb_color"
+                            app:trackTint="@color/emergency_switch_track_color"/>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

@@ -33,6 +33,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -54,6 +55,12 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
     private TextView tvStrengthText;
     private String ACCESS_TOKEN;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private boolean isValidPassword = false;
+
+    private static final Pattern LOWER = Pattern.compile(".*[a-z].*");
+    private static final Pattern UPPER = Pattern.compile(".*[A-Z].*");
+    private static final Pattern DIGIT = Pattern.compile(".*\\d.*");
+    private static final Pattern SPECIAL = Pattern.compile(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*");
 
     private BaseHomepageUtility baseHomepageUtility;
 
@@ -110,6 +117,7 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         btnSavePassword.setOnClickListener(v -> changePassword());
 
         // Password strength indicator
+        //for new password
         etNewPassword.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -117,6 +125,8 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //reset the error message indicator
+                etNewPassword.setError(null);
                 if (s.length() > 0) {
                     passwordStrengthContainer.setVisibility(View.VISIBLE);
                     updatePasswordStrength(s.toString());
@@ -130,15 +140,65 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
 
             }
         });
+
+        //for confirm password
+        etConfirmPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //reset the error message indicator
+                etConfirmPassword.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
+
 
     private void changePassword() {
         String oldPassword = etCurrentPassword.getText().toString();
         String newPassword = etNewPassword.getText().toString();
+        String confirmPassword = etConfirmPassword.getText().toString();
         UserChangePasswordRequest request = new UserChangePasswordRequest(oldPassword, newPassword);
-        String accessToken = dataSharedPreference.getData(ACCESS_TOKEN);
+        //validate password first
+        String errorMessage = getErrorMessage(newPassword);
 
-        usersAPIRequestHandler.changeUserPassword( request, new ResponseCallback<ApiSuccessfulResponse>() {
+        int passwordStrength = calculatePasswordStrength(newPassword);
+
+        if(oldPassword.isEmpty()){
+            etCurrentPassword.setError("Current password must not be empty.");
+            etCurrentPassword.requestFocus();
+            return;
+        }
+
+        if (!errorMessage.isEmpty()) {
+            etNewPassword.setError(errorMessage);
+            etNewPassword.requestFocus();
+            return;
+        }
+
+
+        if (passwordStrength <= 2) {
+            etNewPassword.setError("Weak password. Try adding uppercase letters, " +
+                    "numbers, and special characters to make it more secure.");
+            etNewPassword.requestFocus();
+            return;
+        }
+
+        if (!confirmPassword.equalsIgnoreCase(newPassword)) {
+            etConfirmPassword.setError(errorMessage);
+            etConfirmPassword.requestFocus();
+            return;
+        }
+
+
+        usersAPIRequestHandler.changeUserPassword(request, new ResponseCallback<ApiSuccessfulResponse>() {
             @Override
             public void onSuccess(ApiSuccessfulResponse response) {
                 Toast.makeText(context, "Password changed successfully!", Toast.LENGTH_SHORT).show();
@@ -157,11 +217,18 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         });
     }
 
-    private boolean isPasswordValid(String password) {
+    private String getErrorMessage(String password) {
         // Check if password contains at least one letter and one number
         boolean hasLetter = password.matches(".*[a-zA-Z].*");
         boolean hasNumber = password.matches(".*\\d.*");
-        return hasLetter && hasNumber;
+
+        boolean isEightCharacter = password.length() > 8;
+
+        if (!hasLetter) return "Must contain letters.";
+        if (isEightCharacter) return "New password must greater than to 8.";
+        if (!hasNumber) return "Must contain numbers.";
+
+        return "";
     }
 
     private void updatePasswordStrength(String password) {
@@ -208,29 +275,21 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         strengthBar4.setBackgroundColor(grayColor);
     }
 
+
     private int calculatePasswordStrength(String password) {
+        if (password == null || password.isEmpty()) return 1;
+
         int strength = 0;
 
-        // Length check
         if (password.length() >= 8) strength++;
-        if (password.length() >= 12) strength++;
+        if (LOWER.matcher(password).matches()) strength++;
+        if (UPPER.matcher(password).matches()) strength++;
+        if (DIGIT.matcher(password).matches()) strength++;
+        if (SPECIAL.matcher(password).matches()) strength++;
 
-        // Contains lowercase
-        if (password.matches(".*[a-z].*")) strength++;
-
-        // Contains uppercase
-        if (password.matches(".*[A-Z].*")) strength++;
-
-        // Contains number
-        if (password.matches(".*\\d.*")) strength++;
-
-        // Contains special character
-        if (password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) strength++;
-
-        // Map strength score to 1-4 scale
-        if (strength <= 2) return 1; // Weak
-        if (strength <= 3) return 2; // Fair
-        if (strength <= 4) return 3; // Good
-        return 4; // Strong
+        if (strength <= 1) return 1;
+        if (strength == 2) return 2;
+        if (strength == 3) return 3;
+        return 4;
     }
 }

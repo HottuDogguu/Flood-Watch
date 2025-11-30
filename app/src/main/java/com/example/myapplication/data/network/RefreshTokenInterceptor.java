@@ -1,7 +1,7 @@
 package com.example.myapplication.data.network;
 
 import android.content.Context;
-import android.util.Log;
+
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
@@ -11,13 +11,12 @@ import com.example.myapplication.utils.GlobalUtility;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-import retrofit2.Call;
 
 public class RefreshTokenInterceptor implements Interceptor {
 
@@ -28,6 +27,7 @@ public class RefreshTokenInterceptor implements Interceptor {
     private final Context context;
     private final GlobalUtility globalUtility;
     private final Map<String, Object> routeLocks = new ConcurrentHashMap<>();
+    private Object refreshLock = new Object();
 
 
     public RefreshTokenInterceptor(Context context, DataSharedPreference storageManager, AuthenticationEndpoint authService) {
@@ -42,36 +42,52 @@ public class RefreshTokenInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
 
-        Request originalRequest = chain.request();
 
-        String routeKey = originalRequest.url().encodedPath(); // lock per route
+        //synchronized it, so that it will handle route one at a time
+        synchronized (routeLocks) {
+            //get the current request
+            Request originalRequest = chain.request();
 
-        // Create lock object for this route if not exist
-        routeLocks.putIfAbsent(routeKey, new Object());
-        Object lock = routeLocks.get(routeKey);
-
-        synchronized (Objects.requireNonNull(lock)) {
-            // Add access token
-            String token = storageManager.getData(accessTokenKey);
-            if (token != null && !token.isEmpty()) {
+            //get the access token
+            String accessToken = storageManager.getData(accessTokenKey);
+            //check if the token is not null or not empty
+            if (accessToken != null && !accessToken.isEmpty()) {
+                //then set authorization header to the original request
                 originalRequest = originalRequest.newBuilder()
-                        .header("Authorization", "Bearer " + token)
+                        .removeHeader("Authorization")
+                        .header("Authorization", "Bearer " + accessToken)
                         .build();
             }
 
+            //then get the response of the original request
             Response response = chain.proceed(originalRequest);
 
-            // Handle 401
+            // check if the token is expired
             if (response.code() == 401) {
-                Response original401Response = response;
 
+                //then get the current access token
                 String refreshToken = storageManager.getData(accessTokenKey);
+                //check if not null or not empty
                 if (refreshToken != null && !refreshToken.isEmpty()) {
                     try {
+                        //check if the refresh token is not equal to previous access token
+                        if (!refreshToken.equals(accessToken)) {
+                            // Already refreshed
+                            Request retryRequest = originalRequest.newBuilder()
+                                    .removeHeader("Authorization")
+                                    .header("Authorization", "Bearer " + refreshToken)
+                                    .build();
+
+                            return chain.proceed(retryRequest);
+                        }
+
+                        //call the refresh token route to get the new access token
                         retrofit2.Response<ApiSuccessfulResponse> refreshResponse =
                                 authService.refreshToken(refreshToken).execute();
 
+                        //check if the response is successful
                         if (refreshResponse.isSuccessful() && refreshResponse.body() != null) {
+                            //then store the new access token in preference
                             String newAccessToken = refreshResponse.body().getAccess_token();
                             storageManager.saveData(accessTokenKey, newAccessToken);
 
@@ -80,22 +96,28 @@ public class RefreshTokenInterceptor implements Interceptor {
                                     .removeHeader("Authorization")
                                     .header("Authorization", "Bearer " + newAccessToken)
                                     .build();
-
-                            original401Response.close();
+                            //close the original response
+                            response.close();
+                            //then return the original request with a fresh access token
                             return chain.proceed(retryRequest);
                         } else {
-                            return original401Response;
+                            //if encounter error, return the original response
+                            return response;
                         }
                     } catch (Exception e) {
+                        //if encounter error, return the original response
                         e.printStackTrace();
-                        return original401Response;
+                        return response;
                     }
                 } else {
-                    return original401Response;
+                    //if not 401, then return the response
+                    return response;
                 }
             }
-
+            //if not 401, then return the response
             return response;
         }
     }
+
+
 }
