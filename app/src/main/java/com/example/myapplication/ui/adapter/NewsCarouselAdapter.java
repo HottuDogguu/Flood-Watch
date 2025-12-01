@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,7 +62,6 @@ public class NewsCarouselAdapter extends RecyclerView.Adapter<NewsCarouselAdapte
 
                 Glide.with(context)
                         .load(imageUrl)
-                        .circleCrop()
                         .placeholder(R.drawable.ic_user)
                         .error(R.drawable.ic_user)
                         .into(holder.newsImage);
@@ -84,6 +84,7 @@ public class NewsCarouselAdapter extends RecyclerView.Adapter<NewsCarouselAdapte
         return Math.min(newsItems.size(), 5); // Show max 5 items in carousel
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void updateNews(List<NewsAPIResponse.NewsData> newItems) {
         this.newsItems = newItems;
         notifyDataSetChanged();

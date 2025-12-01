@@ -182,57 +182,85 @@
                 android:padding="16dp"
                 android:paddingBottom="80dp">
 
-                <!-- Coming Soon Card -->
-                <androidx.cardview.widget.CardView
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_news_carousel"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="8dp"
+                    android:clipToPadding="false"/>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <!-- Content Area with Pagination -->
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#FFFFFF"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Pagination Controls - Clean & Matches Your Design -->
+                <LinearLayout
+                    android:id="@+id/pagination_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="50dp"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="2dp">
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:visibility="visible"> <!-- Will be shown when >1 page -->
 
+                    <!-- Previous Button -->
+                    <ImageButton
+                        android:id="@+id/btn_prev"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/pagination_button_background"
+                        android:src="@drawable/ic_chevron_left"
+                        android:contentDescription="Previous page"
+                        android:layout_marginEnd="12dp"
+                        app:tint="#6B7280" />
+
+                    <!-- Page Indicators (dots or numbers) -->
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:id="@+id/page_indicators"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="#F6F4F4"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="40dp">
+                        android:orientation="horizontal">
 
-                        <ImageView
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            android:layout_marginBottom="16dp"
-                            android:contentDescription="News"
-                            android:src="@drawable/ic_newspaper"
-                            app:tint="#2563EB" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:text="Latest News"
-                            android:textColor="#1F2937"
-                            android:textSize="24sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:gravity="center"
-                            android:text="Coming Soon"
-                            android:textColor="#6B7280"
-                            android:textSize="16sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:text="Stay updated with the latest flood advisories, weather updates, and community announcements."
-                            android:textColor="#9CA3AF"
-                            android:textSize="14sp" />
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+
+                    <!-- Next Button -->
+                    <ImageButton
+                        android:id="@+id/btn_next"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/pagination_button_background"
+                        android:src="@drawable/ic_chevron_right"
+                        android:contentDescription="Next page"
+                        android:layout_marginStart="12dp"
+                        app:tint="#6B7280" />
+
+                </LinearLayout>
+
+                <!-- Optional: Page Number Text (alternative style) -->
+                <TextView
+                    android:id="@+id/tv_page_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="8dp"
+                    android:text="Page 1 of 10"
+                    android:textColor="#6B7280"
+                    android:textSize="14sp"
+                    android:visibility="visible" />
+
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 

@@ -1,18 +1,37 @@
 package com.example.myapplication.ui.activity.home;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
+import com.example.myapplication.calbacks.ResponseCallback;
+import com.example.myapplication.data.models.api_response.NewsAPIResponse;
+import com.example.myapplication.data.respository.FloodDataAPIHandler;
+import com.example.myapplication.ui.adapter.NewsAdapter;
+import com.example.myapplication.ui.adapter.NewsCarouselAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class NewsActivity extends AppCompatActivity {
 
@@ -27,7 +46,19 @@ public class NewsActivity extends AppCompatActivity {
     private TextView tabTechnology;
     private TextView tabOther;
 
+
+    private FloodDataAPIHandler floodDataAPIHandler;
+    private String USER_DATA_KEY;
+    // News Carousel Views
+    private CardView cardNewsCarousel;
+    private RecyclerView rvNewsCarousel;
+    private List<NewsAPIResponse.NewsData> newsData;
+    private List<NewsAPIResponse.NewsData> filterNewsData;
+    private NewsAdapter newsAdapter;
+
     private String currentCategory = "All";
+    private Activity activity;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +78,38 @@ public class NewsActivity extends AppCompatActivity {
         setupCategoryTabs();
     }
 
+    private void initializedNewsData() {
+        floodDataAPIHandler.getNewsPaginated(1, 10, new ResponseCallback<NewsAPIResponse>() {
+            @Override
+            public void onSuccess(NewsAPIResponse response) {
+                //then set data to a list
+                newsData.clear();
+                newsData = response.getData();
+
+                //add also filter data to filter news data
+                filterNewsData.clear();
+                filterNewsData.addAll(newsData);
+
+                //then set up the recycle view
+                setUpNewsRecycleView();
+
+                //For logging and it will delete when in production
+                Gson gson = new Gson();
+                String loggingData = gson.toJson(response.getData());
+                Log.i("NEWS_PAGINATED", loggingData);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("NEWS_PAGINATED", Objects.requireNonNull(t.getMessage()));
+            }
+        });
+    }
+
     private void initViews() {
+        activity = this;
+        context = this;
         bottomNavigation = findViewById(R.id.bottom_navigation);
         fabEmergency = findViewById(R.id.fab_emergency);
 
@@ -58,6 +120,13 @@ public class NewsActivity extends AppCompatActivity {
         tabBusiness = findViewById(R.id.tab_business);
         tabTechnology = findViewById(R.id.tab_technology);
         tabOther = findViewById(R.id.tab_other);
+
+        // Initialize News Carousel Views
+        cardNewsCarousel = findViewById(R.id.card_news_carousel);
+        rvNewsCarousel = findViewById(R.id.rv_news_carousel);
+        floodDataAPIHandler = new FloodDataAPIHandler(activity,context);
+        newsData = new ArrayList<>();
+        filterNewsData = new ArrayList<>();
     }
 
     private void setupCategoryTabs() {
@@ -68,6 +137,13 @@ public class NewsActivity extends AppCompatActivity {
         tabBusiness.setOnClickListener(v -> selectTab(tabBusiness, "Business"));
         tabTechnology.setOnClickListener(v -> selectTab(tabTechnology, "Technology"));
         tabOther.setOnClickListener(v -> selectTab(tabOther, "Other"));
+    }
+
+    private void setUpNewsRecycleView() {
+        //initialized adapter for news
+        newsAdapter = new NewsAdapter(newsData, context);
+        rvNewsCarousel.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        rvNewsCarousel.setAdapter(newsAdapter);
     }
 
     private void selectTab(TextView selectedTab, String category) {
@@ -98,15 +174,17 @@ public class NewsActivity extends AppCompatActivity {
     }
 
     private void loadNewsForCategory(String category) {
-        // TODO: Implement loading news based on category
-        // This is where you would filter/load news articles based on the selected category
-        // For example:
-        // - Make API call to fetch news for this category
-        // - Filter existing news list
-        // - Update RecyclerView with filtered data
-
-        // Placeholder for now
-        System.out.println("Loading news for category: " + category);
+        filterNewsData.clear();
+        if ("All".equals(category)) {
+            filterNewsData.addAll(newsData);
+        } else {
+            for (NewsAPIResponse.NewsData v : filterNewsData) {
+                if (category.equals(v.getStatus())) {
+                    filterNewsData.add(v);
+                }
+            }
+        }
+        newsAdapter.notifyDataSetChanged();
     }
 
     private void setupBottomNavigation() {
@@ -167,5 +245,11 @@ public class NewsActivity extends AppCompatActivity {
 
         // Properly call the parent method to clear the warning
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initializedNewsData();
     }
 }

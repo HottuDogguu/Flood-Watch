@@ -93,7 +93,6 @@ public class HomeActivity extends AppCompatActivity {
     private TextView tvSeeAllNews;
     private String ACCESS_TOKEN_KEY;
     private BaseHomepageUtility baseHomepageUtility;
-    private ExecutorService executor = Executors.newFixedThreadPool(3);
     private List<ListOfNotificationResponse.NotificationData> alertListData;
     private List<FiveWeatherForecast.HourlyWeatherForecast> hourlyData;
     private List<NewsAPIResponse.NewsData> newsDataList;
@@ -375,6 +374,8 @@ public class HomeActivity extends AppCompatActivity {
                 return R.drawable.bg_status_normal;
         }
     }
+
+
 
     private void getThreeRecentNotification() {
         floodDataAPIHandler.getPaginatedNotifications(1, 10, new ResponseCallback<ListOfNotificationResponse>() {
