@@ -158,6 +158,23 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
 
             }
         });
+        //for confirm password
+        etCurrentPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //reset the error message indicator
+                etCurrentPassword.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
 
@@ -170,12 +187,6 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         String errorMessage = getErrorMessage(newPassword);
 
         int passwordStrength = calculatePasswordStrength(newPassword);
-
-        if(oldPassword.isEmpty()){
-            etCurrentPassword.setError("Current password must not be empty.");
-            etCurrentPassword.requestFocus();
-            return;
-        }
 
         if (!errorMessage.isEmpty()) {
             etNewPassword.setError(errorMessage);
@@ -192,7 +203,7 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         }
 
         if (!confirmPassword.equalsIgnoreCase(newPassword)) {
-            etConfirmPassword.setError(errorMessage);
+            etConfirmPassword.setError("New password and confirm password must be match.");
             etConfirmPassword.requestFocus();
             return;
         }
@@ -225,7 +236,7 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         boolean isEightCharacter = password.length() > 8;
 
         if (!hasLetter) return "Must contain letters.";
-        if (isEightCharacter) return "New password must greater than to 8.";
+        if (!isEightCharacter) return "New password must greater than to 8.";
         if (!hasNumber) return "Must contain numbers.";
 
         return "";
