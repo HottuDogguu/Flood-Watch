@@ -410,7 +410,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void initializedNewsData() {
-        floodDataAPIHandler.getNewsPaginated(1, 10, new ResponseCallback<NewsAPIResponse>() {
+        floodDataAPIHandler.getNewsPaginated(1, 10,"All", new ResponseCallback<NewsAPIResponse>() {
             @Override
             public void onSuccess(NewsAPIResponse response) {
                 //then set data to a list

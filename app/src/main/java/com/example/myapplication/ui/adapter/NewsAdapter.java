@@ -1,4 +1,5 @@
 package com.example.myapplication.ui.adapter;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,16 +13,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
+import com.example.myapplication.utils.GlobalUtility;
 
 import java.util.List;
 public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterViewHolder> {
     private List<NewsAPIResponse.NewsData> newsItems;
     private Context context;
+    private GlobalUtility globalUtility;
 
     public NewsAdapter(List<NewsAPIResponse.NewsData> newsItems,Context context) {
         this.newsItems = newsItems;
 
         this.context = context;
+        globalUtility = new GlobalUtility();
     }
     @NonNull
     @Override
@@ -31,12 +35,13 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
         return new NewsAdapterViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull NewsAdapter.NewsAdapterViewHolder holder, int position) {
         NewsAPIResponse.NewsData newsItem = newsItems.get(position);
 
         holder.sourceName.setText(newsItem.getSource());
-        holder.timeAgo.setText(newsItem.getCreated_at());
+        holder.timeAgo.setText(globalUtility.getTimeAgo(newsItem.getCreated_at()));
         holder.title.setText(newsItem.getTitle());
 
         // Set source icon based on source name

@@ -95,9 +95,9 @@ public class FloodDataAPIHandler extends BaseRepository{
         });
 
     }
-    public void getNewsPaginated(int skip, int limit, ResponseCallback<NewsAPIResponse> callback){
+    public void getNewsPaginated(int skip, int limit, String tags, ResponseCallback<NewsAPIResponse> callback){
         NewsPaginated newsPaginated = api.createService(NewsPaginated.class);
-        newsPaginated.getTenNews(skip,limit).enqueue(new Callback<NewsAPIResponse>() {
+        newsPaginated.getTenNews(skip,limit,tags).enqueue(new Callback<NewsAPIResponse>() {
             @Override
             public void onResponse(Call<NewsAPIResponse> call, Response<NewsAPIResponse> response) {
                 globalUtility.parseAPIResponse(response,callback);

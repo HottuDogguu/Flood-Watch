@@ -11,5 +11,5 @@ import retrofit2.http.Query;
 public interface NewsPaginated {
     @Headers({"Content-Type: application/json"})
     @GET("news/")
-    Call<NewsAPIResponse> getTenNews(@Query("skip") int skip, @Query("limit") int limit);
+    Call<NewsAPIResponse> getTenNews(@Query("skip") int skip, @Query("limit") int limit, @Query("tags") String tags);
 }

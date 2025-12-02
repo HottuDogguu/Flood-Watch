@@ -89,7 +89,6 @@ public class SignupActivity extends BaseActivity {
             String userEmail = Objects.requireNonNull(txtEmail.getText()).toString();
             String userFullName = Objects.requireNonNull(txtFullname.getText()).toString();
             String userContactNo = Objects.requireNonNull(txtContactNo.getText()).toString();
-            String userSecondContactNo = Objects.requireNonNull(txtSecondContactNo.getText()).toString();
             String userPass = Objects.requireNonNull(txtPassword.getText()).toString();
             String userConfirmPass = Objects.requireNonNull(txtPassword.getText()).toString();
 
@@ -101,7 +100,6 @@ public class SignupActivity extends BaseActivity {
 
             String emailValidateMessage = dataFieldsValidation.validateEmail(userEmail);
             String phoneValidateMessage = dataFieldsValidation.validatePhoneNumber(userContactNo);
-            String secondPhoneValidateMessage = dataFieldsValidation.validatePhoneNumber(userSecondContactNo);
 
             String passwordValidateMessage = dataFieldsValidation.validatePassword(userPass);
             boolean isPasswordMatch = dataFieldsValidation.isPasswordMatch(userPass, userConfirmPass);
@@ -146,11 +144,7 @@ public class SignupActivity extends BaseActivity {
             } else {
                 setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, phoneValidateMessage, false);
             }
-            if (secondPhoneValidateMessage.isEmpty()) {
-                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
-            } else {
-                setRequestFocusOnField(scrollView, txtEmail, tilEmail, emailValidateMessage, false);
-            }
+
             if (passwordValidateMessage.isEmpty()) {
                 setRequestFocusOnField(scrollView, txtPassword, tilPassword, "", true);
             } else {
@@ -223,6 +217,8 @@ public class SignupActivity extends BaseActivity {
         tilPassword = (TextInputLayout) findViewById(R.id.tilPassword);
         tilConfirmPassword = (TextInputLayout) findViewById(R.id.tilConfirmPassword);
         baseAuthUtility = new BaseAuthUtility(context,activity);
+        txtCity.setText("Santa Cruz");
+
     }
 
 
@@ -244,9 +240,7 @@ public class SignupActivity extends BaseActivity {
         String street = Objects.requireNonNull(txtStreet.getText()).toString();
         String barangay = Objects.requireNonNull(txtBrgy.getText()).toString();
         String city = Objects.requireNonNull(txtCity.getText()).toString();
-        String province = Objects.requireNonNull(txtProvince.getText()).toString();
-
-        return new Address(street, barangay, city, province);
+        return new Address(street, barangay,city);
     }
 
     private void setRequestFocusOnField(ScrollView scrollView, EditText editText, TextInputLayout inputLayout, String message, boolean isValidated) {
