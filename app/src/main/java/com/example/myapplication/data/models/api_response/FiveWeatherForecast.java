@@ -43,7 +43,7 @@ public class FiveWeatherForecast {
 
         public HourlyWeatherForecast(String _id, String created_ad, String forecast_time,
                                      int precipitation_probability,int humidity,
-                                     double temperature, double wind_speed, double precipitation) {
+                                     int temperature, double wind_speed, double precipitation) {
             this._id = _id;
             this.created_ad = created_ad;
             this.forecast_time = forecast_time;
@@ -57,7 +57,9 @@ public class FiveWeatherForecast {
 
         }
 
-        public HourlyWeatherForecast(int precipitation_probability, int humidity, double temperature, double wind_speed, double precipitation,String forecast_time) {
+        public HourlyWeatherForecast(int precipitation_probability, int humidity,
+                                     int temperature, double wind_speed,
+                                     double precipitation,String forecast_time) {
             this.precipitation_probability = precipitation_probability;
             this.humidity = humidity;
             this.forecast_time = forecast_time;
@@ -67,8 +69,8 @@ public class FiveWeatherForecast {
         }
 
         String _id, created_ad,forecast_time;
-        int precipitation_probability,humidity;
-        double temperature,wind_speed,precipitation;
+        int precipitation_probability,humidity,temperature;
+        double wind_speed,precipitation;
 
         public int getHumidity() {
             return humidity;
@@ -110,11 +112,11 @@ public class FiveWeatherForecast {
             this.precipitation_probability = precipitation_probability;
         }
 
-        public double getTemperature() {
+        public int getTemperature() {
             return temperature;
         }
 
-        public void setTemperature(double temperature) {
+        public void setTemperature(int temperature) {
             this.temperature = temperature;
         }
 

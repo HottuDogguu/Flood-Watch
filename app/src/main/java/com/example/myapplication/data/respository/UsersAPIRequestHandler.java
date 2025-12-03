@@ -2,13 +2,13 @@ package com.example.myapplication.data.respository;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.calbacks.ResponseCallback;
 
+import com.example.myapplication.data.models.api_response.ApiMeteoResponse;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 import com.example.myapplication.data.models.users.UserChangePasswordRequest;
@@ -16,18 +16,14 @@ import com.example.myapplication.data.models.users.UserNotificationSettingsReque
 import com.example.myapplication.data.models.users.UsersUpdateInformationRequest;
 
 import com.example.myapplication.data.network.APIBuilder;
-import com.example.myapplication.data.network.endpoints.auth.UploadProfileUser;
-import com.example.myapplication.data.network.endpoints.users.UserChangePassword;
-import com.example.myapplication.data.network.endpoints.users.UserGetInformation;
-import com.example.myapplication.data.network.endpoints.users.UserGetTenNews;
-import com.example.myapplication.data.network.endpoints.users.UserLogout;
-import com.example.myapplication.data.network.endpoints.users.UserNotificationSettings;
-import com.example.myapplication.data.network.endpoints.users.UserUpdateFCMToken;
-import com.example.myapplication.data.network.endpoints.users.UserUpdateInformation;
+import com.example.myapplication.data.network.endpoints.auth.AuthenticationEndpoints;
+
+import com.example.myapplication.data.network.endpoints.flood.FloodWeatherNotification;
+import com.example.myapplication.data.network.endpoints.users.UserEndpoints;
+
 
 import com.example.myapplication.utils.GlobalUtility;
 
-import okhttp3.Headers;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -38,6 +34,9 @@ public class UsersAPIRequestHandler extends BaseRepository {
     private Activity activity;
     private APIBuilder api;
     private GlobalUtility globalUtility;
+    private AuthenticationEndpoints authenticationEndpoint;
+    private UserEndpoints userEndpoints;
+    private FloodWeatherNotification weatherNotification;
     private Context context;
     private String ACCESS_TOKEN_KEY;
 
@@ -55,8 +54,8 @@ public class UsersAPIRequestHandler extends BaseRepository {
                                ResponseCallback<ApiSuccessfulResponse> callback) {
 
 
-        UserUpdateInformation updateInformation = api.createService(UserUpdateInformation.class);
-        updateInformation.updateInfo(request.getFullnameBody(),
+        userEndpoints = api.createService(UserEndpoints.class);
+        userEndpoints.updateInfo(request.getFullnameBody(),
                         request.getImagePart(),
                         request.getEmailBody(),
                         request.getContactNumberBody(),
@@ -82,9 +81,9 @@ public class UsersAPIRequestHandler extends BaseRepository {
     public void getUserInformation(ResponseCallback<ApiSuccessfulResponse> callback) {
 
 
-        UserGetInformation userGetInformation = api.createService(UserGetInformation.class);
+        userEndpoints= api.createService(UserEndpoints.class);
 
-        userGetInformation.getUser().enqueue(new Callback<ApiSuccessfulResponse>() {
+        userEndpoints.getUser().enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
                 globalUtility.parseAPIResponse(response, callback);
@@ -102,8 +101,8 @@ public class UsersAPIRequestHandler extends BaseRepository {
 
     public void changeUserPassword(UserChangePasswordRequest request,
                                    ResponseCallback<ApiSuccessfulResponse> callback) {
-        UserChangePassword userChangePassword = api.createService(UserChangePassword.class);
-        userChangePassword.changePassword(request).enqueue(new Callback<ApiSuccessfulResponse>() {
+        userEndpoints= api.createService(UserEndpoints.class);
+        userEndpoints.changePassword(request).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
 
@@ -122,8 +121,8 @@ public class UsersAPIRequestHandler extends BaseRepository {
     }
 
     public void logOutUser(String token, ResponseCallback<ApiSuccessfulResponse> callback) {
-        UserLogout logout = api.createService(UserLogout.class);
-        logout.logoutUser(token).enqueue(new Callback<ApiSuccessfulResponse>() {
+        userEndpoints = api.createService(UserEndpoints.class);
+        userEndpoints.logoutUser(token).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
 
@@ -140,8 +139,8 @@ public class UsersAPIRequestHandler extends BaseRepository {
 
     public void uploadProfilePhoto(MultipartBody.Part imageFile, ResponseCallback<ApiSuccessfulResponse> callback) {
 
-        UploadProfileUser uploadProfileUser = api.createService(UploadProfileUser.class);
-        uploadProfileUser.uploadPhoto(imageFile).enqueue(new Callback<ApiSuccessfulResponse>() {
+        authenticationEndpoint = api.createService(AuthenticationEndpoints.class);
+        authenticationEndpoint.uploadPhoto(imageFile).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
 
@@ -161,8 +160,8 @@ public class UsersAPIRequestHandler extends BaseRepository {
     }
 
     public void UpdateFCMToken(String newFCMToken, String accessToken, ResponseCallback<ApiSuccessfulResponse> callback) {
-        UserUpdateFCMToken userUpdateFCMToken = api.createService(UserUpdateFCMToken.class);
-        userUpdateFCMToken.updateFCMToken(newFCMToken, "Bearer " + accessToken).enqueue(new Callback<ApiSuccessfulResponse>() {
+        userEndpoints = api.createService(UserEndpoints.class);
+        userEndpoints.updateFCMToken(newFCMToken, "Bearer " + accessToken).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
 
@@ -182,8 +181,8 @@ public class UsersAPIRequestHandler extends BaseRepository {
     }
 
     public void updateUserNotificationSettings(UserNotificationSettingsRequest request, ResponseCallback<ApiSuccessfulResponse> callback) {
-        UserNotificationSettings updateSettings = api.createService(UserNotificationSettings.class);
-        updateSettings.updateNotificationSettings(request).enqueue(new Callback<ApiSuccessfulResponse>() {
+        userEndpoints= api.createService(UserEndpoints.class);
+        userEndpoints.updateNotificationSettings(request).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
 
@@ -201,17 +200,33 @@ public class UsersAPIRequestHandler extends BaseRepository {
 
     }
 
-    public void getTenNews(ResponseCallback<NewsAPIResponse> callback) {
-        UserGetTenNews userGetTenNews = api.createService(UserGetTenNews.class);
-        userGetTenNews.getTenNewsResponse().enqueue(new Callback<NewsAPIResponse>() {
+    public void getNewsPaginated(int skip, int limit, String tags, ResponseCallback<NewsAPIResponse> callback){
+        userEndpoints = api.createService(UserEndpoints.class);
+        userEndpoints.getTenNews(skip,limit,tags).enqueue(new Callback<NewsAPIResponse>() {
             @Override
             public void onResponse(Call<NewsAPIResponse> call, Response<NewsAPIResponse> response) {
-                globalUtility.parseAPIResponse(response, callback);
+                globalUtility.parseAPIResponse(response,callback);
+
+            }
+            @Override
+            public void onFailure(Call<NewsAPIResponse> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+    public void getInitialForecastData(ResponseCallback<ApiMeteoResponse> callback){
+        weatherNotification = api.createService(FloodWeatherNotification.class);
+        weatherNotification.getMeteoWeatherForecast().enqueue(new Callback<ApiMeteoResponse>() {
+            @Override
+            public void onResponse(Call<ApiMeteoResponse> call, Response<ApiMeteoResponse> response) {
+                globalUtility.parseAPIResponse(response,callback);
+
             }
 
             @Override
-            public void onFailure(Call<NewsAPIResponse> call, Throwable t) {
-
+            public void onFailure(Call<ApiMeteoResponse> call, Throwable t) {
+                callback.onError(t);
             }
         });
 

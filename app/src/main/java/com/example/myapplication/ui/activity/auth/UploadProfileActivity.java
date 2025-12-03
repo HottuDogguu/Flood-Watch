@@ -92,7 +92,6 @@ public class UploadProfileActivity extends BaseActivity {
                     .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                     .build());
         });
-
         saveAndContinue.setOnClickListener(v -> {
             try {
                 if (this.uri != null) {

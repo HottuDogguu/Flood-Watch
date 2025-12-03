@@ -64,8 +64,9 @@ public class SignUpAsGoogleActivity extends BaseActivity {
             sign_in_type = userData.getSign_in_type();
 
             status = userData.getStatus();
-            etFullName.setText(email);
-            etEmailAddress.setText(fullName);
+            etFullName.setText(fullName);
+            etEmailAddress.setText(email);
+            etEmailAddress.setEnabled(false);
         }
 
         btnManualSignUp.setOnClickListener(v -> {
@@ -75,7 +76,6 @@ public class SignUpAsGoogleActivity extends BaseActivity {
                         fcmToken = token;
                         var user = new SignupPostRequest.User(email, fullName, status, contactNo,sign_in_type, fcmToken);
                         var address = new SignupPostRequest.Address(null, null, null, null);
-                        var personalInfo = new SignupPostRequest.PersonalInformation(contactNo, null);
                         SignupPostRequest request = new SignupPostRequest(user, address);
                         authenticationAPI.googleSignUp(request, new ResponseCallback<ApiSuccessfulResponse>() {
                             @Override

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import android.util.Log;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,6 +46,12 @@ public class EmailVerificationActivity extends BaseActivity {
         setContentView(R.layout.activity_email_verification);
         context = this;
         globalUtility = new GlobalUtility();
+
+        TextView tvEmail = findViewById(R.id.tvEmail);
+        String userEmail = getIntent().getStringExtra("UserEmail");
+        tvEmail.setText(userEmail);
+
+
 
 
 
@@ -96,6 +103,8 @@ public class EmailVerificationActivity extends BaseActivity {
             public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
                 runOnUiThread(() -> {
                     try {
+                        Log.i("WEBSOCKET", "Message Received.");
+
                         JSONObject object = new JSONObject(text);
                         boolean isActivated = object.getBoolean("is_verified");
                         String access_token = object.getString("access_token");
@@ -107,14 +116,15 @@ public class EmailVerificationActivity extends BaseActivity {
                             //set access token
                             String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
                             dataSharedPreference.saveData(accessTokenKey, access_token);
-
-                            startActivity(intent);
-
                             //Remove the extra before proceeding in email
                             getIntent().removeExtra("UserEmail");
                             //Close the websocket after successful activation
                             client.dispatcher().executorService().shutdown();
+                            startActivity(intent);
                         }
+
+
+
                     } catch (JSONException e) {
                         Log.e(TAG, Objects.requireNonNull(e.getMessage()));
                     }

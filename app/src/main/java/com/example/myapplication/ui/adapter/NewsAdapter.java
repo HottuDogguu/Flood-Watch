@@ -81,7 +81,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
 
     @Override
     public int getItemCount() {
-        return Math.min(newsItems.size(), 5); // Show max 5 items in carousel
+        return Math.min(newsItems.size(),10); // Show max 5 items in carousel
     }
 
     public void updateNews(List<NewsAPIResponse.NewsData> newItems) {

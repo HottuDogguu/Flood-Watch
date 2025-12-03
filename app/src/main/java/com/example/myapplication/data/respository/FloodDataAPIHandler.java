@@ -2,9 +2,7 @@ package com.example.myapplication.data.respository;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 
-import com.example.myapplication.BuildConfig;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.FiveWeatherForecast;
@@ -12,15 +10,10 @@ import com.example.myapplication.data.models.api_response.ListOfNotificationResp
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.data.network.endpoints.flood.FloodData;
-import com.example.myapplication.data.network.endpoints.flood.NewsPaginated;
-import com.example.myapplication.data.network.endpoints.flood.Notifications;
-import com.example.myapplication.data.network.endpoints.flood.WeatherForecastFiveHours;
+import com.example.myapplication.data.network.endpoints.flood.FloodWeatherNotification;
 
 import com.example.myapplication.utils.GlobalUtility;
 
-import java.util.Objects;
-
-import okhttp3.Headers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -32,6 +25,8 @@ public class FloodDataAPIHandler extends BaseRepository{
     private Context context;
     private APIBuilder api;
     private GlobalUtility globalUtility;
+    private FloodWeatherNotification floodWeatherNotification;
+
 
 
     public FloodDataAPIHandler(Activity activity, Context context) {
@@ -61,8 +56,8 @@ public class FloodDataAPIHandler extends BaseRepository{
         });
     }
     public void getPaginatedNotifications(int skip, int limit, ResponseCallback<ListOfNotificationResponse> callback){
-        Notifications notifications = api.createService(Notifications.class);
-        notifications.getRecentNotification(skip, limit).enqueue(new Callback<ListOfNotificationResponse>() {
+        floodWeatherNotification = api.createService(FloodWeatherNotification.class);
+        floodWeatherNotification.getRecentNotification(skip, limit).enqueue(new Callback<ListOfNotificationResponse>() {
             @Override
             public void onResponse(Call<ListOfNotificationResponse> call, Response<ListOfNotificationResponse> response) {
 
@@ -78,8 +73,8 @@ public class FloodDataAPIHandler extends BaseRepository{
         });
     }
     public void getFiveHoursWeatherForecast(ResponseCallback<FiveWeatherForecast> callback){
-        WeatherForecastFiveHours weatherForecastFiveHours = api.createService(WeatherForecastFiveHours.class);
-        weatherForecastFiveHours.getFiveHoursWeatherForecast().enqueue(new Callback<FiveWeatherForecast>() {
+        floodWeatherNotification = api.createService(FloodWeatherNotification.class);
+        floodWeatherNotification.getFiveHoursWeatherForecast().enqueue(new Callback<FiveWeatherForecast>() {
             @Override
             public void onResponse(Call<FiveWeatherForecast> call, Response<FiveWeatherForecast> response) {
 
@@ -95,20 +90,9 @@ public class FloodDataAPIHandler extends BaseRepository{
         });
 
     }
-    public void getNewsPaginated(int skip, int limit, String tags, ResponseCallback<NewsAPIResponse> callback){
-        NewsPaginated newsPaginated = api.createService(NewsPaginated.class);
-        newsPaginated.getTenNews(skip,limit,tags).enqueue(new Callback<NewsAPIResponse>() {
-            @Override
-            public void onResponse(Call<NewsAPIResponse> call, Response<NewsAPIResponse> response) {
-                globalUtility.parseAPIResponse(response,callback);
-                setRefreshTokenToDataStorage(response);
 
-            }
-            @Override
-            public void onFailure(Call<NewsAPIResponse> call, Throwable t) {
-                callback.onError(t);
-            }
-        });
+
+    public void getInitialWeatherForecastData(){
 
     }
 

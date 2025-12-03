@@ -44,7 +44,7 @@ public class HourlyForecastAdapter extends RecyclerView.Adapter<HourlyForecastAd
 
 
         String forecastHour = globalUtility.formatDateIntoHourOnly(weather.getForecast_time());
-        double temperature = weather.getTemperature();
+        int temperature = weather.getTemperature();
         double precipitation = weather.getPrecipitation();
         int humidity = weather.getHumidity();
 
@@ -52,8 +52,7 @@ public class HourlyForecastAdapter extends RecyclerView.Adapter<HourlyForecastAd
 
 
         holder.tvHour.setText(forecastHour);
-        holder.tvTemperature.setText(String.format(Locale.getDefault(),
-                "%.2f°", temperature));
+        holder.tvTemperature.setText(String.valueOf(temperature+"°"));
         holder.tvRainfall.setText(String.format(Locale.getDefault(),
                 "%.1fmm", precipitation));
         holder.tvHumidity.setText(String.format(Locale.getDefault(),
@@ -107,9 +106,6 @@ public class HourlyForecastAdapter extends RecyclerView.Adapter<HourlyForecastAd
     public void updateData(List<FiveWeatherForecast.HourlyWeatherForecast> newData) {
         hourlyData.clear();
         hourlyData.addAll(newData);
-        notifyDataSetChanged(); // Simple & works perfectly for small lists (<100 items)
-
-        // Optional: Log for debug
-        Log.d("ADAPTER", "Updated with " + newData.size() + " items");
+        notifyDataSetChanged();
     }
 }

@@ -58,7 +58,7 @@ public class LoginActivity extends BaseActivity {
         initViews();
         //Clear shared preference before log in
         dataSharedPreference.clearPreference();
-        String ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY,context);
+        String ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
         ACCESS_TOKEN_KEY = ACCESS_TOKEN_KEY != null ? ACCESS_TOKEN_KEY : "Hey";
         Log.i("PREFERENCE", dataSharedPreference.getData(ACCESS_TOKEN_KEY));
 
@@ -97,13 +97,7 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String loginEmail = password.getText().toString();
-                if (dataValidation.isEmptyField(loginEmail)) {
-                    //if empty, show a message
-                    loginPasswordTextInput.setError("This field must not be empty!");
-                } else {
-                    loginPasswordTextInput.setError(null);
-                }
+                loginPasswordTextInput.setError(null);
             }
         });
 
@@ -115,13 +109,6 @@ public class LoginActivity extends BaseActivity {
             if (dataValidation.isEmptyField(loginEmail)) {
                 loginActivityUtility.setRequestFocusOnField(email,
                         loginEmailTextInput,
-                        "This field must not be empty!");
-                return;
-            }
-
-            if (dataValidation.isEmptyField(loginPassword)) {
-                loginActivityUtility.setRequestFocusOnField(password,
-                        loginPasswordTextInput,
                         "This field must not be empty!");
                 return;
             }

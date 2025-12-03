@@ -184,31 +184,5 @@
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
-
-        <!-- Support Link -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="24dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Need help? "
-                android:textSize="14sp"
-                android:textColor="@color/gray_600" />
-
-            <TextView
-                android:id="@+id/tvSupport"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Contact Support"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@color/blue_600"
-                android:clickable="true"
-                android:focusable="true" />
-        </LinearLayout>
     </LinearLayout>
 </ScrollView>

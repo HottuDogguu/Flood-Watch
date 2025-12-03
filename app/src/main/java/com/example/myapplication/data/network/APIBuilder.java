@@ -5,7 +5,7 @@ import android.content.Context;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.security.DataSharedPreference;
 import com.example.myapplication.utils.GlobalUtility;
-import com.example.myapplication.data.network.endpoints.auth.AuthenticationEndpoint;
+import com.example.myapplication.data.network.endpoints.auth.AuthenticationEndpoints;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -25,12 +25,12 @@ public class APIBuilder {
         if (retrofit == null) {
 
             // Service used for calling refresh-token inside interceptor
-            AuthenticationEndpoint authService =
+            AuthenticationEndpoints authService =
                     new Retrofit.Builder()
                             .baseUrl(BASE_URL)
                             .addConverterFactory(GsonConverterFactory.create())
                             .build()
-                            .create(AuthenticationEndpoint.class);
+                            .create(AuthenticationEndpoints.class);
 
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(userAgentInterceptor())

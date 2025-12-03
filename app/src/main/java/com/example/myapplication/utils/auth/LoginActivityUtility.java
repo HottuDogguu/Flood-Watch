@@ -65,13 +65,15 @@ public class LoginActivityUtility extends BaseAuthUtility {
     }
 
     public void handleOnError(Throwable throwable) {
+        Log.e("Hey", Objects.requireNonNull(throwable.getMessage()));
         String errorMessage = throwable.getMessage();
         Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show();
-        if (errorMessage.contains("404") && errorMessage != null && errorMessage.toLowerCase().contains("not found")) {
+        if ( errorMessage != null && errorMessage.toLowerCase().contains("not found")) {
             setRequestFocusOnField(email, loginEmailTextInput, "Username not found!");
-        } else if (errorMessage.contains("400") && errorMessage != null && errorMessage.toLowerCase().contains("password")) {
+        } else if (errorMessage != null && errorMessage.toLowerCase().contains("password")) {
+
             setRequestFocusOnField(password, loginPasswordTextInput, "Incorrect Password!");
-        } else if (errorMessage.contains("403") && errorMessage.toLowerCase().contains("Verify")) {
+        } else if (errorMessage != null && errorMessage.toLowerCase().contains("Verify")) {
             this.navigateToEmailVerification(throwable);
         }
     }

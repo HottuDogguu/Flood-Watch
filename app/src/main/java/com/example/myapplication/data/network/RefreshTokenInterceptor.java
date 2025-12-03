@@ -5,7 +5,7 @@ import android.content.Context;
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
-import com.example.myapplication.data.network.endpoints.auth.AuthenticationEndpoint;
+import com.example.myapplication.data.network.endpoints.auth.AuthenticationEndpoints;
 import com.example.myapplication.security.DataSharedPreference;
 import com.example.myapplication.utils.GlobalUtility;
 
@@ -21,7 +21,7 @@ import okhttp3.Response;
 public class RefreshTokenInterceptor implements Interceptor {
 
     private final DataSharedPreference storageManager;
-    private final AuthenticationEndpoint authService;
+    private final AuthenticationEndpoints authService;
     private final String accessTokenKey;
 
     private final Context context;
@@ -30,7 +30,7 @@ public class RefreshTokenInterceptor implements Interceptor {
     private Object refreshLock = new Object();
 
 
-    public RefreshTokenInterceptor(Context context, DataSharedPreference storageManager, AuthenticationEndpoint authService) {
+    public RefreshTokenInterceptor(Context context, DataSharedPreference storageManager, AuthenticationEndpoints authService) {
         this.context = context;
         this.storageManager = storageManager;
         this.authService = authService;

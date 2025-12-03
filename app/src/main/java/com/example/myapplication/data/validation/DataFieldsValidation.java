@@ -37,6 +37,12 @@ public class DataFieldsValidation {
 
     }
 
+    public static boolean isValidEmail(String email) {
+        if (email == null || email.trim().isEmpty()) return false;
+        String regex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$";
+        return email.trim().toUpperCase().matches(regex);
+    }
+
     public String validatePhoneNumber(String phoneNumber) {
         phoneNumber = phoneNumber.strip();
         Pattern pattern = Pattern.compile(this.validPhoneNumber);

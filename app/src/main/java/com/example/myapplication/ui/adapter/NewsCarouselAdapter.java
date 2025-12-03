@@ -45,7 +45,7 @@ public class NewsCarouselAdapter extends RecyclerView.Adapter<NewsCarouselAdapte
         NewsAPIResponse.NewsData newsItem = newsItems.get(position);
 
         holder.sourceName.setText(newsItem.getSource());
-        holder.timeAgo.setText(globalUtility.formatDateIntoHourOnly(newsItem.getCreated_at()));
+        holder.timeAgo.setText(globalUtility.getTimeAgo(newsItem.getCreated_at()));
         holder.title.setText(newsItem.getTitle());
 
         // Set source icon based on source name

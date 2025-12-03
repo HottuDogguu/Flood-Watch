@@ -15,8 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
+import com.example.myapplication.data.models.api_response.ApiMeteoResponse;
 import com.example.myapplication.data.models.api_response.FiveWeatherForecast;
 import com.example.myapplication.data.respository.FloodDataAPIHandler;
+import com.example.myapplication.data.respository.UsersAPIRequestHandler;
 import com.example.myapplication.ui.adapter.HourlyForecastAdapter;
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.gson.Gson;
@@ -35,7 +37,10 @@ public class WeatherMonitorActivity extends AppCompatActivity {
     private TextView tvHumidity, tvWind, tvRainfall;
     private TextView tvTotalRainfall, tvFloodStatus;
     private View alertBanner;
-    private FloodDataAPIHandler apiHandler;
+    private UsersAPIRequestHandler usersAPIRequestHandler;
+    List<FiveWeatherForecast.HourlyWeatherForecast> hourlyNewData = new ArrayList<>();
+
+
     private Activity activity;
     private Context context;
     private RecyclerView rvHourlyForecast;
@@ -53,7 +58,6 @@ public class WeatherMonitorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_weather_monitor);
 
         initViews();
-        setupHourlyData();
     }
 
     private void initViews() {
@@ -70,40 +74,47 @@ public class WeatherMonitorActivity extends AppCompatActivity {
         alertBanner = findViewById(R.id.alert_banner);
         rvHourlyForecast = findViewById(R.id.rv_hourly_forecast);
         rainfallChart = findViewById(R.id.rainfall_chart);
-        apiHandler = new FloodDataAPIHandler(activity, context);
+        usersAPIRequestHandler = new UsersAPIRequestHandler(activity, context);
     }
 
     private void setupHourlyData() {
-        apiHandler.getFiveHoursWeatherForecast(new ResponseCallback<FiveWeatherForecast>() {
+        usersAPIRequestHandler.getInitialForecastData(new ResponseCallback<ApiMeteoResponse>() {
             @Override
-            public void onSuccess(FiveWeatherForecast response) {
-                hourlyData.clear(); //clear first then add the new one
-                hourlyData = response.getData();
+            public void onSuccess(ApiMeteoResponse response) {
 
-                if(!hourlyData.isEmpty()){
+                hourlyNewData = new ArrayList<>();
 
-                    runOnUiThread(() -> {
-                        if(adapter == null){
-                            setupRecyclerView();
+                List<Integer> precipitation_probability = response.getData().getPrecipitation_probability();
+                List<String> hourly_time = response.getData().getHourly_time();
+                List<Integer> temperatures = response.getData().getTemperatures();
 
-                        }else{
-                            adapter.updateData(hourlyData);
+                List<Double> precipitation = response.getData().getPrecipitation();
+                List<Double> wind_speed = response.getData().getWind_speed();
+                List<Integer> humidity = response.getData().getHumidity();
 
-                        }
-                        updateUI();
-                    });
-
-
+                hourlyNewData.clear();
+                for (int i = 0; i < precipitation.size(); i++) {
+                    hourlyNewData.add(new FiveWeatherForecast.HourlyWeatherForecast(
+                            precipitation_probability.get(i),
+                            humidity.get(i),
+                            temperatures.get(i),
+                            wind_speed.get(i),
+                            precipitation.get(i),
+                            hourly_time.get(i)));
                 }
+                hourlyData = hourlyNewData;
+                //setup recycle view
+                setupRecyclerView();
+                updateUI();
             }
 
             @Override
             public void onError(Throwable t) {
+                Log.e("ForecastDataError", Objects.requireNonNull(t.getMessage()));
                 Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("WEATHER_MONITOR_ACTIVITY", Objects.requireNonNull(t.getMessage()));
+
             }
         });
-
 
     }
 
@@ -114,20 +125,18 @@ public class WeatherMonitorActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-
-
             //get the list of data
             FiveWeatherForecast.HourlyWeatherForecast weather = hourlyData.get(0);
 
             //Initial data
-            double temperature = weather.getTemperature();
+            int temperature = weather.getTemperature();
             double precipitation = weather.getPrecipitation();
             int humidity = weather.getHumidity();
             double windSpeed = weather.getWind_speed();
 
             // Update temperature
             String condition = getRainStatus(precipitation);
-            tvTemperature.setText(String.format(Locale.getDefault(), "%.0f°", temperature));
+            tvTemperature.setText(String.valueOf(temperature +"°"));
             tvCondition.setText(condition);
 
             // Update date

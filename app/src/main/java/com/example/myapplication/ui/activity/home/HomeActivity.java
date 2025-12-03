@@ -31,6 +31,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.calbacks.WebsocketCallback;
 import com.example.myapplication.Constants;
+import com.example.myapplication.data.models.api_response.ApiMeteoResponse;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.FiveWeatherForecast;
 import com.example.myapplication.data.models.api_response.ListOfNotificationResponse;
@@ -42,7 +43,6 @@ import com.example.myapplication.data.respository.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataSharedPreference;
 
 import com.example.myapplication.ui.activity.notification.LocalNotificationManager;
-import com.example.myapplication.ui.adapter.HourlyForecastAdapter;
 import com.example.myapplication.ui.adapter.NewsCarouselAdapter;
 import com.example.myapplication.ui.adapter.WeatherHourTimelineAdapter;
 import com.example.myapplication.utils.GlobalUtility;
@@ -54,12 +54,8 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.disposables.Disposable;
 
 
 public class HomeActivity extends AppCompatActivity {
@@ -95,6 +91,7 @@ public class HomeActivity extends AppCompatActivity {
     private BaseHomepageUtility baseHomepageUtility;
     private List<ListOfNotificationResponse.NotificationData> alertListData;
     private List<FiveWeatherForecast.HourlyWeatherForecast> hourlyData;
+    List<FiveWeatherForecast.HourlyWeatherForecast> hourlyNewData = new ArrayList<>();
     private List<NewsAPIResponse.NewsData> newsDataList;
     // Weather Timeline Views - NEW
     private TextView tvViewFullWeather;
@@ -227,41 +224,42 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void setDataFromDataStorage() {
-                    //Function to get the user information
-                    apiRequesthandler.getUserInformation(new ResponseCallback<ApiSuccessfulResponse>() {
-                        @Override
-                        public void onSuccess(ApiSuccessfulResponse response) {
-                            // Save new user data
-                            Gson gson = new Gson();
-                            String jsonData = gson.toJson(response.getData());
-                            dataSharedPreference.saveData(USER_DATA_KEY, jsonData);
+        //Function to get the user information
+        apiRequesthandler.getUserInformation(new ResponseCallback<ApiSuccessfulResponse>() {
+            @Override
+            public void onSuccess(ApiSuccessfulResponse response) {
+                // Save new user data
+                Gson gson = new Gson();
+                String jsonData = gson.toJson(response.getData());
+                dataSharedPreference.saveData(USER_DATA_KEY, jsonData);
 
-                            //connect to websocket
-                            connectToWebSocket(response.getData().getId());
-                            //get the three recent notification
-                            getThreeRecentNotification();
+                //connect to websocket
+                connectToWebSocket(response.getData().getId());
+                //get the three recent notification
+                getThreeRecentNotification();
 
-                            //get ten data for news
-                            initializedNewsData();
+                //get ten data for news
+                initializedNewsData();
 
-                            //initialized the data for weather forecast
-                            initializeWeatherForecastData();
-                        }
+                //initialized the data for weather forecast
+                initializeWeatherForecastData();
 
-                        @Override
-                        public void onError(Throwable t) {
-                            Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
-                            //navigate to login activity
-                            baseHomepageUtility.navigateToLogin();
-                        }
-                    });
+
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
+                //navigate to login activity
+                baseHomepageUtility.navigateToLogin();
+            }
+        });
 
     }
 
-    List<FiveWeatherForecast.HourlyWeatherForecast> newData = new ArrayList<>();
 
     WebsocketManager manager = new WebsocketManager(new WebsocketCallback() {
-        @SuppressLint("SetTextI18n")
+        @SuppressLint({"SetTextI18n", "DefaultLocale"})
         @Override
         public void onMessageReceived(String message) {
             Log.i("Websocket", "Websocket received message");
@@ -272,9 +270,16 @@ public class HomeActivity extends AppCompatActivity {
             String topic = data.getData().getTopic();
             String severity = data.getData().getSeverity();
 
-
             if (data.getData().getTopic().equalsIgnoreCase(Constants.FLOOD_ALERT)) {
-                runOnUiThread(() -> updateCurrentWaterLevelData(data.getData().getValue(), data.getData().getSeverity()));
+
+                runOnUiThread(() -> {
+                    String value = data.getData().getValue();
+                    String valueDouble = "";
+                    if (!value.isEmpty()) {
+                        valueDouble = String.format("%.2f", Double.parseDouble(value));
+                    }
+                    updateCurrentWaterLevelData(valueDouble, data.getData().getSeverity());
+                });
 
                 //check if will notify the users
                 if (data.isIs_online_users_will_notify() && data.isIs_flood_alert_on()) {
@@ -297,9 +302,9 @@ public class HomeActivity extends AppCompatActivity {
                     List<Double> precipitation = data.getData().getPrecipitation();
                     List<Double> wind_speed = data.getData().getWind_speed();
                     List<Integer> humidity = data.getData().getHumidity();
-                    newData.clear();
+                    hourlyNewData.clear();
                     for (int i = 0; i < precipitation.size(); i++) {
-                        newData.add(new FiveWeatherForecast.HourlyWeatherForecast(
+                        hourlyNewData.add(new FiveWeatherForecast.HourlyWeatherForecast(
                                 precipitation_probability.get(i),
                                 humidity.get(i),
                                 temperatures.get(i),
@@ -308,7 +313,7 @@ public class HomeActivity extends AppCompatActivity {
                                 hourly_time.get(i)));
                     }
                     //then set up the recycle view
-                    fiveHourAdapter.updateData(newData);
+                    fiveHourAdapter.updateData(hourlyNewData);
                 });
 
                 if (data.isIs_weather_updates_on()) {
@@ -328,13 +333,13 @@ public class HomeActivity extends AppCompatActivity {
                 @SuppressLint({"SetTextI18n", "ResourceType"})
                 @Override
                 public void onSuccess(ApiSuccessfulResponse response) {
-                    Toast.makeText(activity, response.getMessage(), Toast.LENGTH_SHORT).show();
                     runOnUiThread(() -> {
-                        String waterStatus =  response.getData().getAlert_level();
-                         waterStatus =  waterStatus != null && !waterStatus.isEmpty() ? waterStatus : "No Data";
-                        String waterLevel =  String.valueOf(response.getData().getWater_level());
-                        waterLevel =  !waterLevel.isEmpty() ? waterLevel : "No Data";
-                        updateCurrentWaterLevelData(waterLevel,waterStatus);
+                        String waterStatus = response.getData().getAlert_level();
+                        waterStatus = waterStatus != null && !waterStatus.isEmpty() ? waterStatus : "No Data";
+                        @SuppressLint("DefaultLocale") String waterLevel = String.format("%.2f", response.getData().getWater_level());
+
+                        waterLevel = !waterLevel.isEmpty() ? waterLevel : "No Data";
+                        updateCurrentWaterLevelData(waterLevel, waterStatus);
                         //get the three recent notification
                         getThreeRecentNotification();
                     });
@@ -376,7 +381,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-
     private void getThreeRecentNotification() {
         floodDataAPIHandler.getPaginatedNotifications(1, 10, new ResponseCallback<ListOfNotificationResponse>() {
             @Override
@@ -403,14 +407,14 @@ public class HomeActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     public void updateCurrentWaterLevelData(String waterLevel, String alertLevelStatus) {
         // set the initial data for homepage
-        tvWaterLevel.setText(waterLevel + "m");
+        tvWaterLevel.setText(waterLevel + "cm");
         int color = getSeverityColor(alertLevelStatus);
         tvStatus.setText(alertLevelStatus);
         tvStatus.setBackgroundResource(color);
     }
 
     private void initializedNewsData() {
-        floodDataAPIHandler.getNewsPaginated(1, 10,"All", new ResponseCallback<NewsAPIResponse>() {
+        apiRequesthandler.getNewsPaginated(1, 10, "All", new ResponseCallback<NewsAPIResponse>() {
             @Override
             public void onSuccess(NewsAPIResponse response) {
                 //then set data to a list
@@ -434,19 +438,43 @@ public class HomeActivity extends AppCompatActivity {
 
 
     private void initializeWeatherForecastData() {
-        floodDataAPIHandler.getFiveHoursWeatherForecast(new ResponseCallback<FiveWeatherForecast>() {
+        //setup the adapter
+
+        //to handle the initial data for forecast weather
+        apiRequesthandler.getInitialForecastData(new ResponseCallback<ApiMeteoResponse>() {
             @Override
-            public void onSuccess(FiveWeatherForecast response) {
-                //then set data to a list
-                hourlyData = response.getData();
-                //then set up the recycle view
+            public void onSuccess(ApiMeteoResponse response) {
+
+                hourlyNewData = new ArrayList<>();
+
+                List<Integer> precipitation_probability = response.getData().getPrecipitation_probability();
+                List<String> hourly_time = response.getData().getHourly_time();
+                List<Integer> temperatures = response.getData().getTemperatures();
+
+                List<Double> precipitation = response.getData().getPrecipitation();
+                List<Double> wind_speed = response.getData().getWind_speed();
+                List<Integer> humidity = response.getData().getHumidity();
+
+                hourlyNewData.clear();
+                for (int i = 0; i < precipitation.size(); i++) {
+                    hourlyNewData.add(new FiveWeatherForecast.HourlyWeatherForecast(
+                            precipitation_probability.get(i),
+                            humidity.get(i),
+                            temperatures.get(i),
+                            wind_speed.get(i),
+                            precipitation.get(i),
+                            hourly_time.get(i)));
+                }
+                hourlyData = hourlyNewData;
+                //setup recycle view
                 setupFiveWeatherRecyclerView();
             }
 
             @Override
             public void onError(Throwable t) {
+                Log.e("ForecastDataError", Objects.requireNonNull(t.getMessage()));
                 Toast.makeText(activity, t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("WEATHER_FORECAST_DASHBOARD", Objects.requireNonNull(t.getMessage()));
+
             }
         });
     }

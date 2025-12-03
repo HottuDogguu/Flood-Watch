@@ -5,10 +5,10 @@
 //import retrofit2.Call;
 //import retrofit2.http.GET;
 //import retrofit2.http.Headers;
+//import retrofit2.http.Query;
 //
-//public interface UserGetTenNews {
+//public interface NewsPaginated {
 //    @Headers({"Content-Type: application/json"})
-//    @GET("news")
-//    Call<NewsAPIResponse> getTenNewsResponse();
-//
+//    @GET("news/")
+//    Call<NewsAPIResponse> getTenNews(@Query("skip") int skip, @Query("limit") int limit, @Query("tags") String tags);
 //}

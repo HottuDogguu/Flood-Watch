@@ -1,6 +1,7 @@
 package com.example.myapplication.data.network.endpoints.flood;
 
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
+import com.example.myapplication.data.models.api_response.ApiMeteoResponse;
 import com.example.myapplication.data.models.api_response.FiveWeatherForecast;
 import com.example.myapplication.data.models.api_response.ListOfNotificationResponse;
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
@@ -20,10 +21,6 @@ public interface FloodWeatherNotification {
 
 
     //Get news
-    @Headers({"Content-Type: application/json"})
-    @GET("news/")
-    Call<NewsAPIResponse> getTenNews(@Query("skip") int skip, @Query("limit") int limit);
-
 
     //get notifications
     @Headers({"Content-Type: application/json"})
@@ -31,9 +28,16 @@ public interface FloodWeatherNotification {
     Call<ListOfNotificationResponse> getRecentNotification(@Query("skip")int skip, @Query("limit") int limit);
 
 
-    //get weaather forecast
+    //get weather forecast
     @Headers({"Content-Type: application/json"})
     @GET("flood-data/weather-forecast")
     Call<FiveWeatherForecast> getFiveHoursWeatherForecast();
+
+    //get initial weather forecast
+    @Headers({"Content-Type: application/json"})
+    @GET("flood-data/meteo/weather-forecast")
+    Call<ApiMeteoResponse> getMeteoWeatherForecast();
+
+
 
 }

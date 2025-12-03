@@ -66,6 +66,7 @@ public class SignupActivity extends BaseActivity {
             tilSecondaryNumber,
             tilPassword,
             tilConfirmPassword;
+    boolean isValidated = false;
     private DataFieldsValidation dataFieldsValidation;
 
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -105,44 +106,57 @@ public class SignupActivity extends BaseActivity {
             boolean isPasswordMatch = dataFieldsValidation.isPasswordMatch(userPass, userConfirmPass);
             //validation for empty fields
             if (isFullNameEmpty) {
+                isValidated = false;
                 setRequestFocusOnField(scrollView, txtFullname, tilFullName, "This field must not be empty!", false);
                 return;
             } else {
-                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "", true);
+                isValidated = true;
+                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "", isValidated);
 
             }
             if (isEmailEmpty) {
+                isValidated = false;
                 setRequestFocusOnField(scrollView, txtEmail, tilEmail, "This field must not be empty!", false);
-                return;
+             return;
+
             } else {
-                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
+                isValidated = true;
+                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", isValidated);
 
             }
             if (isContactNoEmpty) {
+                isValidated = false;
                 setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "This field must not be empty!", false);
                 return;
             } else {
-                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", true);
+                isValidated = true;
+                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", isValidated);
 
             }
             if (isUserPasswordEmpty) {
+                isValidated = false;
                 setRequestFocusOnField(scrollView, txtPassword, tilPassword, "This field must not be empty!", false);
                 return;
             } else {
-                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "", true);
+                isValidated = true;
+                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "", isValidated);
 
             }
             //Validation for email, Contact no, Second Phone Number, Password and confirm password
             if (emailValidateMessage.isEmpty()) {
-                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", true);
+                isValidated = true;
+                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", isValidated);
             } else {
-                setRequestFocusOnField(scrollView, txtEmail, tilEmail, emailValidateMessage, false);
+                isValidated = false;
+                setRequestFocusOnField(scrollView, txtEmail, tilEmail, emailValidateMessage, isValidated);
             }
 
             if (phoneValidateMessage.isEmpty()) {
-                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", true);
+                isValidated = true;
+                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", isValidated);
             } else {
-                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, phoneValidateMessage, false);
+                isValidated = false;
+                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, phoneValidateMessage, isValidated);
             }
 
             if (passwordValidateMessage.isEmpty()) {

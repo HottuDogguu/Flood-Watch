@@ -247,7 +247,6 @@ public class ProfileActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         updateUserNotificationSetting();
-
     }
 
     private void showEditProfileDialog() {
@@ -342,8 +341,7 @@ public class ProfileActivity extends AppCompatActivity {
                     if (dialog.isShowing()) {
                         dialog.dismiss();
                     }
-                    // Show success message
-                    Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
+
                 }
 
                 @Override
@@ -530,7 +528,6 @@ public class ProfileActivity extends AppCompatActivity {
         apiRequestHandler.updateUserNotificationSettings(request, new ResponseCallback<ApiSuccessfulResponse>() {
             @Override
             public void onSuccess(ApiSuccessfulResponse response) {
-                Toast.makeText(activity, response.getMessage(), Toast.LENGTH_SHORT).show();
                 ProfileActivity.this.finish();
             }
 

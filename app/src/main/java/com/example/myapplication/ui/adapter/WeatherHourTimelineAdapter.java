@@ -58,16 +58,14 @@ public class WeatherHourTimelineAdapter extends RecyclerView.Adapter<WeatherHour
         FiveWeatherForecast.HourlyWeatherForecast weather = hourly.get(pos);
 
         String forecastHour = globalUtility.formatDateIntoHourOnly(weather.getForecast_time());
-        double temperature = weather.getTemperature();
+        int temperature = weather.getTemperature();
         double precipitation = weather.getPrecipitation();
         int humidity = weather.getHumidity();
 
         String condition = handleWeatherCondition(precipitation);
 
-
         holder.tvTime.setText(forecastHour);
-        holder.tvTemp.setText(String.format(Locale.getDefault(),
-                "%.2f°", temperature));
+        holder.tvTemp.setText(String.valueOf(temperature+"°"));
         holder.tvRain.setText(String.format(Locale.getDefault(),
                 "%.1fmm", precipitation));
         holder.tvHumidity.setText(String.format(Locale.getDefault(),

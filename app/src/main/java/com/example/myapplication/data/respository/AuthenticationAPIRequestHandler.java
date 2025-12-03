@@ -23,11 +23,8 @@ import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.ManualLoginRequest;
-import com.example.myapplication.data.network.endpoints.auth.GoogleAuthenticateUser;
-import com.example.myapplication.data.network.endpoints.auth.LinkAccountToGoogleSignInMethod;
-import com.example.myapplication.data.network.endpoints.auth.ManualAuthenticateUser;
+import com.example.myapplication.data.network.endpoints.auth.AuthenticationEndpoints;
 
-import com.example.myapplication.data.network.endpoints.auth.SignUpUser;
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
@@ -44,6 +41,7 @@ public class AuthenticationAPIRequestHandler {
     private Context context;
     private APIBuilder api;
     private GlobalUtility globalUtility;
+    private AuthenticationEndpoints authenticationEndpoint;
 
     public AuthenticationAPIRequestHandler(Activity activity, Context context) {
         this.context = context;
@@ -55,8 +53,8 @@ public class AuthenticationAPIRequestHandler {
 
     public void manualLoginResponse(ManualLoginRequest requestPost,
                                     ResponseCallback<ApiSuccessfulResponse> callback) {
-        ManualAuthenticateUser auth = api.createService(ManualAuthenticateUser.class);
-        auth.authenticateUser(requestPost.getEmail(), requestPost.getPassword()).enqueue(new Callback<ApiSuccessfulResponse>() {
+        authenticationEndpoint = api.createService(AuthenticationEndpoints.class);
+        authenticationEndpoint.authenticateUser(requestPost.getEmail(), requestPost.getPassword()).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
                 globalUtility.parseAPIResponse(response,callback);
@@ -122,9 +120,9 @@ public class AuthenticationAPIRequestHandler {
 
             @Override
             public void onSuccess(String request) {
-                GoogleAuthenticateUser googleAuthenticateUser = api.createService(GoogleAuthenticateUser.class);
+                authenticationEndpoint  = api.createService(AuthenticationEndpoints.class);
                 //Call the api
-                googleAuthenticateUser.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
+                authenticationEndpoint.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
                     @Override
                     public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
                         //Handle success and error response
@@ -148,8 +146,8 @@ public class AuthenticationAPIRequestHandler {
 
     public void manualSignUp(SignupPostRequest request,
                              ResponseCallback<ApiSuccessfulResponse> callback) {
-        SignUpUser signUpUser = api.createService(SignUpUser.class);
-        signUpUser.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
+        authenticationEndpoint = api.createService(AuthenticationEndpoints.class);
+        authenticationEndpoint.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
                 //Handle success and error response
@@ -165,8 +163,8 @@ public class AuthenticationAPIRequestHandler {
 
     public void googleSignUp(SignupPostRequest request,
                              ResponseCallback<ApiSuccessfulResponse> callback) {
-        SignUpUser signUpUser = api.createService(SignUpUser.class);
-        signUpUser.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
+        authenticationEndpoint = api.createService(AuthenticationEndpoints.class);
+        authenticationEndpoint.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
                 //Handle success and error response
@@ -181,8 +179,8 @@ public class AuthenticationAPIRequestHandler {
     }
 
     public void linkUserAccountToGoogle(LinkAccountToMultipleSiginMethodsRequest request, ResponseCallback<ApiSuccessfulResponse> callback) {
-        LinkAccountToGoogleSignInMethod linkAccountToGoogleSignInMethod = api.createService(LinkAccountToGoogleSignInMethod.class);
-        linkAccountToGoogleSignInMethod.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
+        authenticationEndpoint = api.createService(AuthenticationEndpoints.class);
+        authenticationEndpoint.authenticateUser(request).enqueue(new Callback<ApiSuccessfulResponse>() {
             @Override
             public void onResponse(@NonNull Call<ApiSuccessfulResponse> call, @NonNull Response<ApiSuccessfulResponse> response) {
                 //Handle success and error response

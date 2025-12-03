@@ -27,6 +27,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 import com.example.myapplication.data.respository.FloodDataAPIHandler;
+import com.example.myapplication.data.respository.UsersAPIRequestHandler;
 import com.example.myapplication.ui.adapter.NewsAdapter;
 import com.example.myapplication.ui.adapter.NewsCarouselAdapter;
 import com.example.myapplication.utils.VerticalSpaceItemDecoration;
@@ -56,9 +57,10 @@ public class NewsActivity extends AppCompatActivity {
     ImageButton nextBtn,prevBtn;
     private TextView paginatedNumber;
     int skip = 1;
+    private int nextPage = 0;
 
 
-    private FloodDataAPIHandler floodDataAPIHandler;
+    private UsersAPIRequestHandler apiRequesthandler;
     private String USER_DATA_KEY;
     // News Carousel Views
     private CardView cardNewsCarousel;
@@ -90,6 +92,8 @@ public class NewsActivity extends AppCompatActivity {
 
         //handle skip
         prevBtn.setOnClickListener(v ->{
+            nextBtn.setClickable(true);
+            nextBtn.setBackgroundResource(R.drawable.pagination_button_active);
             if(skip > 1) {
                 skip -= 1;
                 initializedNewsData(currentCategory);
@@ -98,24 +102,27 @@ public class NewsActivity extends AppCompatActivity {
             //to disable prev button if equal to one
             if(skip == 1) {
                 prevBtn.setClickable(false);
+                prevBtn.setBackgroundResource(R.drawable.pagination_button_inactive);
+
             }
 
         });
         nextBtn.setOnClickListener(v -> {
-          if(nextBtn.getVisibility() == VISIBLE){
+            if(nextBtn.getVisibility() == VISIBLE){
               skip += 1;
               //make the previous button clickable again
               prevBtn.setClickable(true);
+              prevBtn.setBackgroundResource(R.drawable.pagination_button_active);
               initializedNewsData(currentCategory);
           }
+
 
         });
     }
 
-
     private void initializedNewsData(String tags) {
 
-        floodDataAPIHandler.getNewsPaginated(skip, 10, tags, new ResponseCallback<NewsAPIResponse>() {
+        apiRequesthandler.getNewsPaginated(skip, 10, tags, new ResponseCallback<NewsAPIResponse>() {
             @Override
             public void onSuccess(NewsAPIResponse response) {
                 //then set data to a list
@@ -125,15 +132,21 @@ public class NewsActivity extends AppCompatActivity {
                 //then set up the recycle view
                 setUpNewsRecycleView();
 
-
-                    if (response.getPaginated().isHas_next() && skip > 1) {
+                    if (response.getPaginated().getTotal_records() > 10) {
                         //visible the layout
                         paginationLayout.setVisibility(VISIBLE);
                         String pageInfo = "Showing " + response.getPaginated().getStart_page() +" to "+response.getPaginated().getEnd_page() + " of " + response.getPaginated().getTotal_records();
                         paginatedNumber.setText(pageInfo);
+                        if(!response.getPaginated().isHas_next()){
+                            Toast.makeText(activity, "End of news page.", Toast.LENGTH_SHORT).show();
+                            nextBtn.setClickable(false);
+                            nextBtn.setBackgroundResource(R.drawable.pagination_button_inactive);
 
-                        nextBtn.setVisibility(VISIBLE);
-                        nextBtn.setClickable(true);
+                        }else{
+                            nextBtn.setClickable(true);
+                            nextBtn.setBackgroundResource(R.drawable.pagination_button_active);
+                        }
+
                     } else {
                         paginationLayout.setVisibility(View.GONE);
                     }
@@ -168,14 +181,14 @@ public class NewsActivity extends AppCompatActivity {
 
         // Initialize News Carousel Views
         rvNewsCarousel = findViewById(R.id.rv_news_page);
-        floodDataAPIHandler = new FloodDataAPIHandler(activity,context);
+        apiRequesthandler = new UsersAPIRequestHandler(activity,context);
         newsData = new ArrayList<>();
         filterNewsData = new ArrayList<>();
         paginationLayout = findViewById(R.id.pagination_container);
         nextBtn = findViewById(R.id.btn_next);
         prevBtn = findViewById(R.id.btn_prev);
         paginatedNumber = findViewById(R.id.tv_page_info);
-
+        setupSpaceForRecycle();
     }
 
     private void setupCategoryTabs() {
@@ -194,7 +207,7 @@ public class NewsActivity extends AppCompatActivity {
         rvNewsCarousel.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         rvNewsCarousel.setAdapter(newsAdapter);
 
-        setupSpaceForRecycle();
+
     }
 
     private void selectTab(TextView selectedTab, String category) {
@@ -215,6 +228,9 @@ public class NewsActivity extends AppCompatActivity {
         selectedTab.setTypeface(null, Typeface.BOLD);
 
         // Load news for the selected category
+        skip = 1;
+        prevBtn.setClickable(false);
+        prevBtn.setBackgroundResource(R.drawable.pagination_button_inactive);
         initializedNewsData(category);
     }
 
@@ -281,25 +297,19 @@ public class NewsActivity extends AppCompatActivity {
 
 
     protected void setupSpaceForRecycle() {
-
-        // Ensure you have an XML layout file named activity_main.xml
-        // which contains the RecyclerView with ID 'rv_news_page'
-
         rvNewsCarousel = findViewById(R.id.rv_news_page);
 
-        // --- JAVA EQUIVALENT OF SELECTED KOTLIN CODE ---
-
-        // 1. Define the desired spacing in DP (e.g., 16dp)
+        // Define the desired spacing in DP (e.g., 16dp)
         final int spacingInDp = 16;
 
-        // 2Convert the DP value to pixels
+        // Convert the DP value to pixels
         final int spacingInPx = dpToPx(this, spacingInDp);
 
         // Create the ItemDecoration instance
-        // NOTE: This assumes VerticalSpaceItemDecoration.java is available
         final RecyclerView.ItemDecoration itemDecoration = new VerticalSpaceItemDecoration(spacingInPx);
 
         // Apply the decoration to the RecyclerView
+        rvNewsCarousel.removeItemDecoration(itemDecoration);
         rvNewsCarousel.addItemDecoration(itemDecoration);
 
     }

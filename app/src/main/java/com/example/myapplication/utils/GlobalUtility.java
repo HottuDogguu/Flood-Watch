@@ -210,6 +210,8 @@ public class GlobalUtility {
                     Log.e("JSON ERROR", "Failed to parse error response");
                     callback.onError(new Exception(ioe.getMessage()));
                 }
+            }else{
+                callback.onError(new Exception("Unknown error."));
             }
         }
     }
