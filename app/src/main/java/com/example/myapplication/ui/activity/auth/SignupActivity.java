@@ -66,7 +66,6 @@ public class SignupActivity extends BaseActivity {
             tilSecondaryNumber,
             tilPassword,
             tilConfirmPassword;
-    boolean isValidated = false;
     private DataFieldsValidation dataFieldsValidation;
 
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -99,75 +98,58 @@ public class SignupActivity extends BaseActivity {
             boolean isContactNoEmpty = dataFieldsValidation.isEmptyField(userContactNo);
             boolean isUserPasswordEmpty = dataFieldsValidation.isEmptyField(userPass);
 
-            String emailValidateMessage = dataFieldsValidation.validateEmail(userEmail);
-            String phoneValidateMessage = dataFieldsValidation.validatePhoneNumber(userContactNo);
+            boolean emailValidation = dataFieldsValidation.isValidEmail(userEmail);
+            boolean phoneValidation= dataFieldsValidation.isPhoneNumberValid(userContactNo);
 
             String passwordValidateMessage = dataFieldsValidation.validatePassword(userPass);
             boolean isPasswordMatch = dataFieldsValidation.isPasswordMatch(userPass, userConfirmPass);
+
             //validation for empty fields
-            if (isFullNameEmpty) {
-                isValidated = false;
-                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "This field must not be empty!", false);
-                return;
-            } else {
-                isValidated = true;
-                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "", isValidated);
 
+            //validate full name first
+            if(isFullNameEmpty){
+                setRequestFocusOnField(scrollView, txtFullname, tilFullName, "This field must not be empty.");
+                return;
             }
+            //validate email
             if (isEmailEmpty) {
-                isValidated = false;
-                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "This field must not be empty!", false);
-             return;
-
-            } else {
-                isValidated = true;
-                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", isValidated);
-
+                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "This field must not be empty.");
+                return;
             }
+            //validate contact no
             if (isContactNoEmpty) {
-                isValidated = false;
-                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "This field must not be empty!", false);
+                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "This field must not be empty.");
                 return;
-            } else {
-                isValidated = true;
-                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", isValidated);
-
             }
+
+            //validate password
             if (isUserPasswordEmpty) {
-                isValidated = false;
-                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "This field must not be empty!", false);
+                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "This field must not be empty.");
                 return;
-            } else {
-                isValidated = true;
-                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "", isValidated);
-
-            }
-            //Validation for email, Contact no, Second Phone Number, Password and confirm password
-            if (emailValidateMessage.isEmpty()) {
-                isValidated = true;
-                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "", isValidated);
-            } else {
-                isValidated = false;
-                setRequestFocusOnField(scrollView, txtEmail, tilEmail, emailValidateMessage, isValidated);
             }
 
-            if (phoneValidateMessage.isEmpty()) {
-                isValidated = true;
-                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "", isValidated);
-            } else {
-                isValidated = false;
-                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, phoneValidateMessage, isValidated);
+            //validate email and contact no
+            if(!emailValidation){
+                setRequestFocusOnField(scrollView, txtEmail, tilEmail, "Invalid inputted email address.");
+                return;
             }
 
-            if (passwordValidateMessage.isEmpty()) {
-                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "", true);
-            } else {
-                setRequestFocusOnField(scrollView, txtPassword, tilPassword, passwordValidateMessage, false);
+            //validate phone and contact no
+            if(!phoneValidation){
+                setRequestFocusOnField(scrollView, txtContactNo, tilContactNumber, "Invalid inputted phone number.");
+                return;
             }
-            if (isPasswordMatch) {
-                setRequestFocusOnField(scrollView, txtConfirmPass, tilConfirmPassword, "", true);
-            } else {
-                setRequestFocusOnField(scrollView, txtConfirmPass, tilConfirmPassword, "Password not match!", false);
+
+            //validate password
+            if(!passwordValidateMessage.isEmpty()){
+                setRequestFocusOnField(scrollView, txtPassword, tilPassword, passwordValidateMessage);
+                return;
+            }
+
+            //validate confirm password
+            if(!isPasswordMatch){
+                setRequestFocusOnField(scrollView, txtPassword, tilPassword, "Confirm password must match to password.");
+                return;
             }
 
             //call the API
@@ -257,9 +239,9 @@ public class SignupActivity extends BaseActivity {
         return new Address(street, barangay,city);
     }
 
-    private void setRequestFocusOnField(ScrollView scrollView, EditText editText, TextInputLayout inputLayout, String message, boolean isValidated) {
+    private void setRequestFocusOnField(ScrollView scrollView, EditText editText, TextInputLayout inputLayout, String message) {
         //if empty, show a message
-        if (!isValidated) {
+
             inputLayout.setError(message);
             scrollView.post(() -> {
                 scrollView.smoothScrollTo((int) editText.getX(), editText.getBottom());
@@ -269,9 +251,5 @@ public class SignupActivity extends BaseActivity {
                     imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
                 }
             });
-
-        } else {
-            inputLayout.setError(null);
-        }
     }
 }

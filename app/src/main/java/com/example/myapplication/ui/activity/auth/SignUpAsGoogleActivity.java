@@ -41,7 +41,6 @@ public class SignUpAsGoogleActivity extends BaseActivity {
     // Init first
     private String email;
     String fullName;
-    String contactNo;
     private List<String> sign_in_type;
     private String status;
     private String fcmToken = null;

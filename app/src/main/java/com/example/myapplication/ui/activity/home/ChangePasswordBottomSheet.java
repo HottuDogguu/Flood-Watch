@@ -194,7 +194,6 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
             return;
         }
 
-
         if (passwordStrength <= 2) {
             etNewPassword.setError("Weak password. Try adding uppercase letters, " +
                     "numbers, and special characters to make it more secure.");
@@ -207,7 +206,6 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
             etConfirmPassword.requestFocus();
             return;
         }
-
 
         usersAPIRequestHandler.changeUserPassword(request, new ResponseCallback<ApiSuccessfulResponse>() {
             @Override
@@ -236,9 +234,8 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         boolean isEightCharacter = password.length() > 8;
 
         if (!hasLetter) return "Must contain letters.";
-        if (!isEightCharacter) return "New password must greater than to 8.";
+        if (!isEightCharacter) return "New password must at least 8 characters.";
         if (!hasNumber) return "Must contain numbers.";
-
         return "";
     }
 

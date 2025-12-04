@@ -1,5 +1,6 @@
 package com.example.myapplication.data.network.endpoints.users;
 
+import com.example.myapplication.data.models.api_response.AdminDashboardApiResponse;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 import com.example.myapplication.data.models.users.UserChangePasswordRequest;
@@ -62,5 +63,10 @@ public interface UserEndpoints {
                                            @Part("street") RequestBody street,
                                            @Part("barangay") RequestBody barangay,
                                            @Part("city") RequestBody city);
+
+
+    @Headers({"Content-Type: application/json"})
+    @GET("user/total/counts")
+    Call<AdminDashboardApiResponse> getAdminDashboard();
 
 }

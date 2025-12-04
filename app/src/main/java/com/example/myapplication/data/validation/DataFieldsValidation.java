@@ -8,64 +8,40 @@ import java.util.regex.Pattern;
 
 public class DataFieldsValidation {
 
-    private final String validEmail = "^(?!.*(example\\.com|test\\.com|dummy\\.com|sample\\.com|mailinator\\.com)$)([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$\n";
-    private final String validPhoneNumber = "^(?:\\+639|09)\\d{9}$\n";
+    private final String validEmailRegex = "^(?!.*(example\\.com|test\\.com|dummy\\.com|sample\\.com|mailinator\\.com)$)([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$\n";
+    private final String validPhoneNumberRegex = "^(09\\d{9}|\\+639\\d{9}|639\\d{9})$";
 
     public DataFieldsValidation() {
 
     }
 
-    /**
-     * It is simply validate the email by comparing if the email will match to the given regex.
-     * @param email is the user must provide to create a account or to login.
 
-     */
-    public String validateEmail(String email) {
-        email = email.strip();
-        Pattern pattern = Pattern.compile(this.validEmail);
-        Matcher matcher = pattern.matcher(email);
-        String message = "";
-        if(!matcher.matches()){
-            Log.d("Debug", "Invalid Email address");
-            // return this message if invalid email address
-            message = "Invalid email address";
-            return message;
-        }
-        Log.d("Debug", "Valid Email address");
-        //return empty string if it is valid email
-        return message;
 
+    public String getErrorMessage(String password) {
+        // Check if password contains at least one letter and one number
+        boolean hasLetter = password.matches(".*[a-zA-Z].*");
+        boolean hasNumber = password.matches(".*\\d.*");
+
+        boolean isEightCharacter = password.length() > 8;
+
+        if (!hasLetter) return "Must contain letters.";
+        if (!isEightCharacter) return "New password must at least 8 characters.";
+        if (!hasNumber) return "Must contain numbers.";
+        return "";
     }
 
-    public static boolean isValidEmail(String email) {
+    public boolean isValidEmail(String email) {
         if (email == null || email.trim().isEmpty()) return false;
         String regex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$";
         return email.trim().toUpperCase().matches(regex);
     }
-
-    public String validatePhoneNumber(String phoneNumber) {
-        phoneNumber = phoneNumber.strip();
-        Pattern pattern = Pattern.compile(this.validPhoneNumber);
-        Matcher matcher = pattern.matcher(phoneNumber);
-        String message = "";
-        if(!matcher.matches()){
-            Log.d("Debug", "Invalid phone number");
-            // return this message if invalid email address
-            message = "Invalid phone number";
-            return message;
-        }
-        Log.d("Debug", "Invalid phone number");
-        //return empty string if it is valid email
-        return message;
+    public boolean isPhoneNumberValid(String phoneNumber){
+        return phoneNumber.matches(this.validPhoneNumberRegex);
 
     }
 
-    /**
-     * It is simply validate the password by the given conditions.
-     * @param password is the user must provide to create a account or to login.
-     * @return String, which is the message will display in the screen.
 
-     */
+
     public String validatePassword(String password){
         password = password.strip();
 

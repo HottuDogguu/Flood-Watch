@@ -65,7 +65,6 @@ public class LoginActivityUtility extends BaseAuthUtility {
     }
 
     public void handleOnError(Throwable throwable) {
-        Log.e("Hey", Objects.requireNonNull(throwable.getMessage()));
         String errorMessage = throwable.getMessage();
         Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show();
         if ( errorMessage != null && errorMessage.toLowerCase().contains("not found")) {

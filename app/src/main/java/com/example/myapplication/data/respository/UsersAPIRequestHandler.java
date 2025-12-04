@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.calbacks.ResponseCallback;
 
+import com.example.myapplication.data.models.api_response.AdminDashboardApiResponse;
 import com.example.myapplication.data.models.api_response.ApiMeteoResponse;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
@@ -229,7 +230,21 @@ public class UsersAPIRequestHandler extends BaseRepository {
                 callback.onError(t);
             }
         });
+    }
 
+    public void getAdminDashboardData(ResponseCallback<AdminDashboardApiResponse> callback){
+        userEndpoints = api.createService(UserEndpoints.class);
+        userEndpoints.getAdminDashboard().enqueue(new Callback<AdminDashboardApiResponse>() {
+            @Override
+            public void onResponse(Call<AdminDashboardApiResponse> call, Response<AdminDashboardApiResponse> response) {
+                globalUtility.parseAPIResponse(response,callback);
+            }
+
+            @Override
+            public void onFailure(Call<AdminDashboardApiResponse> call, Throwable t) {
+
+            }
+        });
     }
 
 }

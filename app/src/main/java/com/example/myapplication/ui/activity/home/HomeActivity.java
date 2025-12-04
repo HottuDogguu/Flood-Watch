@@ -219,9 +219,6 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void setupWeatherTimeline() {
-
-    }
 
     public void setDataFromDataStorage() {
         //Function to get the user information
@@ -232,6 +229,13 @@ public class HomeActivity extends AppCompatActivity {
                 Gson gson = new Gson();
                 String jsonData = gson.toJson(response.getData());
                 dataSharedPreference.saveData(USER_DATA_KEY, jsonData);
+                //check if the status is admin
+                if(response.getData().getRole().equalsIgnoreCase("admin")){
+                    Intent intent = new Intent(HomeActivity.this, AdminActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                }
 
                 //connect to websocket
                 connectToWebSocket(response.getData().getId());
@@ -274,10 +278,8 @@ public class HomeActivity extends AppCompatActivity {
 
                 runOnUiThread(() -> {
                     String value = data.getData().getValue();
-                    String valueDouble = "";
-                    if (!value.isEmpty()) {
-                        valueDouble = String.format("%.2f", Double.parseDouble(value));
-                    }
+                    String valueDouble = String.format("%.2f", Double.parseDouble(value));
+
                     updateCurrentWaterLevelData(valueDouble, data.getData().getSeverity());
                 });
 

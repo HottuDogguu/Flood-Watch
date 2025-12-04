@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- PCO (Presidential Communications Office) icon -->
+    <!-- Government/Official building theme -->
+    <path
+        android:fillColor="#1A73E8"
+        android:pathData="M12,3L2,9v2h20V9L12,3zM12,6.3L17.5,9h-11L12,6.3z"/>
+    <path
+        android:fillColor="#1A73E8"
+        android:pathData="M4,11v9h4v-6h8v6h4v-9H4zM10,18H8v-2h2V18zM10,14H8v-2h2V14zM14,18h-2v-2h2V18zM14,14h-2v-2h2V14zM18,18h-2v-2h2V18zM18,14h-2v-2h2V14z"/>
+    <path
+        android:fillColor="#1A73E8"
+        android:pathData="M2,20h20v2H2z"/>
+</vector>
