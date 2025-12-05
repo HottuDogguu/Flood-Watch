@@ -61,12 +61,9 @@ public class NewsActivity extends AppCompatActivity {
 
 
     private UsersAPIRequestHandler apiRequesthandler;
-    private String USER_DATA_KEY;
     // News Carousel Views
-    private CardView cardNewsCarousel;
     private RecyclerView rvNewsCarousel;
     private List<NewsAPIResponse.NewsData> newsData;
-    private List<NewsAPIResponse.NewsData> filterNewsData;
     private NewsAdapter newsAdapter;
 
     private String currentCategory = "All";
@@ -174,7 +171,6 @@ public class NewsActivity extends AppCompatActivity {
         // Initialize tab views
         tabAll = findViewById(R.id.tab_all);
         tabPopular = findViewById(R.id.tab_popular);
-        tabVideos = findViewById(R.id.tab_videos);
         tabBusiness = findViewById(R.id.tab_business);
         tabTechnology = findViewById(R.id.tab_technology);
         tabOther = findViewById(R.id.tab_other);
@@ -183,7 +179,6 @@ public class NewsActivity extends AppCompatActivity {
         rvNewsCarousel = findViewById(R.id.rv_news_page);
         apiRequesthandler = new UsersAPIRequestHandler(activity,context);
         newsData = new ArrayList<>();
-        filterNewsData = new ArrayList<>();
         paginationLayout = findViewById(R.id.pagination_container);
         nextBtn = findViewById(R.id.btn_next);
         prevBtn = findViewById(R.id.btn_prev);

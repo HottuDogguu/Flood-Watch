@@ -65,7 +65,6 @@ public class BaseAuthUtility {
             public void onSuccess(ApiSuccessfulResponse response) {
                 String userActions = response.getAction();
 
-                int profile_setup_steps = response.getData().getProfile_setup_steps();
                 List<String> sign_in_type = response.getData().getSign_in_type();
                 if (userActions.equals("login")) {
                     //check the sign in type if contains google

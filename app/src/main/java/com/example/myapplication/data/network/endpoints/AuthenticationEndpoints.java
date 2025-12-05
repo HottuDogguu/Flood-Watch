@@ -1,4 +1,4 @@
-package com.example.myapplication.data.network.endpoints.auth;
+package com.example.myapplication.data.network.endpoints;
 
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.auth.LinkAccountToMultipleSiginMethodsRequest;

@@ -42,11 +42,6 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
-    <!-- Features - marked as not required so app works on all devices -->
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <uses-feature android:name="android.hardware.telephony" android:required="false" />
-
-
 
     <application
         android:allowBackup="true"
@@ -98,7 +93,11 @@
             android:name=".ui.activity.home.HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.home.AdminActivity"
+            android:name=".ui.activity.home.admin.AdminActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activity.home.admin.NewsDataActivity"
+            android:parentActivityName=".ui.activity.home.admin.AdminActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.home.AnnouncementActivity"
@@ -113,11 +112,6 @@
         <activity
             android:name=".ui.activity.auth.EmailVerificationActivity"
             android:exported="false" />
-        <!-- Announcement Activity -->
-        <activity
-            android:name=".AnnouncementActivity"
-            android:exported="false"
-            android:parentActivityName=".ui.activity.home.HomeActivity" />
 
         <!-- Weather Activity -->
         <activity

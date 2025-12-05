@@ -7,10 +7,9 @@ import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.FiveWeatherForecast;
 import com.example.myapplication.data.models.api_response.ListOfNotificationResponse;
-import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.data.network.endpoints.flood.FloodData;
-import com.example.myapplication.data.network.endpoints.flood.FloodWeatherNotification;
+import com.example.myapplication.data.network.endpoints.FloodWeatherNotificationEndpoints;
 
 import com.example.myapplication.utils.GlobalUtility;
 
@@ -25,7 +24,7 @@ public class FloodDataAPIHandler extends BaseRepository{
     private Context context;
     private APIBuilder api;
     private GlobalUtility globalUtility;
-    private FloodWeatherNotification floodWeatherNotification;
+    private FloodWeatherNotificationEndpoints floodWeatherNotification;
 
 
 
@@ -56,7 +55,7 @@ public class FloodDataAPIHandler extends BaseRepository{
         });
     }
     public void getPaginatedNotifications(int skip, int limit, ResponseCallback<ListOfNotificationResponse> callback){
-        floodWeatherNotification = api.createService(FloodWeatherNotification.class);
+        floodWeatherNotification = api.createService(FloodWeatherNotificationEndpoints.class);
         floodWeatherNotification.getRecentNotification(skip, limit).enqueue(new Callback<ListOfNotificationResponse>() {
             @Override
             public void onResponse(Call<ListOfNotificationResponse> call, Response<ListOfNotificationResponse> response) {
@@ -73,7 +72,7 @@ public class FloodDataAPIHandler extends BaseRepository{
         });
     }
     public void getFiveHoursWeatherForecast(ResponseCallback<FiveWeatherForecast> callback){
-        floodWeatherNotification = api.createService(FloodWeatherNotification.class);
+        floodWeatherNotification = api.createService(FloodWeatherNotificationEndpoints.class);
         floodWeatherNotification.getFiveHoursWeatherForecast().enqueue(new Callback<FiveWeatherForecast>() {
             @Override
             public void onResponse(Call<FiveWeatherForecast> call, Response<FiveWeatherForecast> response) {

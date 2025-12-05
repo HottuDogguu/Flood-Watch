@@ -20,13 +20,16 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.Map;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -256,6 +259,19 @@ public class GlobalUtility {
             return phTime.format(DateTimeFormatter.ofPattern("HH:mm"));
         }
 
+        return "";
+    }
+
+    public String formatDate(String date){
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS", Locale.getDefault());
+        SimpleDateFormat outputFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());
+
+        try {
+            Date formatDateIntoIso = inputFormat.parse(date);
+            return outputFormat.format(formatDateIntoIso);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "";
     }
 }

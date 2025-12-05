@@ -113,6 +113,7 @@
                 android:padding="16dp">
 
                 <ImageView
+                    android:id="@+id/ivSelectedImageIcon"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_marginEnd="12dp"
@@ -160,6 +161,16 @@
             app:strokeColor="#E2E8F0"
             app:strokeWidth="1dp" />
 
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp" android:fontFamily="sans-serif-medium"
+            android:text="Tag"
+            android:textColor="#475569"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -173,27 +184,31 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="16dp">
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp">
 
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Tag"
-                    android:textColor="#475569"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+
 
                 <Spinner
                     android:id="@+id/tagSpinner"
+                    android:elevation="6dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="48dp"
+                    android:background="@android:color/transparent" android:spinnerMode="dropdown" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+        <TextView
+            android:id="@+id/tvSource"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp" android:fontFamily="sans-serif-medium"
+            android:text="Source"
+            android:textColor="#475569"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -208,25 +223,20 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="16dp">
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp">
 
-                <TextView
-                    android:id="@+id/tvSource"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Source"
-                    android:textColor="#475569"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+
 
                 <Spinner
                     android:id="@+id/sourceSpinner"
+                    android:elevation="6dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="48dp"
+                    android:background="@android:color/transparent" android:spinnerMode="dropdown" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>

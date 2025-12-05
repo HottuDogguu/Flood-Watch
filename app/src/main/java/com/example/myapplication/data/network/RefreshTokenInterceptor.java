@@ -5,7 +5,7 @@ import android.content.Context;
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
-import com.example.myapplication.data.network.endpoints.auth.AuthenticationEndpoints;
+import com.example.myapplication.data.network.endpoints.AuthenticationEndpoints;
 import com.example.myapplication.security.DataSharedPreference;
 import com.example.myapplication.utils.GlobalUtility;
 

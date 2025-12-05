@@ -121,9 +121,6 @@ public class ProfileActivity extends AppCompatActivity {
                 .into(intoImage);
     }
 
-    private void setProfilePictureWithUri(Uri uri) {
-        ivProfilePicture.setImageURI(uri);
-    }
 
 
     private void initialLoadUserData() {

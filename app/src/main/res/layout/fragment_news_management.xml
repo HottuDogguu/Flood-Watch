@@ -60,11 +60,85 @@
             app:rippleColor="#059669" />
     </LinearLayout>
 
-    <!-- News List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/newsRecyclerView"
+
+    <!-- Content Area -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:paddingBottom="80dp">
+
+            <!-- News List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/newsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:layout_marginTop="8dp"
+                android:padding="8dp" />
+
+            <!-- Pagination Controls -->
+            <LinearLayout
+                android:id="@+id/pagination_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:visibility="gone"> <!-- Will be shown when >1 page -->
+
+                <!-- Previous Button -->
+                <ImageButton
+                    android:id="@+id/btn_prev"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="@drawable/pagination_button_inactive"
+                    android:clickable="false"
+                    android:contentDescription="Previous page"
+                    android:src="@drawable/ic_chevron_left"
+                    app:tint="#6B7280" />
+
+
+                <!-- Next Button -->
+                <ImageButton
+                    android:id="@+id/btn_next"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/pagination_button_active"
+                    android:clickable="false"
+                    android:contentDescription="Next page"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#6B7280" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_page_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="Page 1 of 10"
+                android:textColor="#6B7280"
+                android:textSize="14sp"
+                android:layout_marginBottom="25dp"
+                android:visibility="visible" />
+
+        </LinearLayout>
+
+
+    </androidx.core.widget.NestedScrollView>
+
+
 
 </LinearLayout>

@@ -1,17 +1,16 @@
-package com.example.myapplication.data.network.endpoints.flood;
+package com.example.myapplication.data.network.endpoints;
 
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.ApiMeteoResponse;
 import com.example.myapplication.data.models.api_response.FiveWeatherForecast;
 import com.example.myapplication.data.models.api_response.ListOfNotificationResponse;
-import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.Query;
 
-public interface FloodWeatherNotification {
+public interface FloodWeatherNotificationEndpoints {
 
 
     //get latest flood data

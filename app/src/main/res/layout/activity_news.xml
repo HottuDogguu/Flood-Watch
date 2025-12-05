@@ -102,22 +102,6 @@
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tab_videos"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/tab_background"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:paddingStart="20dp"
-                        android:paddingTop="10dp"
-                        android:paddingEnd="20dp"
-                        android:paddingBottom="10dp"
-                        android:text="Videos"
-                        android:textColor="@color/tab_text_color"
-                        android:textSize="16sp" />
-
-                    <TextView
                         android:id="@+id/tab_business"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -244,8 +228,6 @@
 
 
         </androidx.core.widget.NestedScrollView>
-
-
 
 
         <!-- Bottom Navigation -->

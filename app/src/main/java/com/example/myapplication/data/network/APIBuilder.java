@@ -5,7 +5,7 @@ import android.content.Context;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.security.DataSharedPreference;
 import com.example.myapplication.utils.GlobalUtility;
-import com.example.myapplication.data.network.endpoints.auth.AuthenticationEndpoints;
+import com.example.myapplication.data.network.endpoints.AuthenticationEndpoints;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;

@@ -23,7 +23,7 @@ import com.example.myapplication.data.models.auth.SignupPostRequest;
 import com.example.myapplication.data.network.APIBuilder;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.auth.ManualLoginRequest;
-import com.example.myapplication.data.network.endpoints.auth.AuthenticationEndpoints;
+import com.example.myapplication.data.network.endpoints.AuthenticationEndpoints;
 
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;

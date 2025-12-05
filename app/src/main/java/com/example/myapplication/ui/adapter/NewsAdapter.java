@@ -84,11 +84,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsAdapterVie
         return Math.min(newsItems.size(),10); // Show max 5 items in carousel
     }
 
-    public void updateNews(List<NewsAPIResponse.NewsData> newItems) {
-        this.newsItems = newItems;
-        notifyDataSetChanged();
-    }
-
     public static class NewsAdapterViewHolder extends RecyclerView.ViewHolder {
         ImageView sourceIcon;
         TextView sourceName;

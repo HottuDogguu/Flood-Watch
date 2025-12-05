@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.calbacks.ResponseCallback;
 
-import com.example.myapplication.data.models.api_response.AdminDashboardApiResponse;
 import com.example.myapplication.data.models.api_response.ApiMeteoResponse;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
@@ -17,10 +16,10 @@ import com.example.myapplication.data.models.users.UserNotificationSettingsReque
 import com.example.myapplication.data.models.users.UsersUpdateInformationRequest;
 
 import com.example.myapplication.data.network.APIBuilder;
-import com.example.myapplication.data.network.endpoints.auth.AuthenticationEndpoints;
+import com.example.myapplication.data.network.endpoints.AuthenticationEndpoints;
 
-import com.example.myapplication.data.network.endpoints.flood.FloodWeatherNotification;
-import com.example.myapplication.data.network.endpoints.users.UserEndpoints;
+import com.example.myapplication.data.network.endpoints.FloodWeatherNotificationEndpoints;
+import com.example.myapplication.data.network.endpoints.UserEndpoints;
 
 
 import com.example.myapplication.utils.GlobalUtility;
@@ -37,7 +36,7 @@ public class UsersAPIRequestHandler extends BaseRepository {
     private GlobalUtility globalUtility;
     private AuthenticationEndpoints authenticationEndpoint;
     private UserEndpoints userEndpoints;
-    private FloodWeatherNotification weatherNotification;
+    private FloodWeatherNotificationEndpoints weatherNotification;
     private Context context;
     private String ACCESS_TOKEN_KEY;
 
@@ -217,7 +216,7 @@ public class UsersAPIRequestHandler extends BaseRepository {
     }
 
     public void getInitialForecastData(ResponseCallback<ApiMeteoResponse> callback){
-        weatherNotification = api.createService(FloodWeatherNotification.class);
+        weatherNotification = api.createService(FloodWeatherNotificationEndpoints.class);
         weatherNotification.getMeteoWeatherForecast().enqueue(new Callback<ApiMeteoResponse>() {
             @Override
             public void onResponse(Call<ApiMeteoResponse> call, Response<ApiMeteoResponse> response) {
@@ -232,19 +231,6 @@ public class UsersAPIRequestHandler extends BaseRepository {
         });
     }
 
-    public void getAdminDashboardData(ResponseCallback<AdminDashboardApiResponse> callback){
-        userEndpoints = api.createService(UserEndpoints.class);
-        userEndpoints.getAdminDashboard().enqueue(new Callback<AdminDashboardApiResponse>() {
-            @Override
-            public void onResponse(Call<AdminDashboardApiResponse> call, Response<AdminDashboardApiResponse> response) {
-                globalUtility.parseAPIResponse(response,callback);
-            }
 
-            @Override
-            public void onFailure(Call<AdminDashboardApiResponse> call, Throwable t) {
-
-            }
-        });
-    }
 
 }

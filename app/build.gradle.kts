@@ -12,6 +12,7 @@ plugins {
 val ACCESS_TOKEN_KEY: String = "ACCESS_TOKEN_KEY"
 val USER_INFORMATION_KEY: String = "USER_INFORMATION_KEY"
 val WEB_CLIENT_ID: String = "WEB_CLIENT_ID"
+val NEWS_DATA_KEY: String = "NEWS_DATA_KEY"
 val API_HTTP_BASE_URL: String = "API_HTTP_BASE_URL"
 val API_WEBSOCKET_BASE_URL: String ="API_WEBSOCKET_BASE_URL"
 
@@ -37,6 +38,7 @@ android {
         buildConfigField("String", "ACCESS_TOKEN_KEY", "\"${ACCESS_TOKEN_KEY }\"")
         buildConfigField("String", "WEB_CLIENT_ID", "\"${WEB_CLIENT_ID }\"")
         buildConfigField("String", "USER_INFORMATION_KEY", "\"${USER_INFORMATION_KEY }\"")
+        buildConfigField("String", "NEWS_DATA_KEY", "\"${NEWS_DATA_KEY }\"")
         buildConfigField("String", "API_HTTP_BASE_URL", "\"${API_HTTP_BASE_URL }\"")
         buildConfigField("String", "API_WEBSOCKET_BASE_URL", "\"${API_WEBSOCKET_BASE_URL }\"")
     }
