@@ -1,20 +1,13 @@
 package com.example.myapplication.data.validation;
 
-import android.os.PatternMatcher;
-import android.util.Log;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class DataFieldsValidation {
 
     private final String validEmailRegex = "^(?!.*(example\\.com|test\\.com|dummy\\.com|sample\\.com|mailinator\\.com)$)([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$\n";
-    private final String validPhoneNumberRegex = "^(09\\d{9}|\\+639\\d{9}|639\\d{9})$";
-
+    // allows optional spaces/hyphens/dots/parentheses between digits
+    private final String validPhoneNumberRegex ="^(?:09|\\+639|639)(?:[ .\\-()]?\\d){9}$";
     public DataFieldsValidation() {
 
     }
-
 
 
     public String getErrorMessage(String password) {
@@ -29,18 +22,24 @@ public class DataFieldsValidation {
         if (!hasNumber) return "Must contain numbers.";
         return "";
     }
+    public boolean isFieldValid(String fullName){
+        if (fullName == null) return false;
+        fullName = fullName.trim();
+        if (fullName.isEmpty()) return false;
+
+        // Unicode letters and spaces only, must start with a letter
+        String regex = "^[\\p{L}]+(?:[ \\p{L}]+)*$";
+        return fullName.matches(regex);
+    }
 
     public boolean isValidEmail(String email) {
         if (email == null || email.trim().isEmpty()) return false;
         String regex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$";
         return email.trim().toUpperCase().matches(regex);
     }
-    public boolean isPhoneNumberValid(String phoneNumber){
-        return phoneNumber.matches(this.validPhoneNumberRegex);
-
+    public boolean isValidPHMobile(String phone) {
+        return phone != null && phone.replaceAll("\\D", "").matches("^09\\d{9}$");
     }
-
-
 
     public String validatePassword(String password){
         password = password.strip();
@@ -67,15 +66,10 @@ public class DataFieldsValidation {
             message = "Must contain at least one digit\n";
             return message;
         }
-        if (!password.matches(".*[@$!%*?&].*")) {
-            message = "Must contain at least one special character (@, $, !, %, *, ?, &)\n";
-            return message;
-        }
         if (password.matches(".*\\s.*")) {
             message = "Should not contain spaces\n";
             return message;
         }
-
         return message;
     }
 
