@@ -379,8 +379,6 @@ public class ProfileActivity extends AppCompatActivity {
                         currentPhotoUri = result.getData().getData();
                         if (currentPhotoUri != null) {
                             setProfilePictureUsingURL(currentPhotoUri, ivProfilePictureEdit);
-
-
                         }
                     }
                 }

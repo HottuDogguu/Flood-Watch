@@ -78,10 +78,18 @@ public class NewsAPIResponse {
     }
 
     public static  class NewsData {
-        String user_id,title,content,status,source,created_at;
+        String _id, user_id,title,content,status,source,created_at;
         List<NewsImage> images;
         List<String> tags;
 
+
+        public String get_id() {
+            return _id;
+        }
+
+        public void set_id(String _id) {
+            this._id = _id;
+        }
 
         public String getCreated_at() {
             return created_at;

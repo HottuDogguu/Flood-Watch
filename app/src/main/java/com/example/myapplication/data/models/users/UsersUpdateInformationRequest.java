@@ -28,7 +28,6 @@ public class UsersUpdateInformationRequest {
             String fullname,
             String email,
             String contactNo,
-
             SignupPostRequest.Address address
     ) {
         fullnameBody = RequestBody.create(MediaType.parse("text/plain"), fullname != null ? fullname : "");

@@ -7,6 +7,7 @@ import android.util.Log;
 
 import androidx.work.WorkManager;
 
+import com.bumptech.glide.Glide;
 import com.example.myapplication.security.DataSharedPreference;
 
 import com.example.myapplication.ui.activity.notification.LocalNotificationManager;
@@ -30,6 +31,16 @@ public class App extends Application {
         } catch (Exception e) {
             Log.e("FIREBASE INIT", "Error initializing Firebase in Application: " + e.getMessage());
         }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Glide.get(getApplicationContext()).clearDiskCache();
+                Log.d("GLIDE_CACHE", "Glide disk cache cleared successfully.");
+            }
+        }).start();
+
+
     }
 
     private void cancelAllPendingWork() {

@@ -58,6 +58,7 @@ public class AdminNewsAdapter extends RecyclerView.Adapter<AdminNewsAdapter.View
         NewsAPIResponse.NewsData news = newsList.get(position);
         holder.title.setText(news.getTitle());
         holder.timeAgo.setText(globalUtility.getTimeAgo(news.getCreated_at()));
+        holder.sourceName.setText(news.getSource());
 
         // Set source icon based on source name
         if (news.getSource().equals("PCO")) {
@@ -76,8 +77,8 @@ public class AdminNewsAdapter extends RecyclerView.Adapter<AdminNewsAdapter.View
 
                 Glide.with(context)
                         .load(imageUrl)
-                        .placeholder(R.drawable.ic_user)
-                        .error(R.drawable.ic_user)
+                        .placeholder(R.drawable.news_image_palceholder)
+                        .error(R.drawable.news_image_palceholder)
                         .into(holder.newsImage);
 
             } else {

@@ -49,7 +49,6 @@ public class NewsActivity extends AppCompatActivity {
     // Category tabs
     private TextView tabAll;
     private TextView tabPopular;
-    private TextView tabVideos;
     private TextView tabBusiness;
     private TextView tabTechnology;
     private TextView tabOther;
@@ -57,7 +56,6 @@ public class NewsActivity extends AppCompatActivity {
     ImageButton nextBtn,prevBtn;
     private TextView paginatedNumber;
     int skip = 1;
-    private int nextPage = 0;
 
 
     private UsersAPIRequestHandler apiRequesthandler;
@@ -105,15 +103,11 @@ public class NewsActivity extends AppCompatActivity {
 
         });
         nextBtn.setOnClickListener(v -> {
-            if(nextBtn.getVisibility() == VISIBLE){
               skip += 1;
               //make the previous button clickable again
               prevBtn.setClickable(true);
               prevBtn.setBackgroundResource(R.drawable.pagination_button_active);
               initializedNewsData(currentCategory);
-          }
-
-
         });
     }
 
@@ -190,7 +184,6 @@ public class NewsActivity extends AppCompatActivity {
         // Set click listeners for each tab
         tabAll.setOnClickListener(v -> selectTab(tabAll, "All"));
         tabPopular.setOnClickListener(v -> selectTab(tabPopular, "Popular"));
-        tabVideos.setOnClickListener(v -> selectTab(tabVideos, "Videos"));
         tabBusiness.setOnClickListener(v -> selectTab(tabBusiness, "Business"));
         tabTechnology.setOnClickListener(v -> selectTab(tabTechnology, "Technology"));
         tabOther.setOnClickListener(v -> selectTab(tabOther, "Other"));
@@ -212,7 +205,6 @@ public class NewsActivity extends AppCompatActivity {
         // Reset all tabs to default style
         resetTab(tabAll);
         resetTab(tabPopular);
-        resetTab(tabVideos);
         resetTab(tabBusiness);
         resetTab(tabTechnology);
         resetTab(tabOther);

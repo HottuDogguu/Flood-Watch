@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -21,9 +22,11 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -31,8 +34,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
 import com.example.myapplication.calbacks.ResponseCallback;
+import com.example.myapplication.data.models.admin.NewsPostRequestModel;
 import com.example.myapplication.data.models.api_response.AdminDashboardApiResponse;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.ApiUsesInformationResponse;
@@ -40,7 +45,9 @@ import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 import com.example.myapplication.data.respository.AdminAPIRequestHandler;
 import com.example.myapplication.data.respository.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataSharedPreference;
+import com.example.myapplication.ui.activity.auth.LoginActivity;
 import com.example.myapplication.ui.activity.home.NewsActivity;
+import com.example.myapplication.ui.activity.home.ProfileActivity;
 import com.example.myapplication.ui.adapter.AdminNewsAdapter;
 import com.example.myapplication.ui.adapter.AdminUserAdapter;
 import com.example.myapplication.utils.GlobalUtility;
@@ -56,11 +63,11 @@ import java.util.List;
 public class AdminActivity extends AppCompatActivity {
 
     private TabLayout tabLayout;
-    private Uri currentPhotoUri;
     private DataSharedPreference sharedPreference;
+    private Uri currentPhotoUri;
+
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private ActivityResultLauncher<Intent> pickImageLauncher;
-    private ActivityResultLauncher<Uri> takePictureLauncher;
     private Button btnCreateNews;
     private FrameLayout contentContainer;
     private Context context;
@@ -74,16 +81,12 @@ public class AdminActivity extends AppCompatActivity {
     private int userSkip = 1;
     private int newsSkip = 1;
     private String newsTag = "All";
-    private View contentView;
     private ImageView imageRemover;
     private GlobalUtility globalUtility;
     private boolean isImageUploaded = false;
     LinearLayout paginationLayoutNews, paginationLayoutUsers;
     ImageButton btnNextNews, btnPrevNews, btnNextUsers, btnPrevUsers;
-    private TextView paginatedNumberNews,paginatedNumberUsers;
-
-    private AdminDashboardApiResponse dashboardApiResponse = new AdminDashboardApiResponse();
-//    private List<NewsAPIResponse.NewsData> newsList = new ArrayList<>();
+    private TextView paginatedNumberNews, paginatedNumberUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +102,6 @@ public class AdminActivity extends AppCompatActivity {
         globalUtility = new GlobalUtility();
         sharedPreference = DataSharedPreference.getInstance(context);
 
-
         // Setup toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -110,11 +112,16 @@ public class AdminActivity extends AppCompatActivity {
 
         tabLayout = findViewById(R.id.tabLayout);
         contentContainer = findViewById(R.id.contentContainer);
-
         setupTabs();
         showDashboard();
     }
 
+    @NonNull
+    @Override
+    public OnBackInvokedDispatcher getOnBackInvokedDispatcher() {
+        return super.getOnBackInvokedDispatcher();
+
+    }
 
     private void setupTabs() {
         tabLayout.addTab(tabLayout.newTab().setText("Dashboard"));
@@ -147,6 +154,7 @@ public class AdminActivity extends AppCompatActivity {
         });
     }
 
+
     private void showDashboard() {
         View view = getLayoutInflater().inflate(R.layout.fragment_admin_dashboard, contentContainer, false);
         contentContainer.removeAllViews();
@@ -175,7 +183,6 @@ public class AdminActivity extends AppCompatActivity {
         adminAPIRequestHandler.getUsersInformation(userSkip, 10, new ResponseCallback<ApiUsesInformationResponse>() {
             @Override
             public void onSuccess(ApiUsesInformationResponse response) {
-                userData.clear();
                 userData = response.getData();
 
                 //initialized the recycle view
@@ -184,14 +191,20 @@ public class AdminActivity extends AppCompatActivity {
                 if (response.getPaginated().getTotal_records() > 10) {
                     //visible the layout
                     paginationLayoutUsers.setVisibility(VISIBLE);
-                    String pageInfo = "Showing " + response.getPaginated().getStart_page() +" to "+response.getPaginated().getEnd_page() + " of " + response.getPaginated().getTotal_records();
+
+                    //check if the skip is greater than 1
+                    if (userSkip > 1) {
+                        btnPrevUsers.setClickable(true);
+                        btnPrevUsers.setBackgroundResource(R.drawable.pagination_button_active);
+                    }
+                    String pageInfo = "Showing " + response.getPaginated().getStart_page() + " to " + response.getPaginated().getEnd_page() + " of " + response.getPaginated().getTotal_records();
                     paginatedNumberUsers.setText(pageInfo);
-                    if(!response.getPaginated().isHas_next()){
+                    if (!response.getPaginated().isHas_next()) {
                         Toast.makeText(activity, "End of news page.", Toast.LENGTH_SHORT).show();
                         btnNextUsers.setClickable(false);
                         btnNextUsers.setBackgroundResource(R.drawable.pagination_button_inactive);
 
-                    }else{
+                    } else {
                         btnNextUsers.setClickable(true);
                         btnNextUsers.setBackgroundResource(R.drawable.pagination_button_active);
                     }
@@ -199,8 +212,6 @@ public class AdminActivity extends AppCompatActivity {
                 } else {
                     paginationLayoutUsers.setVisibility(View.GONE);
                 }
-
-
             }
 
             @Override
@@ -235,20 +246,24 @@ public class AdminActivity extends AppCompatActivity {
         usersAPIRequestHandler.getNewsPaginated(newsSkip, 10, newsTag, new ResponseCallback<NewsAPIResponse>() {
             @Override
             public void onSuccess(NewsAPIResponse response) {
-
                 newsData = response.getData();
                 setUpNewsRecycleView();
                 if (response.getPaginated().getTotal_records() > 10) {
                     //visible the layout
                     paginationLayoutNews.setVisibility(VISIBLE);
-                    String pageInfo = "Showing " + response.getPaginated().getStart_page() +" to "+response.getPaginated().getEnd_page() + " of " + response.getPaginated().getTotal_records();
+                    //check if the skip is greater than 1
+                    if (newsSkip > 1) {
+                        btnPrevNews.setClickable(true);
+                        btnPrevNews.setBackgroundResource(R.drawable.pagination_button_active);
+                    }
+                    String pageInfo = "Showing " + response.getPaginated().getStart_page() + " to " + response.getPaginated().getEnd_page() + " of " + response.getPaginated().getTotal_records();
                     paginatedNumberNews.setText(pageInfo);
-                    if(!response.getPaginated().isHas_next()){
+                    if (!response.getPaginated().isHas_next()) {
                         Toast.makeText(activity, "End of news page.", Toast.LENGTH_SHORT).show();
                         btnNextNews.setClickable(false);
                         btnNextNews.setBackgroundResource(R.drawable.pagination_button_inactive);
 
-                    }else{
+                    } else {
                         btnNextNews.setClickable(true);
                         btnNextNews.setBackgroundResource(R.drawable.pagination_button_active);
                     }
@@ -299,6 +314,7 @@ public class AdminActivity extends AppCompatActivity {
 
     /**
      * To initialized the space for recycle view.
+     *
      * @param recyclerView to be added space to this component.
      */
     protected void setupSpaceForRecycle(RecyclerView recyclerView) {
@@ -322,19 +338,19 @@ public class AdminActivity extends AppCompatActivity {
      * it is a function to handle the listeners for
      * previous and next button for pagination ins news.
      */
-    private void handleNewsPaginationListener(){
+    private void handleNewsPaginationListener() {
 
         //handle skip
-        btnPrevNews.setOnClickListener(v ->{
+        btnPrevNews.setOnClickListener(v -> {
             btnNextNews.setClickable(true);
             btnNextNews.setBackgroundResource(R.drawable.pagination_button_active);
-            if(newsSkip > 1) {
+            if (newsSkip > 1) {
                 newsSkip -= 1;
                 showNewsManagement();
             }
 
             //to disable prev button if equal to one
-            if(newsSkip == 1) {
+            if (newsSkip == 1) {
                 btnPrevNews.setClickable(false);
                 btnPrevNews.setBackgroundResource(R.drawable.pagination_button_inactive);
 
@@ -343,26 +359,26 @@ public class AdminActivity extends AppCompatActivity {
         });
 
         btnNextNews.setOnClickListener(v -> {
-                newsSkip += 1;
-                //make the previous button clickable again
-                btnPrevNews.setClickable(true);
-                btnPrevNews.setBackgroundResource(R.drawable.pagination_button_active);
-                showNewsManagement();
+            newsSkip += 1;
+            //make the previous button clickable again
+            btnPrevNews.setClickable(true);
+            btnPrevNews.setBackgroundResource(R.drawable.pagination_button_active);
+            showNewsManagement();
         });
     }
 
-    private void handleUsersPaginationListener(){
+    private void handleUsersPaginationListener() {
         //handle skip
-        btnPrevUsers.setOnClickListener(v ->{
+        btnPrevUsers.setOnClickListener(v -> {
             btnNextUsers.setClickable(true);
             btnNextUsers.setBackgroundResource(R.drawable.pagination_button_active);
-            if(userSkip > 1) {
+            if (userSkip > 1) {
                 userSkip -= 1;
                 showUserManagement();
             }
 
             //to disable prev button if equal to one
-            if(userSkip == 1) {
+            if (userSkip == 1) {
                 btnPrevUsers.setClickable(false);
                 btnPrevUsers.setBackgroundResource(R.drawable.pagination_button_inactive);
 
@@ -370,7 +386,7 @@ public class AdminActivity extends AppCompatActivity {
 
         });
         btnNextUsers.setOnClickListener(v -> {
-            if(btnNextUsers.getVisibility() == VISIBLE){
+            if (btnNextUsers.getVisibility() == VISIBLE) {
                 userSkip += 1;
                 //make the previous button clickable again
                 btnPrevUsers.setClickable(true);
@@ -384,6 +400,7 @@ public class AdminActivity extends AppCompatActivity {
 
     //will set this after successful pick an image
     TextView imagePathText;
+
 
     private void showCreateNewsDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_create_news, null);
@@ -446,11 +463,12 @@ public class AdminActivity extends AppCompatActivity {
                 imagePathText.setText("No image selected");
             }
         });
+
         //create alert dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Create News Post");
         builder.setView(dialogView);
-        builder.setPositiveButton("Publish", null); // ← We override this later
+        builder.setPositiveButton("Publish", null); //
         builder.setNegativeButton("Cancel", null);
 
         AlertDialog dialog = builder.create();
@@ -462,9 +480,14 @@ public class AdminActivity extends AppCompatActivity {
             String content = contentInput.getText().toString().trim();
             String newsTag = tagSpinner.getSelectedItem().toString();
             String newsSource = sourceSpinner.getSelectedItem().toString();
+            List<File> listsImages = new ArrayList<>();
+            List<String> listsTags = new ArrayList<>();
+            //add the tags
+            listsTags.add(newsTag);
             File imageFile = null;
             try {
-                imageFile = globalUtility.uriToFile(currentPhotoUri,activity);
+                imageFile = globalUtility.uriToFile(currentPhotoUri, activity);
+                listsImages.add(imageFile);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -492,11 +515,31 @@ public class AdminActivity extends AppCompatActivity {
                 Toast.makeText(this, "Please select a source", Toast.LENGTH_SHORT).show();
                 return;
             }
+
             //call api
-            dialog.dismiss(); // Close only when valid
+            NewsPostRequestModel request = new NewsPostRequestModel(
+                    title, content, "active",
+                    listsImages, listsTags, sourceSpinner.getSelectedItem().toString());
+
+            adminAPIRequestHandler.createNews(request, new ResponseCallback<NewsAPIResponse>() {
+                @Override
+                public void onSuccess(NewsAPIResponse response) {
+                    Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
+                    //update the news
+                    showNewsManagement();
+                    dialog.dismiss(); // Close once it's updated
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("CREATE_NEWS_ERROR", t.getMessage());
+                }
+            });
         });
 
     }
+
     // Pick image from gallery
     private void checkPermissionAndPickImage() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -555,7 +598,7 @@ public class AdminActivity extends AppCompatActivity {
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         //set the uri of select image to the global variable currentPhotoUri
-                        if(!isImageUploaded){
+                        if (!isImageUploaded) {
                             currentPhotoUri = result.getData().getData();
                             imagePathText.setText(result.getData().getDataString());
                             imageRemover.setImageDrawable(null);
@@ -568,14 +611,6 @@ public class AdminActivity extends AppCompatActivity {
         );
     }
 
-    private <T> void setProfilePictureUsingURL(T profileUrl, ImageView intoImage) {
-        Glide.with(this)
-                .load(profileUrl)
-                .circleCrop()
-                .placeholder(R.drawable.ic_user)
-                .error(R.drawable.ic_user)
-                .into(intoImage);
-    }
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -583,10 +618,50 @@ public class AdminActivity extends AppCompatActivity {
         pickImageLauncher.launch(intent);
     }
 
+
+    //if the arrow clicked
     @Override
     public boolean onSupportNavigateUp() {
-        finish();
+
+        showLogoutDialog();
         return true;
+    }
+
+    private void showLogoutDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Logout")
+                .setMessage("Are you sure you want to logout?")
+                .setPositiveButton("Logout", (dialog, which) -> {
+                    // Clear user session
+                    clearUserSession();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void clearUserSession() {
+        // Clear SharedPreferences or any stored session data
+        String ACCESS_TOKEN_KEY = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
+        String accessToken = sharedPreference.getData(ACCESS_TOKEN_KEY);
+        usersAPIRequestHandler.logOutUser(accessToken, new ResponseCallback<ApiSuccessfulResponse>() {
+            @Override
+            public void onSuccess(ApiSuccessfulResponse response) {
+                Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show();
+                sharedPreference.clearPreference();
+                Intent intent = new Intent(AdminActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+                sharedPreference.clearPreference();
+                Intent intent = new Intent(AdminActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

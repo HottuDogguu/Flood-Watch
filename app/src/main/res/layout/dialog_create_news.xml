@@ -31,6 +31,7 @@
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeErrorColor="@color/red_600"
             app:boxStrokeColor="#3B82F6"
             app:hintEnabled="false">
 
@@ -77,6 +78,7 @@
                 android:gravity="top"
                 android:hint="Enter news content"
                 android:inputType="textMultiLine"
+                app:boxStrokeErrorColor="@color/red_600"
                 android:minHeight="140dp"
                 android:padding="16dp"
                 android:textColor="#1E293B"
