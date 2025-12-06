@@ -1,52 +1,67 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:background="@color/white"
-    android:padding="12dp"
-    android:layout_marginBottom="12dp">
-
-    <ImageView
-        android:id="@+id/imgAlertIcon"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@drawable/ic_alert"
-        android:layout_marginTop="2dp"
-        app:tint="#F59E0B" />
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="4dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardUseCompatPadding="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_marginStart="12dp">
+        android:orientation="horizontal"
+        android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tvAlertTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Rising Water Level"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="#1F2937"/>
+        <!-- Icon - size increased a bit for better card look -->
+        <ImageView
+            android:id="@+id/imgAlertIcon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_alert"
+            android:layout_gravity="center_vertical"
+            app:tint="#F59E0B" />
 
-        <TextView
-            android:id="@+id/tvAlertDescription"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Water level increased by 0.5m"
-            android:textSize="12sp"
-            android:textColor="#6B7280"
-            android:layout_marginTop="2dp"/>
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="14dp">
 
-        <TextView
-            android:id="@+id/tvAlertTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="2 hours ago"
-            android:textSize="11sp"
-            android:textColor="#9CA3AF"
-            android:layout_marginTop="4dp"/>
+            <TextView
+                android:id="@+id/tvAlertTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rising Water Level"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#1F2937" />
+
+            <TextView
+                android:id="@+id/tvAlertDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Water level increased by 0.5m"
+                android:textSize="13sp"
+                android:textColor="#6B7280"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:id="@+id/tvAlertTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2 hours ago"
+                android:textSize="12sp"
+                android:textColor="#9CA3AF"
+                android:layout_marginTop="6dp" />
+
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</androidx.cardview.widget.CardView>

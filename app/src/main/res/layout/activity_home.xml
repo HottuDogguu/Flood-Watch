@@ -174,7 +174,7 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- NEWS CAROUSEL SECTION - NEW! -->
+
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_news_carousel"
                     android:layout_width="match_parent"
@@ -306,7 +306,7 @@
                     android:id="@+id/cardRecentAlerts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="8dp"
                     app:cardCornerRadius="20dp"
                     app:cardElevation="2dp">
 
@@ -325,13 +325,13 @@
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
-
-                        <!-- This container will hold alert items dynamically -->
                         <LinearLayout
                             android:id="@+id/alertsContainer"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical" />
+                            android:orientation="vertical"
+                            android:divider="?android:attr/listDivider"
+                            android:elevation="8dp"/>
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>

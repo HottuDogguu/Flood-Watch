@@ -228,7 +228,7 @@ public class AdminActivity extends AppCompatActivity {
         contentContainer.removeAllViews();
         contentContainer.addView(view);
         RecyclerView recyclerView = view.findViewById(R.id.usersRecyclerView);
-        adminUserAdapter = new AdminUserAdapter(userData);
+        adminUserAdapter = new AdminUserAdapter(userData,context,sharedPreference,globalUtility);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adminUserAdapter);
 

@@ -13,7 +13,6 @@
         android:name="android.hardware.touchscreen"
         android:required="false" />
 
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -92,13 +91,9 @@
         <activity
             android:name=".ui.activity.home.HomeActivity"
             android:exported="false" />
-        <activity
-            android:name=".ui.activity.home.admin.AdminActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.activity.home.admin.NewsDataActivity"
-            android:parentActivityName=".ui.activity.home.admin.AdminActivity"
-            android:exported="false" />
+
+
+
         <activity
             android:name=".ui.activity.home.AnnouncementActivity"
             android:exported="false"
@@ -140,20 +135,35 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:parentActivityName=".ui.activity.home.ProfileActivity" />
 
-        <!--News ACtivity-->
+        <!--News Activity-->
          <activity
             android:name=".ui.activity.home.NewsActivity"
             android:exported="false"
-            android:label="MDRRMO Contacts"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:parentActivityName=".ui.activity.home.ProfileActivity" />
-        <!--News ACtivity-->
+
         <activity
             android:name=".ui.activity.home.FloodHistoryActivity"
             android:exported="false"
             android:label="MDRRMO Contacts"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:parentActivityName=".ui.activity.home.ProfileActivity" />
+
+        <!--Admin Activities-->
+        <activity
+            android:name=".ui.activity.home.admin.AdminActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activity.home.admin.NewsDataActivity"
+            android:parentActivityName=".ui.activity.home.admin.AdminActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activity.home.admin.UserDataActivity"
+            android:parentActivityName=".ui.activity.home.admin.AdminActivity"
+            android:exported="false" />
+
 
         <!-- FileProvider for camera -->
         <provider
@@ -164,6 +174,7 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
+
         </provider>
     </application>
 </manifest>

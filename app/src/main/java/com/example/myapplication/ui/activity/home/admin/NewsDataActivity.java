@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -49,13 +50,13 @@ public class NewsDataActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> pickImageLauncher;
     private GlobalUtility globalUtility;
     private AdminAPIRequestHandler adminAPIRequestHandler;
-    private Spinner sourceSpinner,tagsSpinner;
+    private Spinner sourceSpinner, tagsSpinner;
     private Context context;
     private Activity activity;
     private String NEWS_DATA_KEY;
     private ImageView newsImage, imageChooser;
-    private Button btnUpdate,btnDelete;
-    private TextInputEditText newsTitle,newsContent;
+    private Button btnUpdate, btnDelete;
+    private TextInputEditText newsTitle, newsContent;
     private TextView newsDate;
     private CheckBox cbActivated;
     //to get the current data
@@ -64,7 +65,7 @@ public class NewsDataActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_news_single_item);
+        setContentView(R.layout.activity_admin_manage_news);
         initViews();
 
         //load data
@@ -79,7 +80,7 @@ public class NewsDataActivity extends AppCompatActivity {
 
     }
 
-    private void handleOnClickListeners(){
+    private void handleOnClickListeners() {
         //listener for image chooser
         newsImageSelector();
 
@@ -89,23 +90,24 @@ public class NewsDataActivity extends AppCompatActivity {
         //handle update btn
         handleUpdateOnclickListener();
 
-
+        //delete btn
+        handleDeleteOnClick();
     }
 
-    private void loadNewsData(){
+    private void loadNewsData() {
         Gson gson = new Gson();
-        NEWS_DATA_KEY = globalUtility.getValueInYAML(Constants.NEWS_DATA_KEY,context);
+        NEWS_DATA_KEY = globalUtility.getValueInYAML(Constants.NEWS_DATA_KEY, context);
 
         String newsData = dataSharedPreference.getData(NEWS_DATA_KEY);
-         currentNewsData = gson.fromJson(newsData, NewsAPIResponse.NewsData.class);
+        currentNewsData = gson.fromJson(newsData, NewsAPIResponse.NewsData.class);
 
 
         //handle image safely
-        if(currentNewsData.getImages() != null){
-            for (NewsAPIResponse.NewsImage image: currentNewsData.getImages()) {
+        if (currentNewsData.getImages() != null) {
+            for (NewsAPIResponse.NewsImage image : currentNewsData.getImages()) {
 
                 Glide.with(context)
-                        .load(image.getImg_url() != null && !image.getImg_url().isEmpty()? image.getImg_url() : R.drawable.news_image_palceholder)
+                        .load(image.getImg_url() != null && !image.getImg_url().isEmpty() ? image.getImg_url() : R.drawable.news_image_palceholder)
                         .into(newsImage);
             }
 
@@ -119,14 +121,14 @@ public class NewsDataActivity extends AppCompatActivity {
         sourceSpinner.setSelection(sources.indexOf(currentNewsData.getSource()));
 
         //tags spinner
-        List<String> tags = Arrays.asList("Select Tags","Popular", "Business","Technology", "Other");
+        List<String> tags = Arrays.asList("Select Tags", "Popular", "Business", "Technology", "Other");
         ArrayAdapter<String> tagsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, tags);
         tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         tagsSpinner.setAdapter(tagsAdapter);
         int newsTag = 0;
         //handle the tags for all, it because it is empty.
-        if(!currentNewsData.getTags().isEmpty()){
+        if (!currentNewsData.getTags().isEmpty()) {
             newsTag = tags.indexOf(currentNewsData.getTags().get(0));
         }
         tagsSpinner.setSelection(newsTag);
@@ -140,28 +142,54 @@ public class NewsDataActivity extends AppCompatActivity {
         cbActivated.setChecked(currentNewsData.getStatus().equalsIgnoreCase("Active"));
     }
 
-    private void newsImageSelector(){
-        imageChooser.setOnClickListener(v ->{
+    private void newsImageSelector() {
+        imageChooser.setOnClickListener(v -> {
             checkPermissionAndPickImage();
         });
     }
 
     //checkbox click listeners
     @SuppressLint("SetTextI18n")
-    private void handleCheckboxListeners(){
-        cbActivated.setOnClickListener(v ->{
-            if(cbActivated.isChecked()){
-                cbActivated.setText("Active");
-            }else{
-                cbActivated.setText("Inactive");
+    private void handleCheckboxListeners() {
+        cbActivated.setOnClickListener(v -> {
+            if (cbActivated.isChecked()) {
+                cbActivated.setText("active");
+            } else {
+                cbActivated.setText("inactive");
+
+            }
+        });
+    }
+
+    private void handleDeleteOnClick() {
+        btnDelete.setOnClickListener(v -> {
+            showLogoutDialog();
+        });
+    }
+
+    private void deleteNewsData() {
+        adminAPIRequestHandler.deleteNews(currentNewsData.get_id(), new ResponseCallback<NewsAPIResponse>() {
+            @Override
+            public void onSuccess(NewsAPIResponse response) {
+                Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(NewsDataActivity.this, AdminActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("DELETE_NEWS_ERROR", t.getMessage());
 
             }
         });
     }
 
 
-    private void handleUpdateOnclickListener(){
-        btnUpdate.setOnClickListener(v ->{
+    private void handleUpdateOnclickListener() {
+        btnUpdate.setOnClickListener(v -> {
             //validate fields
             String title = newsTitle.getText().toString();
             String content = newsContent.getText().toString();
@@ -176,7 +204,7 @@ public class NewsDataActivity extends AppCompatActivity {
             listsTags.add(newsTags);
             File imageFile = null;
             try {
-                imageFile = globalUtility.uriToFile(currentPhotoUri,activity);
+                imageFile = globalUtility.uriToFile(currentPhotoUri, activity);
                 listsImages.add(imageFile);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -208,7 +236,8 @@ public class NewsDataActivity extends AppCompatActivity {
             });
         });
     }
-    private void initViews(){
+
+    private void initViews() {
         context = this;
         activity = this;
 
@@ -223,7 +252,7 @@ public class NewsDataActivity extends AppCompatActivity {
         tagsSpinner = findViewById(R.id.tagsSpinner);
         cbActivated = findViewById(R.id.cbActivated);
 
-        adminAPIRequestHandler = new AdminAPIRequestHandler(activity,context);
+        adminAPIRequestHandler = new AdminAPIRequestHandler(activity, context);
 
         dataSharedPreference = DataSharedPreference.getInstance(context);
         globalUtility = new GlobalUtility();
@@ -287,10 +316,10 @@ public class NewsDataActivity extends AppCompatActivity {
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         //set the uri of select image to the global variable currentPhotoUri
-                            currentPhotoUri = result.getData().getData();
-                            if(currentPhotoUri != null){
-                                setProfilePictureUsingURL(currentPhotoUri,newsImage);
-                            }
+                        currentPhotoUri = result.getData().getData();
+                        if (currentPhotoUri != null) {
+                            setProfilePictureUsingURL(currentPhotoUri, newsImage);
+                        }
                     }
                 }
         );
@@ -301,6 +330,18 @@ public class NewsDataActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         pickImageLauncher.launch(intent);
+    }
+
+    private void showLogoutDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete news data")
+                .setMessage("Are you sure you want to delete this?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    // delete news data
+                    deleteNewsData();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private <T> void setProfilePictureUsingURL(T profileUrl, ImageView intoImage) {

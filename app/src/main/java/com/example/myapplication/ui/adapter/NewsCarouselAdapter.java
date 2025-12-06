@@ -66,8 +66,8 @@ public class NewsCarouselAdapter extends RecyclerView.Adapter<NewsCarouselAdapte
 
                 Glide.with(context)
                         .load(imageUrl)
-                        .placeholder(R.drawable.ic_user)
-                        .error(R.drawable.ic_user)
+                        .placeholder(R.drawable.ic_placeholder_image)
+                        .error(R.drawable.ic_placeholder_image)
                         .into(holder.newsImage);
 
             } else {

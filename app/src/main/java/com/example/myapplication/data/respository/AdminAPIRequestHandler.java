@@ -6,7 +6,9 @@ import android.content.Context;
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.admin.NewsPostRequestModel;
+import com.example.myapplication.data.models.admin.UsersPutRequestModel;
 import com.example.myapplication.data.models.api_response.AdminDashboardApiResponse;
+import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.ApiUsesInformationResponse;
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 import com.example.myapplication.data.network.APIBuilder;
@@ -153,6 +155,51 @@ public class AdminAPIRequestHandler extends BaseRepository {
                     }
                 });
     }
+
+    public void deleteNews(String newsId, ResponseCallback<NewsAPIResponse> callback){
+        adminEndpoints = api.createService(AdminEndpoints.class);
+        adminEndpoints.deleteNews(newsId).enqueue(new Callback<NewsAPIResponse>() {
+            @Override
+            public void onResponse(Call<NewsAPIResponse> call, Response<NewsAPIResponse> response) {
+                globalUtility.parseAPIResponse(response,callback);
+            }
+
+            @Override
+            public void onFailure(Call<NewsAPIResponse> call, Throwable t) {
+
+            }
+        });
+    }
+    public void updateUserInformation(String newsId, UsersPutRequestModel request, ResponseCallback<ApiSuccessfulResponse> callback){
+        adminEndpoints = api.createService(AdminEndpoints.class);
+        adminEndpoints.updateUserInformation(newsId,request).enqueue(new Callback<ApiSuccessfulResponse>() {
+            @Override
+            public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
+                globalUtility.parseAPIResponse(response,callback);
+            }
+
+            @Override
+            public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void deleteUserInformation(String newsId, ResponseCallback<ApiSuccessfulResponse> callback){
+        adminEndpoints = api.createService(AdminEndpoints.class);
+        adminEndpoints.deleteUserInformation(newsId).enqueue(new Callback<ApiSuccessfulResponse>() {
+            @Override
+            public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
+                globalUtility.parseAPIResponse(response,callback);
+            }
+            @Override
+            public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+
 
 
 }

@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -64,11 +65,9 @@ public class HomeActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigation;
     private LocalNotificationManager localNotificationManager;
     private FloatingActionButton fabEmergency;
-    private TextView tvWaterLevel;
-    private TextView tvStatus;
-    private TextView tvRainfall;
-    private TextView tvAlerts;
-    private TextView tvStation;
+
+    private TextView tvRainfall,tvStatus,tvWaterLevel, tv_view_full_weather,tvAlerts,tvStation,tv_view_full_news;
+
     private ImageView btnNotifications;
     private WeatherHourTimelineAdapter fiveHourAdapter;
     private RecyclerView rvHourlyForecast;
@@ -121,6 +120,19 @@ public class HomeActivity extends AppCompatActivity {
             Intent intent = new Intent(HomeActivity.this, NotificationHistoryActivity.class);
             startActivity(intent);
         });
+
+        //set on click listeners adn go to weathers
+        tv_view_full_weather.setOnClickListener(v ->{
+            Intent intent = new Intent(HomeActivity.this, WeatherMonitorActivity.class);
+            startActivity(intent);
+        });
+
+        //set on click listeners adn go to weathers
+        tvSeeAllNews.setOnClickListener(v ->{
+            Intent intent = new Intent(HomeActivity.this, NewsActivity.class);
+            startActivity(intent);
+
+        });
     }
 
     private void initViews() {
@@ -134,6 +146,7 @@ public class HomeActivity extends AppCompatActivity {
         tvRainfall = (TextView) findViewById(R.id.tv_rainfall);
         tvStation = (TextView) findViewById(R.id.tv_station);
         btnNotifications = (ImageView) findViewById(R.id.btn_notifications);
+        tv_view_full_weather = findViewById(R.id.tv_view_full_weather);
 
 
         // Initialize News Carousel Views
@@ -231,7 +244,7 @@ public class HomeActivity extends AppCompatActivity {
                 String jsonData = gson.toJson(response.getData());
                 dataSharedPreference.saveData(USER_DATA_KEY, jsonData);
                 //check if the status is admin
-                if(response.getData().getRole().equalsIgnoreCase("admin")){
+                if (response.getData().getRole().equalsIgnoreCase("admin")) {
                     Intent intent = new Intent(HomeActivity.this, AdminActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
@@ -393,9 +406,7 @@ public class HomeActivity extends AppCompatActivity {
                     if (alertListData.size() == 3) {
                         break;
                     }
-
                     alertListData.add(data);
-
                 }
                 updateRecentNotification(alertListData);
             }
@@ -428,7 +439,6 @@ public class HomeActivity extends AppCompatActivity {
                 //For logging and it will delete when in production
                 Gson gson = new Gson();
                 String loggingData = gson.toJson(response.getData());
-                Log.i("NEWS_PAGINATED", loggingData);
             }
 
             @Override
@@ -500,39 +510,56 @@ public class HomeActivity extends AppCompatActivity {
     private void updateRecentNotification(List<ListOfNotificationResponse.NotificationData> alertsList) {
         LinearLayout alertsContainer = findViewById(R.id.alertsContainer);
         CardView cardRecentAlerts = findViewById(R.id.cardRecentAlerts);
+
         if (!alertsList.isEmpty()) {
             cardRecentAlerts.setVisibility(View.VISIBLE);
             alertsContainer.removeAllViews();
+
             LayoutInflater inflater = LayoutInflater.from(context);
             int counter = 0;
+
             for (ListOfNotificationResponse.NotificationData alert : alertsList) {
+                if (counter >= 4) break; // Limit to 4 recent alerts
+
+                // Inflate the item layout (make sure it's wrapped in a CardView in XML)
                 View alertView = inflater.inflate(R.layout.recent_alerts_item, alertsContainer, false);
+
                 TextView tvTitle = alertView.findViewById(R.id.tvAlertTitle);
                 TextView tvDesc = alertView.findViewById(R.id.tvAlertDescription);
                 TextView tvTime = alertView.findViewById(R.id.tvAlertTime);
                 ImageView imgAlertIcon = alertView.findViewById(R.id.imgAlertIcon);
-
-                //get the past time
+                // Set data
                 String timeAgo = globalUtility.getTimeAgo(alert.getCreated_at());
                 tvTitle.setText(alert.getTitle());
                 tvDesc.setText(alert.getNotification_text());
                 tvTime.setText(timeAgo);
 
-                // Optionally set background based on severity
-                int color = getSeverityColor(alert.getSeverity());
+                // Determine severity and apply color
+                String severity = alert.getSeverity() != null ? alert.getSeverity().trim() : "";
 
-
-                imgAlertIcon.setColorFilter(color);
-                //added the notif in the per card
-                alertsContainer.addView(alertView);
-
-                if (counter > 3) {
-                    break;
+                int iconColor;
+                switch (severity) {
+                    case Constants.WARNING:
+                        iconColor = ContextCompat.getColor(context, R.color.yellow_400);
+                        break;
+                    case Constants.CRITICAL:
+                        iconColor = ContextCompat.getColor(context, R.color.red_500);
+                        break;
+                    case Constants.SEVERE:
+                        iconColor = ContextCompat.getColor(context, R.color.gray_600);
+                        break;
+                    default:
+                        iconColor = ContextCompat.getColor(context, R.color.green_600);
+                        break;
                 }
+                // Apply color to icon
+                imgAlertIcon.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN);
 
+                alertsContainer.addView(alertView);
                 counter++;
             }
         } else {
+            cardRecentAlerts.setVisibility(View.GONE); // or View.INVISIBLE if you want to keep space
             alertsContainer.removeAllViews();
         }
     }

@@ -40,7 +40,6 @@ public class WeatherMonitorActivity extends AppCompatActivity {
     private UsersAPIRequestHandler usersAPIRequestHandler;
     List<FiveWeatherForecast.HourlyWeatherForecast> hourlyNewData = new ArrayList<>();
 
-
     private Activity activity;
     private Context context;
     private RecyclerView rvHourlyForecast;

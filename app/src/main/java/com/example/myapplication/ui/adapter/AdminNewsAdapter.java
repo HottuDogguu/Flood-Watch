@@ -77,8 +77,8 @@ public class AdminNewsAdapter extends RecyclerView.Adapter<AdminNewsAdapter.View
 
                 Glide.with(context)
                         .load(imageUrl)
-                        .placeholder(R.drawable.news_image_palceholder)
-                        .error(R.drawable.news_image_palceholder)
+                        .placeholder(R.drawable.ic_placeholder_image)
+                        .error(R.drawable.ic_placeholder_image)
                         .into(holder.newsImage);
 
             } else {
