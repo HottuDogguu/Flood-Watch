@@ -64,7 +64,7 @@ public class LoginActivityUtility extends BaseAuthUtility {
 
     }
 
-    public void handleOnError(Throwable throwable) {
+    public void handleOnError(Throwable throwable,String userEmail) {
         String errorMessage = throwable.getMessage();
         Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show();
         if ( errorMessage != null && errorMessage.toLowerCase().contains("not found")) {
@@ -72,16 +72,17 @@ public class LoginActivityUtility extends BaseAuthUtility {
         } else if (errorMessage != null && errorMessage.toLowerCase().contains("password")) {
 
             setRequestFocusOnField(password, loginPasswordTextInput, "Incorrect Password!");
-        } else if (errorMessage != null && errorMessage.toLowerCase().contains("Verify")) {
-            this.navigateToEmailVerification(throwable);
+        } else if (errorMessage != null && errorMessage.toLowerCase().contains("account pending")) {
+            this.navigateToEmailVerification(throwable,userEmail);
         }
     }
 
-    private void navigateToEmailVerification(Throwable throwable) {
+    private void navigateToEmailVerification(Throwable throwable, String userEmail) {
         Intent intent = new Intent(context, EmailVerificationActivity.class);
         //Loading first
         Toast.makeText(context, throwable.getMessage(), Toast.LENGTH_LONG).show();
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("UserEmail", userEmail);
         context.startActivity(intent);
 
 

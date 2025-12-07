@@ -18,6 +18,7 @@ import com.example.myapplication.data.respository.AuthenticationAPIRequestHandle
 import com.example.myapplication.data.respository.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataSharedPreference;
 
+import com.example.myapplication.ui.activity.auth.EmailVerificationActivity;
 import com.example.myapplication.ui.activity.home.HomeActivity;
 import com.example.myapplication.ui.activity.auth.LinkGoogleAccountActivity;
 import com.example.myapplication.ui.activity.auth.SignUpAsGoogleActivity;
@@ -64,11 +65,18 @@ public class BaseAuthUtility {
             @Override
             public void onSuccess(ApiSuccessfulResponse response) {
                 String userActions = response.getAction();
-
                 List<String> sign_in_type = response.getData().getSign_in_type();
                 if (userActions.equals("login")) {
                     //check the sign in type if contains google
                     if (!sign_in_type.contains("google")) {
+                        //check if the account is pending or not
+                        if(response.getData().getStatus().equalsIgnoreCase("pending")){
+                            Intent intent = new Intent(context, EmailVerificationActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                            context.startActivity(intent);
+                            return;
+                        }
                         //if it is linked in password only, then go to link account page
                         Intent intent = new Intent(context, LinkGoogleAccountActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

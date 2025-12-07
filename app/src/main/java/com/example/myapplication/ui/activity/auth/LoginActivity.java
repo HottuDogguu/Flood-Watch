@@ -114,6 +114,7 @@ public class LoginActivity extends BaseActivity {
             }
             //if no empty fields, then proceed to calling api.
             //call the get response function which is the request from apiBuilder
+            getIntent().putExtra("UserEmail", loginEmail); //send email into intent
             auth.manualLoginResponse(new ManualLoginRequest(loginEmail, loginPassword),
                     new ResponseCallback<ApiSuccessfulResponse>() {
                         @Override
@@ -123,7 +124,7 @@ public class LoginActivity extends BaseActivity {
 
                         @Override
                         public void onError(Throwable t) {
-                            loginActivityUtility.handleOnError(t);
+                            loginActivityUtility.handleOnError(t, loginEmail);
                         }
                     });
         });

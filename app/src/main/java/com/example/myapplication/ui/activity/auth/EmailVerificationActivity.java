@@ -48,6 +48,8 @@ public class EmailVerificationActivity extends BaseActivity {
     TextView tvEmail;
 
     private DataSharedPreference dataSharedPreference;
+    String WEBSOCKET_URL;
+    String userEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,15 +62,14 @@ public class EmailVerificationActivity extends BaseActivity {
         apiRequestHandler = new UsersAPIRequestHandler(activity, context);
 
         tvEmail = findViewById(R.id.tvEmail);
-        String userEmail = getIntent().getStringExtra("UserEmail");
+        userEmail = getIntent().getStringExtra("UserEmail");
         tvEmail.setText(userEmail);
 
         //shared preference
         dataSharedPreference = DataSharedPreference.getInstance(context);
 
 
-        //handle on click listener for email verification
-        onClickListeners();
+
 
         //for headers
         String manufacturer = android.os.Build.MANUFACTURER;
@@ -86,8 +87,7 @@ public class EmailVerificationActivity extends BaseActivity {
                 })
                 .build();
 
-        userEmail = getIntent().getStringExtra("UserEmail");
-        String WEBSOCKET_URL = globalUtility.getValueInYAML(BuildConfig.API_WEBSOCKET_BASE_URL, this);
+         WEBSOCKET_URL = globalUtility.getValueInYAML(BuildConfig.API_WEBSOCKET_BASE_URL, this);
 
         Request request = new Request.Builder().url(WEBSOCKET_URL + "auth/verify/account/activation?email=" + userEmail + "-Android").build();
         WebSocketListener listener = new WebSocketListener() {
@@ -153,10 +153,81 @@ public class EmailVerificationActivity extends BaseActivity {
             }
         };
         client.newWebSocket(request, listener);
+
+        //handle on click listener for email verification
+        onClickListeners();
     }
 
 
+
     private void onClickListeners() {
+
+        Request request = new Request.Builder().url(WEBSOCKET_URL + "auth/verify/account/activation?email=" + userEmail + "-Android").build();
+        WebSocketListener listener = new WebSocketListener() {
+
+            @Override
+            public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
+                runOnUiThread(() ->
+                        Log.i("WEBSOCKET", "Websocket is closed")
+                );
+            }
+
+            @Override
+            public void onClosing(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
+                runOnUiThread(() ->
+                        Log.i("WEBSOCKET", "Websocket is closing")
+                );
+            }
+
+            @Override
+            public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, @Nullable Response response) {
+                runOnUiThread(() ->
+                        Log.i("WEBSOCKET", "Websocket Connection failed" + t.getMessage())
+                );
+            }
+
+            @Override
+            public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
+                runOnUiThread(() -> {
+                    try {
+                        Log.i("WEBSOCKET", "Message Received.");
+
+                        JSONObject object = new JSONObject(text);
+                        boolean isActivated = object.getBoolean("is_verified");
+                        String access_token = object.getString("access_token");
+                        if (isActivated) {
+                            // if is successful, then go to specific page
+                            Intent intent = new Intent(EmailVerificationActivity.this, HomeActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                            //set access token
+                            String accessTokenKey = globalUtility.getValueInYAML(BuildConfig.ACCESS_TOKEN_KEY, context);
+                            dataSharedPreference.saveData(accessTokenKey, access_token);
+                            //Remove the extra before proceeding in email
+                            getIntent().removeExtra("UserEmail");
+                            //Close the websocket after successful activation
+                            client.dispatcher().executorService().shutdown();
+                            startActivity(intent);
+                        }
+
+
+                    } catch (JSONException e) {
+                        Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                    }
+
+                });
+            }
+
+            @Override
+            public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
+                runOnUiThread(() ->
+                        Log.i("WEBSOCKET", "Websocket is open.")
+                );
+            }
+        };
+
+        client.newWebSocket(request, listener);
+
         btnResend.setOnClickListener(v -> {
             String email = tvEmail.getText().toString();
             apiRequestHandler.reSendEmailVerification(email, new ResponseCallback<ApiSuccessfulResponse>() {

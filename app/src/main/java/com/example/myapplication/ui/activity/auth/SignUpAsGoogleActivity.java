@@ -27,6 +27,7 @@ import com.example.myapplication.ui.activity.BaseActivity;
 import com.example.myapplication.ui.activity.home.HomeActivity;
 import com.example.myapplication.utils.GlobalUtility;
 import com.example.myapplication.utils.auth.BaseAuthUtility;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -40,7 +41,7 @@ public class SignUpAsGoogleActivity extends BaseActivity {
     private TextInputEditText etEmailAddress, etContactNo, etFullName;
     private TextInputLayout tilEmailAddress, tilContactNo, tilFullName;
     private TextView tvSignIn;
-    private Button btnManualSignUp;
+    private MaterialButton btnManualSignUp;
     private AuthenticationAPIRequestHandler authenticationAPI;
     private DataFieldsValidation dataFieldsValidation;
     private Context context;
@@ -60,6 +61,7 @@ public class SignUpAsGoogleActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup_as_google);
         initViews();
+
         ApiSuccessfulResponse.UserData userData = (ApiSuccessfulResponse.UserData) getIntent().getSerializableExtra("UserData");
         sign_in_type = new ArrayList<>();
         email = "";
@@ -76,41 +78,28 @@ public class SignUpAsGoogleActivity extends BaseActivity {
             etFullName.setText(fullName);
             etEmailAddress.setText(email);
             etEmailAddress.setEnabled(false);
-            Toast.makeText(context, "No user data.", Toast.LENGTH_SHORT).show();
-            return;
         }
+
 
         btnManualSignUp.setOnClickListener(v -> {
             //validate first
             String contactNo = etContactNo.getText().toString();
+            String FullName = etFullName.getText().toString();
             //validate first
-            boolean isEmailEmpty = dataFieldsValidation.isEmptyField(email);
-            boolean isFullNameEmpty = dataFieldsValidation.isEmptyField(fullName);
-            boolean isFullNameValid = dataFieldsValidation.isFieldValid(fullName);
+            boolean isFullNameEmpty = dataFieldsValidation.isEmptyField(FullName);
+            boolean isFullNameValid = dataFieldsValidation.isFieldValid(FullName);
             boolean isContactNoEmpty = dataFieldsValidation.isEmptyField(contactNo);
 
-            boolean emailValidation = dataFieldsValidation.isValidEmail(email);
             boolean phoneValidation = dataFieldsValidation.isValidPHMobile(contactNo);
-
 
             //validate full name first
             if (isFullNameEmpty) {
                 setRequestFocusOnField(scrollView, etFullName, tilFullName, "This field must not be empty.");
                 return;
             }
+
             if (!isFullNameValid) {
                 setRequestFocusOnField(scrollView, etFullName, tilFullName, "Invalid Full name, must contains letter and space only.");
-                return;
-            }
-            //validate email
-            if (isEmailEmpty) {
-                setRequestFocusOnField(scrollView, etEmailAddress, tilEmailAddress, "This field must not be empty.");
-                return;
-            }
-
-            //validate email and contact no
-            if (!emailValidation) {
-                setRequestFocusOnField(scrollView, etEmailAddress, tilEmailAddress, "Invalid inputted email address.");
                 return;
             }
 
@@ -165,6 +154,8 @@ public class SignUpAsGoogleActivity extends BaseActivity {
             finish();
         });
 
+        //handle text watcher listener in fields
+        handleOnTextListeners();
     }
 
     private void handleOnTextListeners() {
@@ -238,25 +229,25 @@ public class SignUpAsGoogleActivity extends BaseActivity {
         this.context = this;
         this.activity = this;
 
-        etFullName = findViewById(R.id.etFullName);
-        etEmailAddress =  findViewById(R.id.etEmail);
-        etContactNo = findViewById(R.id.etContactNumber);
-        btnManualSignUp = findViewById(R.id.btnManualSignUp);
-        tvSignIn = findViewById(R.id.sGtvSignIn);
-        tilFullName = findViewById(R.id.tilFullName);
-        tilEmailAddress = findViewById(R.id.tilEmail);
-        tilContactNo = findViewById(R.id.tilContactNumber);
-        scrollView = findViewById(R.id.signupScrollView);
+        etFullName = findViewById(R.id.etFullNameSG);
+        etEmailAddress =  findViewById(R.id.etEmailSG);
+        etContactNo = findViewById(R.id.etContactNumberSG);
+        btnManualSignUp = findViewById(R.id.btnManualSignUpSG);
+        tvSignIn = findViewById(R.id.tvSignInSG);
+        tilFullName = findViewById(R.id.tilFullNameSG);
+        tilEmailAddress = findViewById(R.id.tilEmailSG);
+        tilContactNo = findViewById(R.id.tilContactNumberSG);
+        scrollView = findViewById(R.id.signupScrollViewSG);
 
         //set enable false the email address
-        etEmailAddress.setEnabled(false);
+//        etEmailAddress.setEnabled(false);
 
-        //handle text watcher listener in fields
-        handleOnTextListeners();
+
 
         authenticationAPI = new AuthenticationAPIRequestHandler(activity, context);
         globalUtility = new GlobalUtility();
         baseAuthUtility = new BaseAuthUtility(context, activity);
         dataFieldsValidation = new DataFieldsValidation();
+
     }
 }

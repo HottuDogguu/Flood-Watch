@@ -2,10 +2,12 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:id="@+id/scrollView"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollViewAdmin"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    tools:context=".ui.activity.home.admin.UserDataActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -45,14 +47,14 @@
                 android:layout_marginBottom="8dp"/>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilFullname"
+                android:id="@+id/tilFullnameAdmin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:boxStrokeErrorColor="@color/red_600"
                 app:boxStrokeColor="@color/blue_500">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etFullname"
+                    android:id="@+id/etFullnamedAdmin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Enter full name"/>
@@ -69,14 +71,14 @@
                 android:layout_marginBottom="8dp"/>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilContactNo"
+                android:id="@+id/tilContactNoAdmin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:boxStrokeErrorColor="@color/red_600"
                 app:boxStrokeColor="@color/blue_500">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etContact"
+                    android:id="@+id/etContactAdmin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="phone"
@@ -95,13 +97,14 @@
 
             <!-- Street -->
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilStreetAdmin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
                 app:boxStrokeColor="@color/blue_500">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etStreet"
+                    android:id="@+id/etStreetAdmin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Street"/>
@@ -110,13 +113,14 @@
 
             <!-- Barangay -->
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilBarangayAdmin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:boxStrokeColor="@color/blue_500"
                 android:layout_marginBottom="12dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etBarangay"
+                    android:id="@+id/etBarangayAdmin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Barangay"/>
@@ -124,13 +128,14 @@
 
             <!-- City -->
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCityAdmin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:boxStrokeColor="@color/blue_500"
                 android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCity"
+                    android:id="@+id/etCityAdmin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="City"/>
@@ -145,7 +150,7 @@
                 android:layout_marginTop="24dp">
 
                 <Button
-                    android:id="@+id/btnUpdateUser"
+                    android:id="@+id/btnUpdateUserAdmin"
                     android:layout_width="0dp"
                     android:layout_height="48dp"
                     android:layout_weight="1"
@@ -159,7 +164,7 @@
                     android:layout_height="1dp" />
 
                 <Button
-                    android:id="@+id/btnDeleteUser"
+                    android:id="@+id/btnDeleteUserAdmin"
                     android:layout_width="0dp"
                     android:layout_height="48dp"
                     android:layout_weight="1"

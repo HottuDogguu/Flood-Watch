@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/signupScrollView"
+    android:id="@+id/signupScrollViewSG"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="#F3F4F6"
 
-    tools:context=".ui.activity.auth.SignupActivity"
+    tools:context=".ui.activity.auth.SignUpAsGoogleActivity"
     android:fillViewport="true">
 
     <LinearLayout
@@ -63,7 +63,7 @@
             android:layout_marginBottom="8dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilFullName"
+            android:id="@+id/tilFullNameSG"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -74,7 +74,7 @@
             app:hintEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etFullName"
+                android:id="@+id/etFullNameSG"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter your full name"
@@ -96,7 +96,7 @@
             android:layout_marginBottom="8dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilEmail"
+            android:id="@+id/tilEmailSG"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -106,7 +106,7 @@
             app:hintEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etEmail
+                android:id="@+id/etEmailSG"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter your email"
@@ -128,7 +128,7 @@
             android:layout_marginBottom="8dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilContactNumber"
+            android:id="@+id/tilContactNumberSG"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -138,7 +138,7 @@
             app:boxStrokeErrorColor="@color/red_500">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etContactNumber"
+                android:id="@+id/etContactNumberSG"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="09123456789"
@@ -148,166 +148,6 @@
                 android:textColorHint="#9CA3AF"
                 android:padding="14dp"/>
         </com.google.android.material.textfield.TextInputLayout>
-
-<!--        &lt;!&ndash; Secondary Number &ndash;&gt;-->
-<!--        <TextView-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Secondary Number (Optional)"-->
-<!--            android:textSize="14sp"-->
-<!--            android:textStyle="bold"-->
-<!--            android:textColor="#1F2937"-->
-<!--            android:layout_marginBottom="8dp"/>-->
-
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/tilSecondaryNumber"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginBottom="16dp"-->
-<!--            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"-->
-<!--            app:boxStrokeColor="@color/blue_500"-->
-<!--            app:hintEnabled="false"-->
-<!--            app:errorEnabled="true">-->
-
-<!--            <com.google.android.material.textfield.TextInputEditText-->
-<!--                android:id="@+id/etSecondaryNumber"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:hint="09123456789"-->
-<!--                android:inputType="phone"-->
-<!--                android:textSize="14sp"-->
-<!--                android:textColor="#1F2937"-->
-<!--                android:textColorHint="#9CA3AF"-->
-<!--                android:padding="14dp"/>-->
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
-
-<!--        &lt;!&ndash; Address Section Header &ndash;&gt;-->
-<!--        <TextView-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Home Address"-->
-<!--            android:textSize="14sp"-->
-<!--            android:textStyle="bold"-->
-<!--            android:textColor="#1F2937"-->
-<!--            android:layout_marginTop="8dp"-->
-<!--            android:layout_marginBottom="12dp"/>-->
-
-<!--        &lt;!&ndash; Street/Purok &ndash;&gt;-->
-<!--        <TextView-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Street/Purok"-->
-<!--            android:textSize="12sp"-->
-<!--            android:textStyle="bold"-->
-<!--            android:textColor="#374151"-->
-<!--            android:layout_marginBottom="6dp"/>-->
-
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/tilStreet"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginBottom="12dp"-->
-<!--            app:boxStrokeColor="@color/blue_500"-->
-<!--            app:hintEnabled="false"-->
-<!--            app:errorEnabled="true">-->
-
-<!--            <com.google.android.material.textfield.TextInputEditText-->
-<!--                android:id="@+id/etStreet"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:hint="e.g., Purok 1, Main Street"-->
-<!--                android:inputType="textPostalAddress"-->
-<!--                android:textSize="14sp"-->
-<!--                android:padding="12dp"/>-->
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
-
-<!--        &lt;!&ndash; Barangay &ndash;&gt;-->
-<!--        <TextView-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Barangay"-->
-<!--            android:textSize="12sp"-->
-<!--            android:textStyle="bold"-->
-<!--            android:textColor="#374151"-->
-<!--            android:layout_marginBottom="6dp"/>-->
-
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/tilBarangay"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginBottom="12dp"-->
-<!--            app:boxStrokeColor="@color/blue_500"-->
-<!--            app:hintEnabled="false"-->
-<!--            app:errorEnabled="true">-->
-
-<!--            <com.google.android.material.textfield.TextInputEditText-->
-<!--                android:id="@+id/etBarangay"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:hint="Enter barangay"-->
-<!--                android:inputType="text"-->
-<!--                android:textSize="14sp"-->
-<!--                android:padding="12dp"/>-->
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
-
-<!--        &lt;!&ndash; City &ndash;&gt;-->
-<!--        <TextView-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="City"-->
-<!--            android:textSize="12sp"-->
-<!--            android:textStyle="bold"-->
-<!--            android:textColor="#374151"-->
-<!--            android:layout_marginBottom="6dp"/>-->
-
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/tilCity"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginBottom="12dp"-->
-<!--            app:boxStrokeColor="@color/blue_500"-->
-<!--            app:hintEnabled="false"-->
-<!--            app:errorEnabled="true">-->
-
-<!--            <com.google.android.material.textfield.TextInputEditText-->
-<!--                android:id="@+id/etCity"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:hint="Enter city"-->
-<!--                android:inputType="text"-->
-<!--                android:textSize="14sp"-->
-<!--                android:padding="12dp"/>-->
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
-
-<!--        &lt;!&ndash; Province &ndash;&gt;-->
-<!--        <TextView-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Province"-->
-<!--            android:textSize="12sp"-->
-<!--            android:textStyle="bold"-->
-<!--            android:textColor="#374151"-->
-<!--            android:layout_marginBottom="6dp"/>-->
-
-<!--        <com.google.android.material.textfield.TextInputLayout-->
-<!--            android:id="@+id/tilProvince"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginBottom="12dp"-->
-<!--            app:boxStrokeColor="@color/blue_500"-->
-<!--            app:hintEnabled="false"-->
-<!--            app:errorEnabled="true">-->
-
-<!--            <com.google.android.material.textfield.TextInputEditText-->
-<!--                android:id="@+id/etProvince"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:hint="Enter province"-->
-<!--                android:inputType="text"-->
-<!--                android:textSize="14sp"-->
-<!--                android:padding="12dp"/>-->
-<!--        </com.google.android.material.textfield.TextInputLayout>-->
-
 
         <!-- Terms and Conditions -->
 
@@ -323,7 +163,7 @@
 
         <!-- Sign Up Button -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnManualSignUp"
+            android:id="@+id/btnManualSignUpSG"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="SIGN UP"
@@ -334,9 +174,6 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"/>
 
-        <!-- Divider -->
-
-        <!-- Google Sign Up -->
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -354,7 +191,7 @@
                 android:layout_marginBottom="24dp"/>
 
             <TextView
-                android:id="@+id/sGtvSignIn"
+                android:id="@+id/tvSignInSG"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=" Sign in"

@@ -23,6 +23,7 @@ import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.users.UserChangePasswordRequest;
 import com.example.myapplication.data.respository.UsersAPIRequestHandler;
+import com.example.myapplication.data.validation.DataFieldsValidation;
 import com.example.myapplication.security.DataSharedPreference;
 
 import com.example.myapplication.utils.GlobalUtility;
@@ -48,6 +49,7 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
     private Activity activity;
     private Context context;
     private UsersAPIRequestHandler usersAPIRequestHandler;
+    private DataFieldsValidation dataFieldsValidation;
     private GlobalUtility globalUtility;
     private DataSharedPreference dataSharedPreference;
     private LinearLayout passwordStrengthContainer;
@@ -100,6 +102,7 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         globalUtility = new GlobalUtility();
         dataSharedPreference = DataSharedPreference.getInstance(context);
         baseHomepageUtility = new BaseHomepageUtility(context, activity);
+        dataFieldsValidation = new DataFieldsValidation();
 
         usersAPIRequestHandler = new UsersAPIRequestHandler(activity, context);
         //ACCEss token key from yaml
@@ -145,6 +148,7 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         etConfirmPassword.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                tilConfirmPassword.setError(null);
             }
 
             @Override
@@ -162,6 +166,7 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         etCurrentPassword.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                tilCurrentPassword.setError(null);
             }
 
             @Override
@@ -184,10 +189,9 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         String confirmPassword = etConfirmPassword.getText().toString();
         UserChangePasswordRequest request = new UserChangePasswordRequest(oldPassword, newPassword);
         //validate password first
-        String errorMessage = getErrorMessage(newPassword);
+        String errorMessage = dataFieldsValidation.validatePassword(newPassword);
 
         int passwordStrength = calculatePasswordStrength(newPassword);
-
         if (!errorMessage.isEmpty()) {
             etNewPassword.setError(errorMessage);
             etNewPassword.requestFocus();

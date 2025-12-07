@@ -59,6 +59,9 @@ public class UserDataActivity extends AppCompatActivity {
 
         //handle onClickListener
         handleOnclickListener();
+
+        //handle text watcher listener
+        handleOnTextListeners();
     }
 
     //load data
@@ -96,26 +99,25 @@ public class UserDataActivity extends AppCompatActivity {
         activity = this;
 
         //initialized the widgets
-        tilFullname = findViewById(R.id.tilFullname);
-        tilContactNo = findViewById(R.id.tilContactNo);
-        tilStreet = findViewById(R.id.tilStreet);
-        tilBarangay = findViewById(R.id.tilBarangay);
-        tilCity = findViewById(R.id.tilCity);
-        etFullname = findViewById(R.id.etFullname);
-        etContactNo = findViewById(R.id.etContact);
-        etStreet = findViewById(R.id.etStreet);
-        etBarangay = findViewById(R.id.etBarangay);
-        etCity = findViewById(R.id.etCity);
-        btnDelete = findViewById(R.id.btnDeleteUser);
-        btnUpdate = findViewById(R.id.btnUpdateUser);
+        tilFullname = findViewById(R.id.tilFullnameAdmin);
+        tilContactNo = findViewById(R.id.tilContactNoAdmin);
+        tilStreet = findViewById(R.id.tilStreetAdmin);
+        tilBarangay = findViewById(R.id.tilBarangayAdmin);
+        tilCity = findViewById(R.id.tilCityAdmin);
+        etFullname = findViewById(R.id.etFullnamedAdmin);
+        etContactNo = findViewById(R.id.etContactAdmin);
+        etStreet = findViewById(R.id.etStreetAdmin);
+        etBarangay = findViewById(R.id.etBarangayAdmin);
+        etCity = findViewById(R.id.etCityAdmin);
+        btnDelete = findViewById(R.id.btnDeleteUserAdmin);
+        btnUpdate = findViewById(R.id.btnUpdateUserAdmin);
         imageView = findViewById(R.id.userImage);
-        scrollView = findViewById(R.id.scrollView);
+        scrollView = findViewById(R.id.scrollViewAdmin);
 
         globalUtility = new GlobalUtility();
         dataSharedPreference = DataSharedPreference.getInstance(context);
         apiRequestHandler = new AdminAPIRequestHandler(activity, context);
         dataFieldsValidation = new DataFieldsValidation();
-
 
     }
 

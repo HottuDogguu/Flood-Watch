@@ -64,8 +64,7 @@ public interface UserEndpoints {
                                            @Part("city") RequestBody city);
 
     @Headers({"Content-Type: application/json"})
-    @PUT("user/re-send/email")
-
+    @POST("auth/re-send/email")
     Call<ApiSuccessfulResponse> reSendEmailVerification(@Query("email")String email);
 
 }

@@ -113,7 +113,7 @@ public class SignupActivity extends BaseActivity {
             boolean isUserPasswordEmpty = dataFieldsValidation.isEmptyField(userPass);
             boolean isBarangayValidated = dataFieldsValidation.isFieldValid(barangay);
             boolean isCityValidated = dataFieldsValidation.isFieldValid(city);
-            boolean isStreetValidated = dataFieldsValidation.isFieldValid(street);
+            boolean isStreetValidated = dataFieldsValidation.isStreetPurokValid(street);
 
             boolean emailValidation = dataFieldsValidation.isValidEmail(userEmail);
             boolean phoneValidation = dataFieldsValidation.isValidPHMobile(userContactNo);
