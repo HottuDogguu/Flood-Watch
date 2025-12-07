@@ -62,7 +62,6 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
     private static final Pattern LOWER = Pattern.compile(".*[a-z].*");
     private static final Pattern UPPER = Pattern.compile(".*[A-Z].*");
     private static final Pattern DIGIT = Pattern.compile(".*\\d.*");
-    private static final Pattern SPECIAL = Pattern.compile(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*");
 
     private BaseHomepageUtility baseHomepageUtility;
 
@@ -199,13 +198,13 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         }
 
         if (passwordStrength <= 2) {
-            etNewPassword.setError("Weak password. Try adding uppercase letters, " +
-                    "numbers, and special characters to make it more secure.");
+            etNewPassword.setError("Weak password. Try adding uppercase letters and" +
+                    "numbers to make it more secure.");
             etNewPassword.requestFocus();
             return;
         }
 
-        if (!confirmPassword.equalsIgnoreCase(newPassword)) {
+        if (!dataFieldsValidation.isPasswordMatch(oldPassword,confirmPassword)) {
             etConfirmPassword.setError("New password and confirm password must be match.");
             etConfirmPassword.requestFocus();
             return;
@@ -230,18 +229,6 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         });
     }
 
-    private String getErrorMessage(String password) {
-        // Check if password contains at least one letter and one number
-        boolean hasLetter = password.matches(".*[a-zA-Z].*");
-        boolean hasNumber = password.matches(".*\\d.*");
-
-        boolean isEightCharacter = password.length() > 8;
-
-        if (!hasLetter) return "Must contain letters.";
-        if (!isEightCharacter) return "New password must at least 8 characters.";
-        if (!hasNumber) return "Must contain numbers.";
-        return "";
-    }
 
     private void updatePasswordStrength(String password) {
         int strength = calculatePasswordStrength(password);
@@ -297,7 +284,6 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
         if (LOWER.matcher(password).matches()) strength++;
         if (UPPER.matcher(password).matches()) strength++;
         if (DIGIT.matcher(password).matches()) strength++;
-        if (SPECIAL.matcher(password).matches()) strength++;
 
         if (strength <= 1) return 1;
         if (strength == 2) return 2;

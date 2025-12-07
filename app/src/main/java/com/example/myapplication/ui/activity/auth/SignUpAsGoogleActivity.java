@@ -135,7 +135,6 @@ public class SignUpAsGoogleActivity extends BaseActivity {
                                 startActivity(intent);
                                 finish();
                             }
-
                             @Override
                             public void onError(Throwable t) {
                                 Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();

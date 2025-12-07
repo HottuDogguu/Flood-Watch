@@ -72,14 +72,11 @@ public class BaseAuthUtility {
                         //check if the account is pending or not
                         if(response.getData().getStatus().equalsIgnoreCase("pending")){
                             Intent intent = new Intent(context, EmailVerificationActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
                             context.startActivity(intent);
                             return;
                         }
                         //if it is linked in password only, then go to link account page
                         Intent intent = new Intent(context, LinkGoogleAccountActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         //add the data in intent, then it will retrieve in the linked page
                         intent.putExtra("UserEmail", response.getData().getEmail());
                         intent.putExtra("UserId", response.getData().getId());
@@ -95,7 +92,6 @@ public class BaseAuthUtility {
                                     Intent intent = new Intent(context, HomeActivity.class);
                                     //store the access token in data storage
                                     dataSharedPreference.saveData(ACCESS_TOKEN_KEY, response.getAccess_token());
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     context.startActivity(intent);
                                     //log only the message
                                     Log.i("FCM_TOKEN", response1.getMessage());
@@ -114,7 +110,6 @@ public class BaseAuthUtility {
                 } else {
                     Intent intent = new Intent(context, SignUpAsGoogleActivity.class);
                     intent.putExtra("UserData", response.getData());
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     context.startActivity(intent);
                 }
             }

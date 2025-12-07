@@ -37,7 +37,7 @@ public class LoginActivity extends BaseActivity {
 
     private Button loginBtn, googleBtn;
 
-    private TextView signupButton;
+    private TextView signupButton,forgotPasswordText;
     private TextInputLayout loginEmailTextInput, loginPasswordTextInput;
     private Context context;
     private Activity activity;
@@ -137,7 +137,14 @@ public class LoginActivity extends BaseActivity {
             Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            finish();
+        });
+        navigateToResetPasswordActivity();
+    }
+
+    private void navigateToResetPasswordActivity(){
+        forgotPasswordText.setOnClickListener(v ->{
+            Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -156,6 +163,7 @@ public class LoginActivity extends BaseActivity {
         loginBtn = (Button) findViewById(R.id.loginButton);
         googleBtn = (Button) findViewById(R.id.googleSignInButton);
         signupButton = (TextView) findViewById(R.id.signupButton);
+        forgotPasswordText = (TextView) findViewById(R.id.forgotPasswordText);
         loginEmailTextInput = (TextInputLayout) findViewById(R.id.tilLoginEmail);
         loginPasswordTextInput = (TextInputLayout) findViewById(R.id.tilLoginPassword);
         dataSharedPreference = DataSharedPreference.getInstance(context);

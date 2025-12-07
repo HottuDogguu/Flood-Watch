@@ -54,7 +54,7 @@
         android:usesCleartextTraffic="true" >
 
         <activity
-            android:name=".ui.activity.auth.LoginActivity"
+            android:name=".ui.activity.MainLoadingAnimation"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -62,6 +62,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.activity.auth.LoginActivity"
+            android:exported="false" />
 
         <!-- Firebase Messaging Service -->
         <service
@@ -78,15 +82,18 @@
 
         <activity
             android:name=".ui.activity.auth.SignupActivity"
+            android:parentActivityName=".ui.activity.auth.LoginActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.auth.UploadProfileActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.auth.SignUpAsGoogleActivity"
+            android:parentActivityName=".ui.activity.auth.SignupActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.auth.LinkGoogleAccountActivity"
+            android:parentActivityName=".ui.activity.auth.LoginActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.home.HomeActivity"
@@ -106,6 +113,7 @@
 
         <activity
             android:name=".ui.activity.auth.EmailVerificationActivity"
+            android:parentActivityName=".ui.activity.auth.LoginActivity"
             android:exported="false" />
 
         <!-- Weather Activity -->
@@ -134,6 +142,11 @@
             android:label="MDRRMO Contacts"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:parentActivityName=".ui.activity.home.ProfileActivity" />
+
+        <activity
+            android:name=".ui.activity.auth.ResetPasswordActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.activity.auth.LoginActivity" />
 
         <!--News Activity-->
          <activity

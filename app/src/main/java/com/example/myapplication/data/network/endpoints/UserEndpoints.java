@@ -2,6 +2,7 @@ package com.example.myapplication.data.network.endpoints;
 
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
+import com.example.myapplication.data.models.users.ResetPasswordPutRequest;
 import com.example.myapplication.data.models.users.UserChangePasswordRequest;
 import com.example.myapplication.data.models.users.UserNotificationSettingsRequest;
 
@@ -64,7 +65,10 @@ public interface UserEndpoints {
                                            @Part("city") RequestBody city);
 
     @Headers({"Content-Type: application/json"})
-    @POST("auth/re-send/email")
+    @POST("auth/email/re-send")
     Call<ApiSuccessfulResponse> reSendEmailVerification(@Query("email")String email);
 
+    @Headers({"Content-Type: application/json"})
+    @PUT("user/reset-password")
+    Call<ApiSuccessfulResponse> resetUserPassword(@Body ResetPasswordPutRequest request);
 }

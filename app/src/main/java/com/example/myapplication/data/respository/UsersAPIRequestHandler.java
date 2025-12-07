@@ -11,6 +11,7 @@ import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.api_response.ApiMeteoResponse;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
+import com.example.myapplication.data.models.users.ResetPasswordPutRequest;
 import com.example.myapplication.data.models.users.UserChangePasswordRequest;
 import com.example.myapplication.data.models.users.UserNotificationSettingsRequest;
 import com.example.myapplication.data.models.users.UsersUpdateInformationRequest;
@@ -244,6 +245,23 @@ public class UsersAPIRequestHandler extends BaseRepository {
             }
         });
     }
+
+    public void resetUserPassword(ResetPasswordPutRequest request, ResponseCallback<ApiSuccessfulResponse> callback){
+        userEndpoints = api.createService(UserEndpoints.class);
+        userEndpoints.resetUserPassword(request).enqueue(new Callback<ApiSuccessfulResponse>() {
+            @Override
+            public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
+                globalUtility.parseAPIResponse(response,callback);
+            }
+
+            @Override
+            public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
+
+
 
 
 
