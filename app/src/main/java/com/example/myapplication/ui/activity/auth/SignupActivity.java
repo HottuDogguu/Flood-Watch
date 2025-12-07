@@ -407,13 +407,9 @@ public class SignupActivity extends BaseActivity {
         tilConfirmPassword = (TextInputLayout) findViewById(R.id.tilConfirmPassword);
         baseAuthUtility = new BaseAuthUtility(context, activity);
         txtCity.setText("Santa Cruz");
-
     }
 
-
     //FCM Token
-
-
     private User buildUser() {
         //user
         String email = Objects.requireNonNull(txtEmail.getText()).toString();

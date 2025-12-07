@@ -4,10 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -22,6 +27,7 @@ import com.example.myapplication.data.models.admin.UsersPutRequestModel;
 import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 import com.example.myapplication.data.respository.AdminAPIRequestHandler;
+import com.example.myapplication.data.validation.DataFieldsValidation;
 import com.example.myapplication.security.DataSharedPreference;
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.material.textfield.TextInputEditText;
@@ -31,12 +37,14 @@ import com.google.gson.Gson;
 public class UserDataActivity extends AppCompatActivity {
 
     private Activity activity;
-    private Context  context;
+    private Context context;
     private GlobalUtility globalUtility;
+    private ScrollView scrollView;
     private DataSharedPreference dataSharedPreference;
-    private TextInputLayout tilFullname, tilContactNo;
+    private DataFieldsValidation dataFieldsValidation;
+    private TextInputLayout tilFullname, tilContactNo,tilStreet,tilBarangay,tilCity;
     private ImageView imageView;
-    private TextInputEditText etFullname, etContactNo,etStreet,etBarangay,etCity;
+    private TextInputEditText etFullname, etContactNo, etStreet, etBarangay, etCity;
     private Button btnUpdate, btnDelete;
     private ApiSuccessfulResponse.UserData curreUserData;
     private AdminAPIRequestHandler apiRequestHandler;
@@ -54,7 +62,7 @@ public class UserDataActivity extends AppCompatActivity {
     }
 
     //load data
-    private void loadUserData(){
+    private void loadUserData() {
         //get the user data from sharedPreference
         Gson gson = new Gson();
         String USERDATA = globalUtility.getValueInYAML(Constants.USER_DATA_INFORMATION_ADMIN, context);
@@ -72,24 +80,27 @@ public class UserDataActivity extends AppCompatActivity {
         etCity.setText(curreUserData.getAddress().getCity());
     }
 
-    private void handleOnclickListener(){
-        btnUpdate.setOnClickListener(v ->{
+    private void handleOnclickListener() {
+        btnUpdate.setOnClickListener(v -> {
             showUpdateAlertDialog();
         });
 
-        btnDelete.setOnClickListener(v ->{
+        btnDelete.setOnClickListener(v -> {
             showDeleteAlertDialog();
         });
     }
 
     //initialized variables
-    private void initViews(){
+    private void initViews() {
         context = this;
         activity = this;
 
         //initialized the widgets
         tilFullname = findViewById(R.id.tilFullname);
         tilContactNo = findViewById(R.id.tilContactNo);
+        tilStreet = findViewById(R.id.tilStreet);
+        tilBarangay = findViewById(R.id.tilBarangay);
+        tilCity = findViewById(R.id.tilCity);
         etFullname = findViewById(R.id.etFullname);
         etContactNo = findViewById(R.id.etContact);
         etStreet = findViewById(R.id.etStreet);
@@ -98,14 +109,17 @@ public class UserDataActivity extends AppCompatActivity {
         btnDelete = findViewById(R.id.btnDeleteUser);
         btnUpdate = findViewById(R.id.btnUpdateUser);
         imageView = findViewById(R.id.userImage);
+        scrollView = findViewById(R.id.scrollView);
 
         globalUtility = new GlobalUtility();
         dataSharedPreference = DataSharedPreference.getInstance(context);
-        apiRequestHandler = new AdminAPIRequestHandler(activity,context);
+        apiRequestHandler = new AdminAPIRequestHandler(activity, context);
+        dataFieldsValidation = new DataFieldsValidation();
+
 
     }
 
-    private void updateUserInformation(){
+    private void updateUserInformation() {
         String userId = curreUserData.getId();
         String street = etStreet.getText().toString();
         String barangay = etBarangay.getText().toString();
@@ -113,10 +127,60 @@ public class UserDataActivity extends AppCompatActivity {
         String fullname = etFullname.getText().toString();
         String contactNo = etContactNo.getText().toString();
 
-        UsersPutRequestModel.UserAddress address = new UsersPutRequestModel.UserAddress(
-                street, barangay,city,"Laguna");
 
-        UsersPutRequestModel request = new UsersPutRequestModel(fullname,contactNo,address);
+        //validate first
+        boolean isFullNameEmpty = dataFieldsValidation.isEmptyField(fullname);
+        boolean isFullNameValid = dataFieldsValidation.isFieldValid(fullname);
+        boolean isContactNoEmpty = dataFieldsValidation.isEmptyField(contactNo);
+        boolean isBarangayValidated = dataFieldsValidation.isFieldValid(barangay);
+        boolean isCityValidated = dataFieldsValidation.isFieldValid(city);
+        boolean isStreetValidated = dataFieldsValidation.isFieldValid(street);
+
+        boolean phoneValidation = dataFieldsValidation.isValidPHMobile(contactNo);
+
+        //validation for empty fields
+
+        //validate full name first
+        if (isFullNameEmpty) {
+            setRequestFocusOnField(scrollView, etFullname, tilFullname, "This field must not be empty.");
+            return;
+        }
+        if (!isFullNameValid) {
+            setRequestFocusOnField(scrollView, etFullname, tilFullname, "Invalid Full name, must contains letter and space only.");
+            return;
+        }
+
+        //validate contact no
+        if (isContactNoEmpty) {
+            setRequestFocusOnField(scrollView, etContactNo, tilContactNo, "This field must not be empty.");
+            return;
+        }
+
+        //validate phone and contact no
+        if (!phoneValidation) {
+            setRequestFocusOnField(scrollView, etContactNo, tilContactNo, "Invalid phone number.");
+            return;
+        }
+
+        //validate address
+        if (!isStreetValidated) {
+            setRequestFocusOnField(scrollView, etStreet, tilStreet, "Invalid Street, must contain letters and spaces.");
+            return;
+        }
+        if (!isBarangayValidated) {
+            setRequestFocusOnField(scrollView, etBarangay, tilBarangay, "Invalid Baranagay, must contain letters and spaces.");
+            return;
+        }
+        if (!isCityValidated) {
+            setRequestFocusOnField(scrollView, etCity, tilCity, "Invalid City, must contain letters and spaces.");
+            return;
+        }
+
+        //then proceed to api call
+        UsersPutRequestModel.UserAddress address = new UsersPutRequestModel.UserAddress(
+                street, barangay, city, "Laguna");
+
+        UsersPutRequestModel request = new UsersPutRequestModel(fullname, contactNo, address);
         apiRequestHandler.updateUserInformation(userId, request, new ResponseCallback<ApiSuccessfulResponse>() {
             @Override
             public void onSuccess(ApiSuccessfulResponse response) {
@@ -134,7 +198,97 @@ public class UserDataActivity extends AppCompatActivity {
         });
     }
 
-    private void deleteUserInformation(){
+
+    //handle text watcher listener
+    private void handleOnTextListeners() {
+        etFullname.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                tilFullname.setError(null);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+        });
+
+        etContactNo.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                tilContactNo.setError(null);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+        });
+
+        etStreet.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                tilStreet.setError(null);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+        });
+
+        etBarangay.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                tilBarangay.setError(null);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+        });
+
+        etCity.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                tilCity.setError(null);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+        });
+
+    }
+
+    private void deleteUserInformation() {
         apiRequestHandler.deleteUserInformation(curreUserData.getId(), new ResponseCallback<ApiSuccessfulResponse>() {
             @Override
             public void onSuccess(ApiSuccessfulResponse response) {
@@ -154,7 +308,8 @@ public class UserDataActivity extends AppCompatActivity {
         });
 
     }
-    private void showUpdateAlertDialog(){
+
+    private void showUpdateAlertDialog() {
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Update user")
                 .setMessage("Are you sure you want to update this?")
@@ -165,7 +320,21 @@ public class UserDataActivity extends AppCompatActivity {
                 .setNegativeButton("Cancel", null)
                 .show();
     }
-    private void showDeleteAlertDialog(){
+
+    private void setRequestFocusOnField(ScrollView scrollView, EditText editText, TextInputLayout inputLayout, String message) {
+        //if empty, show a message
+
+        inputLayout.setError(message);
+        scrollView.post(() -> {
+            scrollView.smoothScrollTo((int) editText.getX(), editText.getBottom());
+            editText.requestFocus();
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+            }
+        });
+    }
+    private void showDeleteAlertDialog() {
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Delete user")
                 .setMessage("Are you sure you want to update this?")

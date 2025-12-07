@@ -10,10 +10,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,9 +34,11 @@ import com.example.myapplication.calbacks.ResponseCallback;
 import com.example.myapplication.data.models.admin.NewsPostRequestModel;
 import com.example.myapplication.data.models.api_response.NewsAPIResponse;
 import com.example.myapplication.data.respository.AdminAPIRequestHandler;
+import com.example.myapplication.data.validation.DataFieldsValidation;
 import com.example.myapplication.security.DataSharedPreference;
 import com.example.myapplication.utils.GlobalUtility;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -45,6 +50,7 @@ import java.util.List;
 public class NewsDataActivity extends AppCompatActivity {
     private DataSharedPreference dataSharedPreference;
     private Uri currentPhotoUri;
+    private DataFieldsValidation dataFieldsValidation;
 
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private ActivityResultLauncher<Intent> pickImageLauncher;
@@ -57,6 +63,7 @@ public class NewsDataActivity extends AppCompatActivity {
     private ImageView newsImage, imageChooser;
     private Button btnUpdate, btnDelete;
     private TextInputEditText newsTitle, newsContent;
+    private TextInputLayout tilTitle, tilContent;
     private TextView newsDate;
     private CheckBox cbActivated;
     //to get the current data
@@ -121,7 +128,7 @@ public class NewsDataActivity extends AppCompatActivity {
         sourceSpinner.setSelection(sources.indexOf(currentNewsData.getSource()));
 
         //tags spinner
-        List<String> tags = Arrays.asList("Select Tags", "Popular", "Business", "Technology", "Other");
+        List<String> tags = Arrays.asList("Select Tag", "Popular", "Business", "Technology", "Other");
         ArrayAdapter<String> tagsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, tags);
         tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -197,6 +204,30 @@ public class NewsDataActivity extends AppCompatActivity {
             String newsTags = tagsSpinner.getSelectedItem().toString();
             String newsStatus = cbActivated.getText().toString();
 
+            // validate fields.
+            boolean isTitleEmpty = dataFieldsValidation.isEmptyField(title);
+            boolean isContentEmpty = dataFieldsValidation.isEmptyField(content);
+
+
+            if (isTitleEmpty) {
+                setRequestFocusOnField(newsTitle, tilTitle, "This field should not be empty.");
+                return;
+            }
+            if(isContentEmpty){
+                setRequestFocusOnField(newsContent, tilContent, "This field should not be empty.");
+return;
+            }
+
+            if(newsSource.equalsIgnoreCase("Select Source")){
+                Toast.makeText(context, "Please select news source.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if(newsSource.equalsIgnoreCase("Select Tag")){
+                Toast.makeText(context, "Please select news tag.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
 
             List<File> listsImages = new ArrayList<>();
             List<String> listsTags = new ArrayList<>();
@@ -244,8 +275,10 @@ public class NewsDataActivity extends AppCompatActivity {
         newsImage = findViewById(R.id.newsImage);
         imageChooser = findViewById(R.id.imageChooser);
         newsTitle = findViewById(R.id.newsTitleEdit);
+        tilTitle = findViewById(R.id.tilTitle);
         newsDate = findViewById(R.id.newsDate);
         newsContent = findViewById(R.id.newsContentEdit);
+        tilContent = findViewById(R.id.tilContent);
         btnUpdate = findViewById(R.id.btnEditSave);
         btnDelete = findViewById(R.id.btnDelete);
         sourceSpinner = findViewById(R.id.sourceSpinner);
@@ -256,6 +289,7 @@ public class NewsDataActivity extends AppCompatActivity {
 
         dataSharedPreference = DataSharedPreference.getInstance(context);
         globalUtility = new GlobalUtility();
+        dataFieldsValidation = new DataFieldsValidation();
     }
 
     // Pick image from gallery
@@ -342,6 +376,13 @@ public class NewsDataActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void setRequestFocusOnField(EditText editText, TextInputLayout inputLayout, String message) {
+        //if empty, show a message
+
+        inputLayout.setError(message);
+        editText.requestFocus();
     }
 
     private <T> void setProfilePictureUsingURL(T profileUrl, ImageView intoImage) {

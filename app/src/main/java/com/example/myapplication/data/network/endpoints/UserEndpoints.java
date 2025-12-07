@@ -52,7 +52,7 @@ public interface UserEndpoints {
     Call<ApiSuccessfulResponse> updateFCMToken(@Body String newFcmToken, @Header("Authorization") String accessToken);
 
 
-    //to update user informations
+    //to update user information
     @Multipart
     @PUT("user/information")
     Call<ApiSuccessfulResponse> updateInfo(@Part("fullname") RequestBody fullname,
@@ -63,6 +63,9 @@ public interface UserEndpoints {
                                            @Part("barangay") RequestBody barangay,
                                            @Part("city") RequestBody city);
 
+    @Headers({"Content-Type: application/json"})
+    @PUT("user/re-send/email")
 
+    Call<ApiSuccessfulResponse> reSendEmailVerification(@Query("email")String email);
 
 }

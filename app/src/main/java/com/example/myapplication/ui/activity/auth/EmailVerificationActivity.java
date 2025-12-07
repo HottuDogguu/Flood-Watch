@@ -1,17 +1,23 @@
 package com.example.myapplication.ui.activity.auth;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.myapplication.BuildConfig;
 import com.example.myapplication.R;
+import com.example.myapplication.calbacks.ResponseCallback;
+import com.example.myapplication.data.models.api_response.ApiSuccessfulResponse;
+import com.example.myapplication.data.respository.UsersAPIRequestHandler;
 import com.example.myapplication.security.DataSharedPreference;
 
 import com.example.myapplication.ui.activity.BaseActivity;
@@ -36,6 +42,10 @@ public class EmailVerificationActivity extends BaseActivity {
     private GlobalUtility globalUtility;
     private final String TAG = "EMAIL_VERIFICATION_ACCOUNT";
     private Context context;
+    private Activity activity;
+    private Button btnResend;
+    private UsersAPIRequestHandler apiRequestHandler;
+    TextView tvEmail;
 
     private DataSharedPreference dataSharedPreference;
 
@@ -44,18 +54,23 @@ public class EmailVerificationActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email_verification);
         context = this;
+        activity = this;
         globalUtility = new GlobalUtility();
+        btnResend = findViewById(R.id.btnResend);
+        apiRequestHandler = new UsersAPIRequestHandler(activity, context);
 
-        TextView tvEmail = findViewById(R.id.tvEmail);
+        tvEmail = findViewById(R.id.tvEmail);
         String userEmail = getIntent().getStringExtra("UserEmail");
         tvEmail.setText(userEmail);
 
-
-
-
-
+        //shared preference
         dataSharedPreference = DataSharedPreference.getInstance(context);
 
+
+        //handle on click listener for email verification
+        onClickListeners();
+
+        //for headers
         String manufacturer = android.os.Build.MANUFACTURER;
         String model = android.os.Build.MODEL;
         String androidVersion = android.os.Build.VERSION.RELEASE;
@@ -123,7 +138,6 @@ public class EmailVerificationActivity extends BaseActivity {
                         }
 
 
-
                     } catch (JSONException e) {
                         Log.e(TAG, Objects.requireNonNull(e.getMessage()));
                     }
@@ -139,6 +153,25 @@ public class EmailVerificationActivity extends BaseActivity {
             }
         };
         client.newWebSocket(request, listener);
+    }
+
+
+    private void onClickListeners() {
+        btnResend.setOnClickListener(v -> {
+            String email = tvEmail.getText().toString();
+            apiRequestHandler.reSendEmailVerification(email, new ResponseCallback<ApiSuccessfulResponse>() {
+                @Override
+                public void onSuccess(ApiSuccessfulResponse response) {
+                    Toast.makeText(context, response.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, t.getMessage());
+                }
+            });
+        });
     }
 
     @Override

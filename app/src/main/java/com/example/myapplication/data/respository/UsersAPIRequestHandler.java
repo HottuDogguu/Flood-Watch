@@ -230,6 +230,20 @@ public class UsersAPIRequestHandler extends BaseRepository {
             }
         });
     }
+    public void reSendEmailVerification(String email, ResponseCallback<ApiSuccessfulResponse> callback){
+        userEndpoints = api.createService(UserEndpoints.class);
+        userEndpoints.reSendEmailVerification(email).enqueue(new Callback<ApiSuccessfulResponse>() {
+            @Override
+            public void onResponse(Call<ApiSuccessfulResponse> call, Response<ApiSuccessfulResponse> response) {
+                globalUtility.parseAPIResponse(response,callback);
+            }
+
+            @Override
+            public void onFailure(Call<ApiSuccessfulResponse> call, Throwable t) {
+                callback.onError(t);
+            }
+        });
+    }
 
 
 
