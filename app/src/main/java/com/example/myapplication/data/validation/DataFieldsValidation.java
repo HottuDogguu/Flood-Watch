@@ -9,7 +9,7 @@ public class DataFieldsValidation {
     private final String validEmailRegex = "^(?!.*(example\\.com|test\\.com|dummy\\.com|sample\\.com|mailinator\\.com)$)([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$\n";
     // allows optional spaces/hyphens/dots/parentheses between digits
     // Full set of valid PH mobile prefixes as of 2025 (NTC/Telco official)
-    private static final Set<String> VALID_PH_PREFIXES = new HashSet<>(Set.of(
+    private  final Set<String> VALID_PH_PREFIXES = new HashSet<>(Set.of(
             // Globe/TM
             "0904", "0905", "0906", "0915", "0916", "0917", "0926", "0927", "0935", "0936", "0937",
             "0945", "0950", "0951", "0955", "0956", "0961", "0965", "0966", "0967", "0970", "0973",
@@ -23,7 +23,9 @@ public class DataFieldsValidation {
             // DITO
             "0895", "0896", "0897", "0898", "0991", "0992", "0993"
     ));
-    private static final Pattern PH_MOBILE_PATTERN = Pattern.compile("^09\\d{9}$");
+
+    private final Pattern PH_MOBILE_PATTERN = Pattern.compile("^09\\d{9}$");
+
     public DataFieldsValidation() {
 
     }
@@ -60,9 +62,20 @@ public class DataFieldsValidation {
     }
 
     public boolean isValidEmail(String email) {
-        if (email == null || email.trim().isEmpty()) return false;
-        String regex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$";
-        return email.trim().toUpperCase().matches(regex);
+        if (email == null || !email.matches("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            return false;
+        }
+        String domain = email.toLowerCase().split("@")[1];
+
+        Set<String> good = Set.of("gmail.com", "yahoo.com", "outlook.com", "hotmail.com",
+                "icloud.com", "protonmail.com", "proton.me", ".edu", ".gov");
+
+        Set<String> bad  = Set.of("ggmail", "10minute", "yopmail", "mailinator", "example.com");
+
+        boolean hasGood = good.stream().anyMatch(domain::endsWith);
+        boolean hasBad  = bad.stream().anyMatch(domain::contains);
+
+        return hasGood && !hasBad;
     }
     public boolean isValidPHMobile(String phone) {
         if (phone == null || phone.trim().isEmpty()) {

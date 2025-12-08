@@ -54,8 +54,11 @@
         android:usesCleartextTraffic="true" >
 
         <activity
-            android:name=".ui.activity.MainLoadingAnimation"
+            android:name=".ui.activity.VideoSplashActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:configChanges="orientation|screenSize"
             android:exported="true" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

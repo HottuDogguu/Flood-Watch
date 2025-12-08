@@ -523,14 +523,15 @@ public class ProfileActivity extends AppCompatActivity {
         apiRequestHandler.updateUserNotificationSettings(request, new ResponseCallback<ApiSuccessfulResponse>() {
             @Override
             public void onSuccess(ApiSuccessfulResponse response) {
-                ProfileActivity.this.finish();
+                Log.i("USER NOTIFICATION SETTINGS", response.getMessage());
             }
 
             @Override
             public void onError(Throwable t) {
                 //navigate to login activity
+                Log.i("USER NOTIFICATION SETTINGS", t.getMessage());
+
                 onNavigateToLoginIfUnauthorize(t);
-                ProfileActivity.this.finish();
             }
         });
     }
@@ -543,8 +544,9 @@ public class ProfileActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        super.onResume();
         loadUserData(); // Refresh data every time the user comes back
         loadNotificationPreferences();// set the notification settings, if it is off or on
-        super.onResume();
+
     }
 }

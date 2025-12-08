@@ -21,6 +21,7 @@ import com.example.myapplication.data.models.api_response.ListOfNotificationResp
 import com.example.myapplication.data.respository.FloodDataAPIHandler;
 import com.example.myapplication.ui.adapter.NewsCarouselAdapter;
 import com.example.myapplication.ui.adapter.NotificationAdapter;
+import com.example.myapplication.utils.GlobalUtility;
 import com.google.gson.Gson;
 
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ public class NotificationHistoryActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private NotificationAdapter adapter;
     private Activity activity;
+    private GlobalUtility globalUtility;
     private Context context;
     private FloodDataAPIHandler apiHandler;
     private List<ListOfNotificationResponse.NotificationData> notificationList;
@@ -47,6 +49,7 @@ public class NotificationHistoryActivity extends AppCompatActivity {
         context = this;
 
         recyclerView = findViewById(R.id.recyclerViewNotifications);
+        globalUtility = new GlobalUtility();
 
 
         // Setup Toolbar
@@ -83,7 +86,7 @@ public class NotificationHistoryActivity extends AppCompatActivity {
 
     private void setUpNewsRecycleView() {
         //initialized adapter for news
-        adapter = new NotificationAdapter(this, notificationList);
+        adapter = new NotificationAdapter(this, notificationList,globalUtility );
         // Initialize RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);

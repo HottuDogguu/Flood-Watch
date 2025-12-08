@@ -12,17 +12,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.data.models.api_response.ListOfNotificationResponse;
+import com.example.myapplication.utils.GlobalUtility;
 
 import java.util.List;
 
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
 
     private Context context;
+    private GlobalUtility globalUtility;
     private List<ListOfNotificationResponse.NotificationData> notificationList;
 
-    public NotificationAdapter(Context context, List<ListOfNotificationResponse.NotificationData> notificationList) {
+    public NotificationAdapter(Context context, List<ListOfNotificationResponse.NotificationData> notificationList,
+                               GlobalUtility globalUtility) {
         this.context = context;
         this.notificationList = notificationList;
+        this.globalUtility = globalUtility;
     }
 
     @NonNull
@@ -37,7 +41,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         ListOfNotificationResponse.NotificationData item = notificationList.get(position);
         holder.tvTitle.setText(item.getTitle());
         holder.tvMessage.setText(item.getNotification_text());
-        holder.tvTime.setText(item.getCreated_at());
+        holder.tvTime.setText(globalUtility.getTimeAgo(item.getCreated_at()));
     }
 
     @Override

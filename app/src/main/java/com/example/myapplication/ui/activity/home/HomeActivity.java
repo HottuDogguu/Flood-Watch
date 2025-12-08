@@ -55,6 +55,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -291,8 +292,16 @@ public class HomeActivity extends AppCompatActivity {
             if (data.getData().getTopic().equalsIgnoreCase(Constants.FLOOD_ALERT)) {
 
                 runOnUiThread(() -> {
+                    double valueToDouble = 0.00;
                     String value = data.getData().getValue();
-                    String valueDouble = String.format("%.2f", Double.parseDouble(value));
+
+                    try {
+                        valueToDouble = Double.parseDouble(value);
+                    }catch (NumberFormatException e){
+                    Log.e("NUMBER EXCEPTION", e.getMessage());
+                    }
+
+                    String valueDouble = String.format("%.2f",  valueToDouble);
 
                     updateCurrentWaterLevelData(valueDouble, data.getData().getSeverity());
                 });
